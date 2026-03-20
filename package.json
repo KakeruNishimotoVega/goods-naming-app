@@ -1,0 +1,30 @@
+{
+  "name": "lowya-goods-naming-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.js",
+    "deploy": "npm run build && clasp push",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vega-corporation/lowya-goods-naming-app.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vega-corporation/lowya-goods-naming-app/issues"
+  },
+  "homepage": "https://github.com/vega-corporation/lowya-goods-naming-app#readme",
+  "devDependencies": {
+    "@ciderjs/vitest-plugin-gas-mock": "^0.2.0",
+    "@google/clasp": "^3.3.0",
+    "@types/google-apps-script": "^2.0.8",
+    "esbuild": "^0.27.4",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
+}
