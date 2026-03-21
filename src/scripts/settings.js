@@ -127,7 +127,9 @@ function renderTypesList(typesData) {
             'TEXT': 'テキスト入力',
             'SINGLE': '単一選択（ラジオボタン）',
             'MULTI': '複数選択（チェックボックス）',
-            'TRUE_FALSE': 'True/False（トグル）'
+            'MULTIPLE': '複数選択（チェックボックス）',
+            'TRUE_FALSE': 'True/False（トグル）',
+            'BOOLEAN': 'True/False（トグル）'
         }[type.selection_type] || type.selection_type;
         
         html += '<div style="font-weight: 600; color: var(--text-muted);">選択方式:</div>';
@@ -150,8 +152,8 @@ function renderTypesList(typesData) {
         html += '</div>';
         html += '</div>';
 
-        // キーワードテーブル（SINGLE/MULTIの場合のみ）
-        if (type.selection_type === 'SINGLE' || type.selection_type === 'MULTI') {
+        // キーワードテーブル（SINGLE/MULTI/MULTIPLEの場合のみ）
+        if (type.selection_type === 'SINGLE' || type.selection_type === 'MULTI' || type.selection_type === 'MULTIPLE') {
             html += '<div class="keywords-section">';
             html += '<div class="d-flex justify-between align-center mb-2">';
             html += '<h5 style="margin: 0; font-size: 0.9rem; font-weight: 600;">選択肢一覧</h5>';

@@ -157,6 +157,17 @@ function renderTypeField(type, keywords) {
         // テキスト入力
         const placeholder = type.placeholder || '入力してください...';
         html += `<input type="text" id="type-${type.id}" ${dataKeyName} class="form-control" placeholder="${escapeHtml(placeholder)}" ${type.is_required ? 'required' : ''} />`;
+    } else if (type.selection_type === 'TRUE_FALSE' || type.selection_type === 'BOOLEAN') {
+        // トグルスイッチ（キーワード不要）
+        html += `
+            <div class="toggle-switch-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="type-${type.id}" ${dataKeyName} />
+                    <span class="slider"></span>
+                </label>
+                <span>有効にする</span>
+            </div>
+        `;
     } else if (keywords && keywords.length > 0) {
         // 選択肢がある場合
         if (type.selection_type === 'SINGLE') {
@@ -185,17 +196,6 @@ function renderTypeField(type, keywords) {
                 `;
             });
             html += '</div>';
-        } else if (type.selection_type === 'TRUE_FALSE') {
-            // トグルスイッチ
-            html += `
-                <div class="toggle-switch-container">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="type-${type.id}" ${dataKeyName} />
-                        <span class="slider"></span>
-                    </label>
-                    <span>有効にする</span>
-                </div>
-            `;
         }
     }
 
@@ -286,8 +286,9 @@ function collectFormData() {
             // テキスト入力の場合
             formData.types[keyName] = input.value;
         } else if (input.type === 'checkbox' && !input.name) {
-            // トグルスイッチ（TRUE_FALSE）の場合（nameが設定されていない単独のチェックボックス）
-            formData.types[keyName] = input.checked ? 'true' : 'false';
+            // トグルスイッチ（TRUE_FALSE/BOOLEAN）の場合（nameが設定されていない単独のチェックボックス）
+            // チェックされている場合はkey_nameを設定、されていない場合は空文字列
+            formData.types[keyName] = input.checked ? keyName : '';
         }
     });
 

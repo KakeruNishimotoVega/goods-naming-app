@@ -2160,6 +2160,17 @@ function renderTypeField(type, keywords) {
         // テキスト入力
         const placeholder = type.placeholder || '入力してください...';
         html += `<input type="text" id="type-${type.id}" ${dataKeyName} class="form-control" placeholder="${escapeHtml(placeholder)}" ${type.is_required ? 'required' : ''} />`;
+    } else if (type.selection_type === 'TRUE_FALSE' || type.selection_type === 'BOOLEAN') {
+        // トグルスイッチ（キーワード不要）
+        html += `
+            <div class="toggle-switch-container">
+                <label class="toggle-switch">
+                    <input type="checkbox" id="type-${type.id}" ${dataKeyName} />
+                    <span class="slider"></span>
+                </label>
+                <span>有効にする</span>
+            </div>
+        `;
     } else if (keywords && keywords.length > 0) {
         // 選択肢がある場合
         if (type.selection_type === 'SINGLE') {
@@ -2188,17 +2199,6 @@ function renderTypeField(type, keywords) {
                 `;
             });
             html += '</div>';
-        } else if (type.selection_type === 'TRUE_FALSE') {
-            // トグルスイッチ
-            html += `
-                <div class="toggle-switch-container">
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="type-${type.id}" ${dataKeyName} />
-                        <span class="slider"></span>
-                    </label>
-                    <span>有効にする</span>
-                </div>
-            `;
         }
     }
 
@@ -2289,8 +2289,9 @@ function collectFormData() {
             // テキスト入力の場合
             formData.types[keyName] = input.value;
         } else if (input.type === 'checkbox' && !input.name) {
-            // トグルスイッチ（TRUE_FALSE）の場合（nameが設定されていない単独のチェックボックス）
-            formData.types[keyName] = input.checked ? 'true' : 'false';
+            // トグルスイッチ（TRUE_FALSE/BOOLEAN）の場合（nameが設定されていない単独のチェックボックス）
+            // チェックされている場合はkey_nameを設定、されていない場合は空文字列
+            formData.types[keyName] = input.checked ? keyName : '';
         }
     });
 
@@ -2585,7 +2586,9 @@ function renderTypesList(typesData) {
             'TEXT': 'テキスト入力',
             'SINGLE': '単一選択（ラジオボタン）',
             'MULTI': '複数選択（チェックボックス）',
-            'TRUE_FALSE': 'True/False（トグル）'
+            'MULTIPLE': '複数選択（チェックボックス）',
+            'TRUE_FALSE': 'True/False（トグル）',
+            'BOOLEAN': 'True/False（トグル）'
         }[type.selection_type] || type.selection_type;
         
         html += '<div style="font-weight: 600; color: var(--text-muted);">選択方式:</div>';
@@ -2608,8 +2611,8 @@ function renderTypesList(typesData) {
         html += '</div>';
         html += '</div>';
 
-        // キーワードテーブル（SINGLE/MULTIの場合のみ）
-        if (type.selection_type === 'SINGLE' || type.selection_type === 'MULTI') {
+        // キーワードテーブル（SINGLE/MULTI/MULTIPLEの場合のみ）
+        if (type.selection_type === 'SINGLE' || type.selection_type === 'MULTI' || type.selection_type === 'MULTIPLE') {
             html += '<div class="keywords-section">';
             html += '<div class="d-flex justify-between align-center mb-2">';
             html += '<h5 style="margin: 0; font-size: 0.9rem; font-weight: 600;">選択肢一覧</h5>';
