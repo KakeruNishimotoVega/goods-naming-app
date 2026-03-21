@@ -2158,7 +2158,8 @@ function renderTypeField(type, keywords) {
 
     if (type.selection_type === 'TEXT') {
         // テキスト入力
-        html += `<input type="text" id="type-${type.id}" ${dataKeyName} class="form-control" placeholder="入力してください..." ${type.is_required ? 'required' : ''} />`;
+        const placeholder = type.placeholder || '入力してください...';
+        html += `<input type="text" id="type-${type.id}" ${dataKeyName} class="form-control" placeholder="${escapeHtml(placeholder)}" ${type.is_required ? 'required' : ''} />`;
     } else if (keywords && keywords.length > 0) {
         // 選択肢がある場合
         if (type.selection_type === 'SINGLE') {
