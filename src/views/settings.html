@@ -14,6 +14,142 @@
     <!-- Type一覧 -->
     <div id="types-list"></div>
 
+    <!-- Regulation（命名ルール）セクション -->
+    <div id="regulations-section" class="mt-4"></div>
+
     <!-- カテゴリ追加ボタン -->
-    <button id="add-category-btn" class="btn btn-primary">新規カテゴリ追加</button>
+    <button id="add-category-btn" class="btn btn-primary mt-3">新規カテゴリ追加</button>
+
+    <!-- Type編集モーダル -->
+    <div id="edit-type-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3>入力項目の編集</h3>
+            <form id="edit-type-form">
+                <input type="hidden" id="edit-type-id" />
+
+                <div class="form-group">
+                    <label for="edit-type-name">項目名 *</label>
+                    <input type="text" id="edit-type-name" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-type-description">説明</label>
+                    <textarea id="edit-type-description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-type-selection">選択タイプ *</label>
+                    <select id="edit-type-selection" class="form-control" required>
+                        <option value="TEXT">テキスト入力</option>
+                        <option value="SINGLE">単一選択</option>
+                        <option value="MULTIPLE">複数選択</option>
+                        <option value="TRUE_FALSE">True/False</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-type-priority">優先順位</label>
+                    <input type="number" id="edit-type-priority" class="form-control" min="1" />
+                </div>
+
+                <div class="form-group">
+                    <label class="d-flex align-center gap-2">
+                        <input type="checkbox" id="edit-type-required" />
+                        <span>必須項目にする</span>
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-type-modal')">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Type追加モーダル -->
+    <div id="add-type-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3>入力項目の追加</h3>
+            <form id="add-type-form">
+                <div class="form-group">
+                    <label for="add-type-name">項目名 *</label>
+                    <input type="text" id="add-type-name" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="add-type-description">説明</label>
+                    <textarea id="add-type-description" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="add-type-selection">選択タイプ *</label>
+                    <select id="add-type-selection" class="form-control" required>
+                        <option value="TEXT">テキスト入力</option>
+                        <option value="SINGLE">単一選択</option>
+                        <option value="MULTIPLE">複数選択</option>
+                        <option value="TRUE_FALSE">True/False</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="d-flex align-center gap-2">
+                        <input type="checkbox" id="add-type-required" />
+                        <span>必須項目にする</span>
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('add-type-modal')">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">追加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- キーワード管理モーダル -->
+    <div id="keywords-modal" class="modal-backdrop">
+        <div class="modal-content" style="max-width: 800px;">
+            <h3 id="keywords-modal-title">キーワード管理</h3>
+            <input type="hidden" id="keywords-type-id" />
+
+            <div class="mb-3">
+                <button id="add-keyword-btn" class="btn btn-primary btn-sm">キーワードを追加</button>
+            </div>
+
+            <div id="keywords-list"></div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('keywords-modal')">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Regulation編集モーダル -->
+    <div id="edit-regulation-modal" class="modal-backdrop">
+        <div class="modal-content" style="max-width: 800px;">
+            <h3 id="regulation-modal-title">命名ルールの編集</h3>
+            <form id="edit-regulation-form">
+                <input type="hidden" id="edit-regulation-id" />
+
+                <div class="form-group">
+                    <label>対象</label>
+                    <input type="text" id="edit-regulation-target" class="form-control" readonly />
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-regulation-pattern">パターン *</label>
+                    <textarea id="edit-regulation-pattern" class="form-control" rows="4" required></textarea>
+                    <p class="text-sm text-muted mt-1">プレースホルダー: {type_id} の形式で入力項目を参照できます</p>
+                </div>
+
+                <div id="placeholder-buttons" class="mb-3"></div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-regulation-modal')">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

@@ -1,5 +1,67 @@
 /* コンポーネントスタイル - LOWYA商品命名アプリ */
 
+/* ナビゲーションバー */
+.navbar {
+    background-color: white;
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.navbar .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.navbar-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+}
+
+.navbar-menu {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    transition: color 0.2s;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-md);
+}
+
+.nav-link:hover {
+    color: var(--text-main);
+    background-color: #f1f5f9;
+}
+
+.nav-link.active {
+    color: var(--primary-color);
+    background-color: rgba(43, 139, 132, 0.1);
+}
+
+/* コンテナ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.mt-4 {
+    margin-top: 2rem;
+}
+
 /* ボタン */
 button, .button {
     padding: 0.75rem 1.5rem;

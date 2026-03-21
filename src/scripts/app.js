@@ -20,8 +20,23 @@ function initApp() {
  * 画面切り替えのセットアップ
  */
 function setupScreenNavigation() {
-    // TODO: ナビゲーションメニューの実装
-    // 各画面への切り替え処理を実装
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            // アクティブ状態を更新
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+
+            // 画面を切り替え
+            const screenId = link.getAttribute('data-screen');
+            if (screenId) {
+                showScreen(screenId);
+            }
+        });
+    });
 }
 
 /**

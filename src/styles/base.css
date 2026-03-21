@@ -19,7 +19,8 @@ body {
     background-color: var(--background-color);
     line-height: 1.6;
     display: flex;
-    overflow: hidden;
+    flex-direction: column;
+    overflow-x: hidden;
 }
 
 /* スクロールバーのカスタマイズ */

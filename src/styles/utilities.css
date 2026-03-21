@@ -98,3 +98,24 @@
 .overflow-hidden { overflow: hidden; }
 .overflow-auto { overflow: auto; }
 .overflow-scroll { overflow: scroll; }
+
+/* その他のユーティリティ */
+.flex-wrap { flex-wrap: wrap; }
+.flex-shrink-0 { flex-shrink: 0; }
+.text-gray-600 { color: #475569; }
+.text-gray-100 { color: #f1f5f9; }
+.bg-gray-100 { background-color: #f1f5f9; }
+.text-xs { font-size: 0.75rem; }
+.font-mono { font-family: 'Courier New', monospace; }
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.875rem; }
+.card { background: white; padding: 1.5rem; border-radius: var(--border-radius-md); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
+.form-control { width: 100%; padding: 0.5rem 0.75rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-md); font-size: var(--font-size-base); }
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+.alert { padding: 0.75rem 1rem; border-radius: var(--border-radius-md); margin-bottom: 1rem; }
+.alert-warning { background-color: #fef3c7; color: #92400e; border: 1px solid #fbbf24; }
+.alert-danger { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+.alert-success { background-color: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+.badge-primary { background-color: var(--primary-color); color: white; }
+.badge-secondary { background-color: #e2e8f0; color: #64748b; }
+.badge-danger { background-color: #fee2e2; color: #991b1b; }
