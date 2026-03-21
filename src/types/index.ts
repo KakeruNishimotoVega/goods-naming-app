@@ -56,7 +56,7 @@ export interface Keyword {
 export interface Regulation {
   id: string; // uuid
   category_id: string; // uuid
-  target: string; // 適用対象（商品ページ名/商品名）
+  target: string; // 適用対象（キャッチコピー/商品名）
   pattern_string: string; // パターン文字列（{key_name}形式）
   created_at: string; // timestamptz
 }
@@ -127,7 +127,7 @@ export interface NamingFormData {
  * 命名生成の結果型
  */
 export interface NamingResult {
-  productPageName: string; // 商品ページ名
+  productPageName: string; // キャッチコピー
   productName: string; // 商品名
   prohibitedWordsFound: ProhibitedWordMatch[]; // 検出された禁止ワード
 }

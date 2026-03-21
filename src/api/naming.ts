@@ -6,7 +6,7 @@
 /**
  * 【API】商品名・ページ名を生成
  * @param formData フォームデータ（categoryId, fields, types）
- * @returns 生成結果（商品ページ名、商品名、NGワード検出情報）
+ * @returns 生成結果（キャッチコピー、商品名、NGワード検出情報）
  */
 export function generateNames(formData: any) {
   if (!formData || !formData.categoryId) {
@@ -79,7 +79,7 @@ export function generateNames(formData: any) {
     result = result.replace(/\s+/g, ' ').trim();
 
     // targetに応じて結果を振り分け
-    if (regulation.target === '商品ページ名') {
+    if (regulation.target === 'キャッチコピー') {
       productPageName = result;
     } else if (regulation.target === '商品名') {
       productName = result;
@@ -108,7 +108,7 @@ export function generateNames(formData: any) {
     const ngWords = JSON.parse(ngWordsResponse.getContentText());
 
     ngWords.forEach((ngWord: any) => {
-      // 商品ページ名にNGワードが含まれているかチェック
+      // キャッチコピーにNGワードが含まれているかチェック
       if (productPageName.includes(ngWord.word)) {
         prohibitedWordsFound.push({
           word: ngWord.word,

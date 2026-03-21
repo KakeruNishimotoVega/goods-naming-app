@@ -340,14 +340,14 @@ function displayResult(result) {
     if (!resultContent) return;
 
     // 推奨文字数の上限設定
-    const MAX_PAGE_NAME_LENGTH = 17; // 商品ページ名の推奨上限
+    const MAX_PAGE_NAME_LENGTH = 17; // キャッチコピーの推奨上限
     const MAX_PRODUCT_NAME_LENGTH = 27; // 商品名の推奨上限
 
     let html = '';
 
-    // 商品ページ名
+    // キャッチコピー
     html += '<div class="result-item">';
-    html += '<h4>商品ページ名</h4>';
+    html += '<h4>キャッチコピー</h4>';
     html += `<div class="result-text">${escapeHtml(result.productPageName || '未生成')}</div>`;
     html += '<div class="result-meta">';
 
@@ -357,7 +357,7 @@ function displayResult(result) {
     html += `<button id="copy-page-name-btn" class="btn secondary btn-sm copy-btn">コピー</button>`;
     html += '</div>';
 
-    // 商品ページ名のNGワードチェック
+    // キャッチコピーのNGワードチェック
     const pageNgWords = (result.prohibitedWordsFound || []).filter(item => item.target === 'productPageName');
     if (pageNgWords.length > 0) {
         html += '<div class="alert alert-danger mt-2" style="margin-top: 0.5rem; font-size: 0.85rem;">';

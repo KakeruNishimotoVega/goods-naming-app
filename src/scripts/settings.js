@@ -697,9 +697,9 @@ function renderRegulationsSection(regulations) {
         return;
     }
 
-    // 商品ページ名→商品名の順にソート
+    // キャッチコピー→商品名の順にソート
     const sortedRegulations = [...regulations].sort((a, b) => {
-        const order = { '商品ページ名': 1, '商品名': 2 };
+        const order = { 'キャッチコピー': 1, '商品名': 2 };
         return (order[a.target] || 999) - (order[b.target] || 999);
     });
 
@@ -707,10 +707,13 @@ function renderRegulationsSection(regulations) {
     html += '<h3>命名ルール</h3>';
 
     sortedRegulations.forEach(regulation => {
+        // 表示用のラベルに変換
+        const targetLabel = regulation.target === 'キャッチコピー' ? 'キャッチコピー' : regulation.target;
+        
         html += `
             <div class="input-group" style="border: 1px solid var(--border-color); padding: 1rem; border-radius: var(--border-radius-md); margin-top: 1rem;">
                 <div class="d-flex justify-between align-center mb-2">
-                    <h4 style="margin: 0; font-size: 1rem;">${escapeHtml(regulation.target)}</h4>
+                    <h4 style="margin: 0; font-size: 1rem;">${escapeHtml(targetLabel)}</h4>
                     <button class="btn secondary btn-sm btn-edit-regulation" data-regulation-id="${regulation.id}">編集</button>
                 </div>
                 <div class="font-mono" style="background: var(--background-color); padding: 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.9rem; color: var(--text-main); word-break: break-all;">${escapeHtml(regulation.pattern_string)}</div>
@@ -758,8 +761,9 @@ async function editRegulation(regulationId) {
         }
 
         // モーダルに値を設定
+        const targetLabel = regulation.target === 'キャッチコピー' ? 'キャッチコピー' : regulation.target;
         document.getElementById('edit-regulation-id').value = regulation.id;
-        document.getElementById('edit-regulation-target').value = regulation.target;
+        document.getElementById('edit-regulation-target').value = targetLabel;
         document.getElementById('edit-regulation-pattern').value = regulation.pattern_string;
 
         // プレースホルダーボタンを生成

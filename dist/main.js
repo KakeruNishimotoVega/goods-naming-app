@@ -830,7 +830,7 @@ var global = this;
       });
       result = result.replace(/\{[^}]+\}/g, "");
       result = result.replace(/\s+/g, " ").trim();
-      if (regulation.target === "\u5546\u54C1\u30DA\u30FC\u30B8\u540D") {
+      if (regulation.target === "\u30AD\u30E3\u30C3\u30C1\u30B3\u30D4\u30FC") {
         productPageName = result;
       } else if (regulation.target === "\u5546\u54C1\u540D") {
         productName = result;

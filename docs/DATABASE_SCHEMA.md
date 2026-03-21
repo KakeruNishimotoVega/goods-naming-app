@@ -99,7 +99,7 @@ typesの選択肢として使用されるキーワードマスタ。
 |---------|-----|------|-------------|------|
 | id | uuid | PRIMARY KEY | gen_random_uuid() | 規則ID（自動生成） |
 | category_id | uuid | FOREIGN KEY → categories(id) | - | 対象カテゴリ |
-| target | text | NOT NULL | - | 適用対象（商品ページ名/商品名） |
+| target | text | NOT NULL | - | 適用対象（キャッチコピー/商品名） |
 | pattern_string | text | NOT NULL | - | パターン文字列（{key_name}形式） |
 | created_at | timestamptz | NOT NULL | timezone('utc'::text, now()) | 作成日時（UTC） |
 
@@ -109,7 +109,7 @@ typesの選択肢として使用されるキーワードマスタ。
 - 例: `{nickname} / {N人掛け}{カテゴリ}`
 
 **データ例:**
-- 商品ページ名: `{nickname} / {N人掛け}{カテゴリ}`
+- キャッチコピー: `{nickname} / {N人掛け}{カテゴリ}`
 - 商品名: `[{幅N}] {N人掛け} {カテゴリ} {機能性・付属} {内部構造} {張地素材} {脚部素材} {テイスト}`
 
 ---
