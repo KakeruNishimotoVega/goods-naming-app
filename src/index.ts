@@ -54,6 +54,8 @@ const testSupabaseConnection = () => {
 import { getCategories, getSchemaForCategory, createNewCategory } from './api/categories';
 import { addType, updateType, deleteType } from './api/types';
 import { addKeyword, updateKeyword, deleteKeyword } from './api/keywords';
+import { updateRegulation } from './api/regulations';
+import { getNgWords, addNgWord, updateNgWord, deleteNgWord } from './api/ngwords';
 
 // カテゴリAPI関数をグローバルに公開
 (global as any).getCategories = getCategories;
@@ -69,3 +71,12 @@ import { addKeyword, updateKeyword, deleteKeyword } from './api/keywords';
 (global as any).addKeyword = addKeyword;
 (global as any).updateKeyword = updateKeyword;
 (global as any).deleteKeyword = deleteKeyword;
+
+// RegulationAPI関数をグローバルに公開
+(global as any).updateRegulation = updateRegulation;
+
+// NGワードAPI関数をグローバルに公開
+(global as any).getNgWords = getNgWords;
+(global as any).addNgWord = addNgWord;
+(global as any).updateNgWord = updateNgWord;
+(global as any).deleteNgWord = deleteNgWord;

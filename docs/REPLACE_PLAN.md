@@ -70,13 +70,13 @@
 - [x] `deleteKeyword(payload)` - キーワード削除 ✅
 
 ### 1.5 Regulation（命名ルール）管理API（`src/api/regulations.ts`）
-- [ ] `updateRegulation(regulationObject)` - ルールの更新
+- [x] `updateRegulation(regulationObject)` - ルールの更新 ✅
 
 ### 1.6 NGワード管理API（`src/api/ngwords.ts`）
-- [ ] `getNgWords()` - NGワード一覧取得
-- [ ] `addNgWord(word, reason)` - NGワード追加
-- [ ] `updateNgWord(id, word, reason)` - NGワード更新
-- [ ] `deleteNgWord(id)` - NGワード削除
+- [x] `getNgWords()` - NGワード一覧取得 ✅
+- [x] `addNgWord(word, reason)` - NGワード追加 ✅
+- [x] `updateNgWord(id, word, reason)` - NGワード更新 ✅
+- [x] `deleteNgWord(id)` - NGワード削除 ✅
 
 ### 1.7 命名生成API（`src/api/naming.ts`）
 - [ ] `generateNames(formData)` - 商品名・ページ名生成
