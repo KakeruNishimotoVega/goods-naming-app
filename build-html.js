@@ -69,7 +69,8 @@ const scriptFiles = [
     'src/scripts/utils.js',
     'src/scripts/app.js',
     'src/scripts/naming.js',
-    'src/scripts/settings.js'
+    'src/scripts/settings.js',
+    'src/scripts/ngwords.js'
 ];
 
 const scripts = scriptFiles
