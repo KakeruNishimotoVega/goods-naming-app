@@ -42,9 +42,9 @@
 - [x] `MEMORY.md` に初期設計方針を記録 ✅
 
 ### 0.3 共通ライブラリの準備
-- [ ] `src/lib/supabase.ts` - Supabase接続ヘルパー作成
-- [ ] `src/lib/utils.ts` - 汎用ユーティリティ作成
-- [ ] `src/types/index.ts` - 共通型定義作成
+- [x] `src/lib/supabase.ts` - Supabase接続ヘルパー作成 ✅
+- [x] `src/lib/utils.ts` - 汎用ユーティリティ作成 ✅
+- [x] `src/types/index.ts` - 共通型定義作成 ✅
 
 ---
 
