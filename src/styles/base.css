@@ -167,7 +167,8 @@ main {
 }
 
 .page-container {
-    max-width: 900px;
+    width: 900px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
@@ -179,6 +180,7 @@ main {
     margin-bottom: 1.5rem;
     box-shadow: var(--shadow-sm);
     border: 1px solid rgba(0, 0, 0, 0.02);
+    min-height: 100px;
 }
 
 .form-card h3 {
@@ -256,6 +258,7 @@ input:disabled {
 /* テーブル */
 .table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     margin-top: var(--spacing-lg);
 }

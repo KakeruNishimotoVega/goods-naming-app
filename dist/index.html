@@ -244,7 +244,8 @@ main {
 }
 
 .page-container {
-    max-width: 900px;
+    width: 900px;
+    max-width: 100%;
     margin: 0 auto;
 }
 
@@ -256,6 +257,7 @@ main {
     margin-bottom: 1.5rem;
     box-shadow: var(--shadow-sm);
     border: 1px solid rgba(0, 0, 0, 0.02);
+    min-height: 100px;
 }
 
 .form-card h3 {
@@ -333,6 +335,7 @@ input:disabled {
 /* テーブル */
 .table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     margin-top: var(--spacing-lg);
 }
@@ -872,6 +875,7 @@ button:disabled {
 /* テーブル */
 .table {
     width: 100%;
+    table-layout: fixed;
     border-collapse: collapse;
     background: white;
 }
@@ -1588,9 +1592,9 @@ button[title="Google検索"]:hover:not(:disabled) {
             <table class="table">
                 <thead>
                     <tr>
-                        <th>NGワード</th>
-                        <th>理由</th>
-                        <th style="width: 80px;">削除</th>
+                        <th style="width: 30%;">NGワード</th>
+                        <th style="width: calc(70% - 100px);">理由</th>
+                        <th style="width: 100px;">削除</th>
                     </tr>
                 </thead>
                 <tbody id="ngwords-tbody">
