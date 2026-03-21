@@ -1,7 +1,37 @@
-// src/index.ts
-const main = () => {
-  console.log('Hello GAS from TypeScript & esbuild!');
+/**
+ * Supabaseとの接続テストを行う関数
+ */
+const testSupabaseConnection = () => {
+  // 1. 環境変数（スクリプトプロパティ）の取得
+  const props = PropertiesService.getScriptProperties();
+  const supabaseUrl = props.getProperty('SUPABASE_URL');
+  const supabaseKey = props.getProperty('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabaseの環境変数が設定されていません。スクリプトプロパティにSUPABASE_URLとSUPABASE_SERVICE_ROLE_KEYを設定してください。');
+  }
+
+  // 2. アクセス先のURL（categoriesテーブルから全件取得するREST API）
+  const endpoint = `${supabaseUrl}/rest/v1/categories?select=*`;
+
+  // 3. 通信のオプション設定（Service Role KeyでRLSを突破する）
+  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+    method: 'get',
+    headers: {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json'
+    },
+    // エラー時も例外で落とさず、レスポンスの中身を確認できるようにする設定
+    muteHttpExceptions: true 
+  };
+
+  // 4. 通信の実行と結果のログ出力
+  const response = UrlFetchApp.fetch(endpoint, options);
+  
+  console.log('ステータスコード:', response.getResponseCode());
+  console.log('レスポンス内容:', response.getContentText());
 };
 
-// GAS側から呼び出せるようにグローバルに登録するおまじない
-(global as any).main = main;
+// GASのエディタ上から実行できるようにグローバルに登録
+(global as any).testSupabaseConnection = testSupabaseConnection;
