@@ -93,11 +93,12 @@
 - [x] ビルドコマンドの統合（`npm run build`） ✅
 
 ### 2.2 既存HTMLの分割作業
-- [ ] `docs/raw/index.html` の構造分析
-- [ ] 共通レイアウト → `src/views/layout.html`
-- [ ] 命名画面 → `src/views/naming.html`
-- [ ] 設定画面 → `src/views/settings.html`
-- [ ] NGワード管理 → `src/views/ngwords.html`
+- [x] `docs/raw/index.html` の構造分析 ✅
+- [x] 共通レイアウト → `src/views/layout.html` ✅（基本構造）
+- [x] 命名画面 → `src/views/naming.html` ✅（基本構造）
+- [x] 設定画面 → `src/views/settings.html` ✅（基本構造）
+- [x] NGワード管理 → `src/views/ngwords.html` ✅（基本構造）
+- [ ] 詳細な実装はフェーズ3で実施（動的フォーム生成など）
 
 ### 2.3 CSSの整理とトンマナ定義
 - [ ] CSS変数の抽出 → `src/styles/variables.css`
