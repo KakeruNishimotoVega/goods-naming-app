@@ -115,8 +115,9 @@
 - [ ] 詳細な実装はフェーズ3で実施（イベントハンドラ、API連携など）
 
 ### 2.5 Google Apps ScriptのHTML配信設定
-- [ ] `doGet()`関数でHTMLを配信
-- [ ] 環境変数（Supabase URL/キー）をフロントエンドに安全に渡す方法の実装
+- [x] `doGet()`関数でHTMLを配信 ✅
+- [x] 環境変数（Supabase URL/キー）をフロントエンドに安全に渡す方法の実装 ✅
+- [x] build.jsの修正（HTMLはbuild-html.jsで生成） ✅
 
 ---
 

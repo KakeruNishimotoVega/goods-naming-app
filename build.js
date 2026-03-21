@@ -9,7 +9,7 @@ if (!fs.existsSync('./dist')) {
 
 // 2. GASの必須設定ファイルを dist にコピー
 fs.copyFileSync('./src/appsscript.json', './dist/appsscript.json');
-fs.copyFileSync('./src/index.html', './dist/index.html');
+// NOTE: index.htmlはbuild-html.jsで生成されるため、ここではコピーしない
 
 // 3. esbuildでTypeScriptをバンドル
 esbuild.build({

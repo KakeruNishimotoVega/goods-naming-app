@@ -2,14 +2,32 @@
  * Webアプリにアクセスされたときの最初のエントリーポイント
  */
 const doGet = (e: GoogleAppsScript.Events.DoGet) => {
-  // src/index.html を読み込んでWebページとして出力する
+  // dist/index.html を読み込んでWebページとして出力する
+  // NOTE: build-html.jsでsrc/配下のファイルが統合されてdist/index.htmlに出力される
   return HtmlService.createHtmlOutputFromFile('index')
-    .setTitle('商品名・キャッチコピー命名アプリ')
+    .setTitle('LOWYA商品命名アプリ')
     .addMetaTag('viewport', 'width=device-width, initial-scale=1');
 };
 
 // GASのエディタに認識させるためグローバルに登録
 (global as any).doGet = doGet;
+
+/**
+ * フロントエンドから環境変数を取得するための関数
+ * セキュリティのため、公開用のキーのみを返す
+ */
+const getEnvironmentVariables = () => {
+  const props = PropertiesService.getScriptProperties();
+
+  return {
+    supabaseUrl: props.getProperty('SUPABASE_URL') || '',
+    // NOTE: フロントエンドにはanon keyのみを渡す（service role keyは渡さない）
+    supabaseAnonKey: props.getProperty('SUPABASE_ANON_KEY') || ''
+  };
+};
+
+// GASのエディタに認識させるためグローバルに登録
+(global as any).getEnvironmentVariables = getEnvironmentVariables;
 
 /**
  * Supabaseとの接続テストを行う関数
