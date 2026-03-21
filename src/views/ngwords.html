@@ -1,25 +1,75 @@
 <!-- NGワード管理画面のテンプレート -->
 <div id="ngwords-screen" class="screen" style="display: none;">
-    <h1>NGワード管理</h1>
-    <p>商品名に含めてはいけないワードを管理します。</p>
-
-    <!-- NGワード追加ボタン -->
-    <button id="add-ngword-btn" class="btn btn-primary">NGワード追加</button>
+    <div class="d-flex justify-between align-center mb-3">
+        <div>
+            <h1>NGワード管理</h1>
+            <p class="text-muted">商品名に含めてはいけないワードを管理します。</p>
+        </div>
+        <button id="add-ngword-btn" class="btn btn-primary">NGワード追加</button>
+    </div>
 
     <!-- NGワード一覧 -->
-    <div id="ngwords-list">
+    <div id="ngwords-list" class="card">
         <table class="table">
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>NGワード</th>
+                    <th style="width: 80px;">ID</th>
+                    <th style="width: 200px;">NGワード</th>
                     <th>理由</th>
-                    <th>操作</th>
+                    <th style="width: 180px;">操作</th>
                 </tr>
             </thead>
             <tbody id="ngwords-tbody">
                 <!-- 動的に生成 -->
             </tbody>
         </table>
+    </div>
+
+    <!-- NGワード追加モーダル -->
+    <div id="add-ngword-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3>NGワードの追加</h3>
+            <form id="add-ngword-form">
+                <div class="form-group">
+                    <label for="add-ngword-word">NGワード *</label>
+                    <input type="text" id="add-ngword-word" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="add-ngword-reason">理由</label>
+                    <textarea id="add-ngword-reason" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('add-ngword-modal')">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">追加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- NGワード編集モーダル -->
+    <div id="edit-ngword-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3>NGワードの編集</h3>
+            <form id="edit-ngword-form">
+                <input type="hidden" id="edit-ngword-id" />
+
+                <div class="form-group">
+                    <label for="edit-ngword-word">NGワード *</label>
+                    <input type="text" id="edit-ngword-word" class="form-control" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="edit-ngword-reason">理由</label>
+                    <textarea id="edit-ngword-reason" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-ngword-modal')">キャンセル</button>
+                    <button type="submit" class="btn btn-primary">保存</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
