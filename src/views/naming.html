@@ -1,0 +1,22 @@
+<!-- 命名画面のテンプレート -->
+<div id="naming-screen" class="screen">
+    <h1>商品命名</h1>
+    <p>カテゴリを選択して、フォームに入力してください。</p>
+
+    <!-- カテゴリ選択 -->
+    <div class="form-group">
+        <label for="category-select">カテゴリ</label>
+        <select id="category-select" class="form-control">
+            <option value="">カテゴリを選択してください</option>
+        </select>
+    </div>
+
+    <!-- 動的フォーム -->
+    <div id="dynamic-form"></div>
+
+    <!-- 結果表示エリア -->
+    <div id="naming-result" class="result-display" style="display: none;">
+        <h2>生成結果</h2>
+        <div id="result-content"></div>
+    </div>
+</div>

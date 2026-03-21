@@ -86,11 +86,11 @@
 
 ## フェーズ2: フロントエンド基盤
 ### 2.1 HTMLビルドシステムの構築
-- [ ] `build-html.js` の作成（CSS/HTML/JS統合スクリプト）
-- [ ] `src/views/` ディレクトリ作成とレイアウト分割
-- [ ] `src/styles/` ディレクトリ作成とCSS分割
-- [ ] `src/scripts/` ディレクトリ作成とJS分割
-- [ ] ビルドコマンドの統合（`npm run build`）
+- [x] `build-html.js` の作成（CSS/HTML/JS統合スクリプト） ✅
+- [x] `src/views/` ディレクトリ作成とレイアウト分割 ✅
+- [x] `src/styles/` ディレクトリ作成とCSS分割 ✅
+- [x] `src/scripts/` ディレクトリ作成とJS分割 ✅
+- [x] ビルドコマンドの統合（`npm run build`） ✅
 
 ### 2.2 既存HTMLの分割作業
 - [ ] `docs/raw/index.html` の構造分析

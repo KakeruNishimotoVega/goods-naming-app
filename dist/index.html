@@ -1,54 +1,1128 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>商品名・キャッチコピー命名アプリ (V2)</title>
+    <title>LOWYA商品命名アプリ</title>
     <style>
-      body { font-family: sans-serif; padding: 2rem; background-color: #f9fafb; }
-      .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-      select { width: 100%; padding: 0.5rem; font-size: 1rem; margin-top: 0.5rem; }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>🏷️ 命名アプリ V2</h1>
-      
-      <div style="margin-top: 2rem;">
-        <label for="category-select"><strong>1. 大カテゴリを選択してください</strong></label>
-        <select id="category-select" disabled>
-          <option>データを読み込み中...</option>
+/* src/styles/variables.css */
+/* CSS変数定義 */
+:root {
+    /* カラーパレット */
+    --color-primary: #2b8b84;
+    --color-primary-light: #3da599;
+    --color-primary-dark: #1f6962;
+
+    --color-secondary: #f0f0f0;
+    --color-secondary-dark: #d0d0d0;
+
+    --color-success: #28a745;
+    --color-danger: #dc3545;
+    --color-warning: #ffc107;
+    --color-info: #17a2b8;
+
+    --color-text: #333333;
+    --color-text-light: #666666;
+    --color-text-muted: #999999;
+
+    --color-border: #ddd;
+    --color-background: #ffffff;
+    --color-background-light: #f8f9fa;
+
+    /* サイズ */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+
+    --border-radius: 4px;
+    --border-radius-lg: 8px;
+
+    /* フォント */
+    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 20px;
+
+    /* シャドウ */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+    /* トランジション */
+    --transition-fast: 0.15s ease;
+    --transition-base: 0.3s ease;
+}
+
+
+/* src/styles/base.css */
+/* 基本スタイル */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    color: var(--color-text);
+    background-color: var(--color-background-light);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+}
+
+h1 {
+    font-size: var(--font-size-xl);
+}
+
+h2 {
+    font-size: var(--font-size-lg);
+}
+
+p {
+    margin-bottom: var(--spacing-md);
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+}
+
+/* コンテナ */
+#app {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+.screen {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-md);
+}
+
+/* フォーム要素 */
+.form-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.form-control {
+    width: 100%;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family);
+    transition: border-color var(--transition-fast);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+/* テーブル */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: var(--spacing-lg);
+}
+
+.table thead {
+    background-color: var(--color-secondary);
+}
+
+.table th,
+.table td {
+    padding: var(--spacing-md);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.table th {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.table tbody tr:hover {
+    background-color: var(--color-background-light);
+}
+
+
+/* src/styles/components.css */
+/* コンポーネントスタイル */
+
+/* ボタン */
+.btn {
+    display: inline-block;
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-base);
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-family);
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: var(--color-primary-dark);
+}
+
+.btn-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+}
+
+.btn-secondary:hover {
+    background-color: var(--color-secondary-dark);
+}
+
+.btn-success {
+    background-color: var(--color-success);
+    color: white;
+}
+
+.btn-danger {
+    background-color: var(--color-danger);
+    color: white;
+}
+
+.btn-sm {
+    padding: var(--spacing-xs) var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+/* モーダル */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal {
+    background-color: var(--color-background);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+    margin-bottom: var(--spacing-lg);
+}
+
+.modal-title {
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+}
+
+.modal-body {
+    margin-bottom: var(--spacing-lg);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-sm);
+}
+
+/* カード */
+.card {
+    background-color: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-md);
+}
+
+/* バッジ */
+.badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.badge-primary {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.badge-success {
+    background-color: var(--color-success);
+    color: white;
+}
+
+.badge-danger {
+    background-color: var(--color-danger);
+    color: white;
+}
+
+.badge-warning {
+    background-color: var(--color-warning);
+    color: var(--color-text);
+}
+
+/* ローディングスピナー */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid var(--color-secondary);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* アラート */
+.alert {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-md);
+}
+
+.alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+}
+
+.alert-danger {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.alert-warning {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+.alert-info {
+    background-color: #d1ecf1;
+    border: 1px solid #bee5eb;
+    color: #0c5460;
+}
+
+
+/* src/styles/utilities.css */
+/* ユーティリティクラス */
+
+/* マージン */
+.m-0 { margin: 0; }
+.mt-1 { margin-top: var(--spacing-sm); }
+.mt-2 { margin-top: var(--spacing-md); }
+.mt-3 { margin-top: var(--spacing-lg); }
+.mb-1 { margin-bottom: var(--spacing-sm); }
+.mb-2 { margin-bottom: var(--spacing-md); }
+.mb-3 { margin-bottom: var(--spacing-lg); }
+.ml-1 { margin-left: var(--spacing-sm); }
+.ml-2 { margin-left: var(--spacing-md); }
+.mr-1 { margin-right: var(--spacing-sm); }
+.mr-2 { margin-right: var(--spacing-md); }
+
+/* パディング */
+.p-0 { padding: 0; }
+.p-1 { padding: var(--spacing-sm); }
+.p-2 { padding: var(--spacing-md); }
+.p-3 { padding: var(--spacing-lg); }
+
+/* テキスト配置 */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* テキストカラー */
+.text-primary { color: var(--color-primary); }
+.text-success { color: var(--color-success); }
+.text-danger { color: var(--color-danger); }
+.text-warning { color: var(--color-warning); }
+.text-muted { color: var(--color-text-muted); }
+
+/* 背景色 */
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-light { background-color: var(--color-background-light); }
+
+/* 表示制御 */
+.d-none { display: none; }
+.d-block { display: block; }
+.d-inline { display: inline; }
+.d-inline-block { display: inline-block; }
+.d-flex { display: flex; }
+
+/* Flexbox */
+.flex-row { flex-direction: row; }
+.flex-column { flex-direction: column; }
+.justify-start { justify-content: flex-start; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+.justify-between { justify-content: space-between; }
+.align-start { align-items: flex-start; }
+.align-center { align-items: center; }
+.align-end { align-items: flex-end; }
+.gap-1 { gap: var(--spacing-sm); }
+.gap-2 { gap: var(--spacing-md); }
+.gap-3 { gap: var(--spacing-lg); }
+
+/* 幅 */
+.w-100 { width: 100%; }
+.w-50 { width: 50%; }
+.w-auto { width: auto; }
+
+/* フォントサイズ */
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+
+/* フォントウェイト */
+.font-normal { font-weight: 400; }
+.font-medium { font-weight: 500; }
+.font-bold { font-weight: 600; }
+
+/* ボーダー */
+.border { border: 1px solid var(--color-border); }
+.border-top { border-top: 1px solid var(--color-border); }
+.border-bottom { border-bottom: 1px solid var(--color-border); }
+.border-0 { border: none; }
+
+/* 角丸 */
+.rounded { border-radius: var(--border-radius); }
+.rounded-lg { border-radius: var(--border-radius-lg); }
+.rounded-full { border-radius: 9999px; }
+
+/* シャドウ */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-none { box-shadow: none; }
+
+/* カーソル */
+.cursor-pointer { cursor: pointer; }
+.cursor-not-allowed { cursor: not-allowed; }
+
+/* オーバーフロー */
+.overflow-hidden { overflow: hidden; }
+.overflow-auto { overflow: auto; }
+.overflow-scroll { overflow: scroll; }
+
+</style>
+</head>
+<body>
+    <div id="app">
+        <!-- src/views/naming.html -->
+<!-- 命名画面のテンプレート -->
+<div id="naming-screen" class="screen">
+    <h1>商品命名</h1>
+    <p>カテゴリを選択して、フォームに入力してください。</p>
+
+    <!-- カテゴリ選択 -->
+    <div class="form-group">
+        <label for="category-select">カテゴリ</label>
+        <select id="category-select" class="form-control">
+            <option value="">カテゴリを選択してください</option>
         </select>
-      </div>
     </div>
 
+    <!-- 動的フォーム -->
+    <div id="dynamic-form"></div>
+
+    <!-- 結果表示エリア -->
+    <div id="naming-result" class="result-display" style="display: none;">
+        <h2>生成結果</h2>
+        <div id="result-content"></div>
+    </div>
+</div>
+
+
+<!-- src/views/settings.html -->
+<!-- ルール設定画面のテンプレート -->
+<div id="settings-screen" class="screen" style="display: none;">
+    <h1>ルール設定</h1>
+    <p>カテゴリごとの命名ルールを編集できます。</p>
+
+    <!-- カテゴリ選択 -->
+    <div class="form-group">
+        <label for="settings-category-select">カテゴリ</label>
+        <select id="settings-category-select" class="form-control">
+            <option value="">カテゴリを選択してください</option>
+        </select>
+    </div>
+
+    <!-- Type一覧 -->
+    <div id="types-list"></div>
+
+    <!-- カテゴリ追加ボタン -->
+    <button id="add-category-btn" class="btn btn-primary">新規カテゴリ追加</button>
+</div>
+
+
+<!-- src/views/ngwords.html -->
+<!-- NGワード管理画面のテンプレート -->
+<div id="ngwords-screen" class="screen" style="display: none;">
+    <h1>NGワード管理</h1>
+    <p>商品名に含めてはいけないワードを管理します。</p>
+
+    <!-- NGワード追加ボタン -->
+    <button id="add-ngword-btn" class="btn btn-primary">NGワード追加</button>
+
+    <!-- NGワード一覧 -->
+    <div id="ngwords-list">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>NGワード</th>
+                    <th>理由</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="ngwords-tbody">
+                <!-- 動的に生成 -->
+            </tbody>
+        </table>
+    </div>
+</div>
+
+    </div>
     <script>
-      // 画面が読み込まれたら実行される処理
-      window.onload = () => {
-        
-        // 🌟 バックエンドの getCategories() を呼び出す
-        google.script.run
-          .withSuccessHandler((categories) => {
-            // 取得成功時の処理
-            const select = document.getElementById('category-select');
-            select.innerHTML = '<option value="">カテゴリを選択してください</option>';
-            
-            // 取得したデータ（配列）をループして <option> を追加
-            categories.forEach(category => {
-              const option = document.createElement('option');
-              option.value = category.id; // UUID
-              option.textContent = category.name; // 「N人掛けソファ・座椅子」など
-              select.appendChild(option);
+// src/scripts/utils.js
+// src/scripts/utils.js
+// 共通ユーティリティ関数
+
+/**
+ * 要素を表示する
+ */
+function showElement(element) {
+    if (element) {
+        element.style.display = 'block';
+    }
+}
+
+/**
+ * 要素を非表示にする
+ */
+function hideElement(element) {
+    if (element) {
+        element.style.display = 'none';
+    }
+}
+
+/**
+ * 要素を切り替える
+ */
+function toggleElement(element) {
+    if (element) {
+        element.style.display = element.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+/**
+ * ローディングスピナーを表示
+ */
+function showLoading(containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = '<div class="spinner"></div> 読み込み中...';
+    }
+}
+
+/**
+ * エラーメッセージを表示
+ */
+function showError(message, containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+    }
+}
+
+/**
+ * 成功メッセージを表示
+ */
+function showSuccess(message, containerId) {
+    const container = document.getElementById(containerId);
+    if (container) {
+        container.innerHTML = `<div class="alert alert-success">${message}</div>`;
+    }
+}
+
+/**
+ * モーダルを開く
+ */
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+/**
+ * モーダルを閉じる
+ */
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+/**
+ * 文字列をエスケープする（XSS対策）
+ */
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+/**
+ * オブジェクトをクエリ文字列に変換
+ */
+function objectToQueryString(obj) {
+    return Object.keys(obj)
+        .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
+        .join('&');
+}
+
+
+// src/scripts/app.js
+// src/scripts/app.js
+// アプリケーションのコアロジック
+
+/**
+ * アプリケーションの初期化
+ */
+function initApp() {
+    console.log('Initializing LOWYA Naming App...');
+
+    // 画面切り替えの設定
+    setupScreenNavigation();
+
+    // 初期画面の表示
+    showScreen('naming-screen');
+
+    console.log('App initialized successfully');
+}
+
+/**
+ * 画面切り替えのセットアップ
+ */
+function setupScreenNavigation() {
+    // TODO: ナビゲーションメニューの実装
+    // 各画面への切り替え処理を実装
+}
+
+/**
+ * 指定した画面を表示
+ */
+function showScreen(screenId) {
+    // すべての画面を非表示
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
+
+    // 指定した画面を表示
+    const targetScreen = document.getElementById(screenId);
+    if (targetScreen) {
+        targetScreen.style.display = 'block';
+    }
+}
+
+/**
+ * GASバックエンドAPI呼び出しのラッパー
+ */
+function callGasApi(functionName, ...args) {
+    return new Promise((resolve, reject) => {
+        try {
+            // GAS環境では google.script.run を使用
+            if (typeof google !== 'undefined' && google.script && google.script.run) {
+                google.script.run
+                    .withSuccessHandler(resolve)
+                    .withFailureHandler(reject)
+                    [functionName](...args);
+            } else {
+                // 開発環境用のモック
+                console.warn(`Mock API call: ${functionName}`, args);
+                reject(new Error('GAS API not available in development mode'));
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+// ページ読み込み時に初期化
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', initApp);
+}
+
+
+// src/scripts/naming.js
+// src/scripts/naming.js
+// 命名画面のロジック
+
+/**
+ * 命名画面の初期化
+ */
+function initNamingScreen() {
+    console.log('Initializing naming screen...');
+
+    // カテゴリの読み込み
+    loadCategories();
+
+    // カテゴリ選択時のイベント
+    const categorySelect = document.getElementById('category-select');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', onCategoryChange);
+    }
+}
+
+/**
+ * カテゴリ一覧を読み込む
+ */
+async function loadCategories() {
+    const select = document.getElementById('category-select');
+    if (!select) return;
+
+    try {
+        showLoading('dynamic-form');
+
+        const categories = await callGasApi('getCategories');
+
+        // セレクトボックスをクリア
+        select.innerHTML = '<option value="">カテゴリを選択してください</option>';
+
+        // カテゴリをセレクトボックスに追加
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.category_name;
+            select.appendChild(option);
+        });
+
+        document.getElementById('dynamic-form').innerHTML = '';
+    } catch (error) {
+        console.error('Failed to load categories:', error);
+        showError('カテゴリの読み込みに失敗しました', 'dynamic-form');
+    }
+}
+
+/**
+ * カテゴリ変更時の処理
+ */
+async function onCategoryChange(event) {
+    const categoryId = event.target.value;
+
+    if (!categoryId) {
+        document.getElementById('dynamic-form').innerHTML = '';
+        hideElement(document.getElementById('naming-result'));
+        return;
+    }
+
+    try {
+        showLoading('dynamic-form');
+
+        // カテゴリのスキーマを取得
+        const schema = await callGasApi('getSchemaForCategory', categoryId);
+
+        // 動的フォームを生成
+        renderDynamicForm(schema);
+    } catch (error) {
+        console.error('Failed to load schema:', error);
+        showError('スキーマの読み込みに失敗しました', 'dynamic-form');
+    }
+}
+
+/**
+ * 動的フォームを生成
+ */
+function renderDynamicForm(schema) {
+    const formContainer = document.getElementById('dynamic-form');
+    if (!formContainer) return;
+
+    let html = '<div class="card">';
+
+    // 基本フィールド（Fields）
+    if (schema.fields && schema.fields.length > 0) {
+        html += '<h3>基本情報</h3>';
+        schema.fields.forEach(field => {
+            html += renderField(field);
+        });
+    }
+
+    // Type（入力項目）
+    if (schema.types && schema.types.length > 0) {
+        html += '<h3>詳細項目</h3>';
+        schema.types.forEach(type => {
+            html += renderTypeField(type);
+        });
+    }
+
+    html += '<button id="generate-btn" class="btn btn-primary mt-3">名称を生成</button>';
+    html += '</div>';
+
+    formContainer.innerHTML = html;
+
+    // 生成ボタンのイベント
+    const generateBtn = document.getElementById('generate-btn');
+    if (generateBtn) {
+        generateBtn.addEventListener('click', onGenerateNames);
+    }
+}
+
+/**
+ * フィールドをレンダリング
+ */
+function renderField(field) {
+    return `
+        <div class="form-group">
+            <label for="field-${field.name}">${escapeHtml(field.label)}</label>
+            <input
+                type="text"
+                id="field-${field.name}"
+                class="form-control"
+                placeholder="${escapeHtml(field.placeholder || '')}"
+            />
+        </div>
+    `;
+}
+
+/**
+ * Typeフィールドをレンダリング
+ */
+function renderTypeField(type) {
+    let html = `<div class="form-group">`;
+    html += `<label>${escapeHtml(type.type_name)}</label>`;
+
+    if (type.selection_type === 'TEXT') {
+        // テキスト入力
+        html += `<input type="text" id="type-${type.id}" class="form-control" />`;
+    } else if (type.keywords && type.keywords.length > 0) {
+        // 選択肢がある場合
+        if (type.selection_type === 'SINGLE') {
+            // ラジオボタン
+            type.keywords.forEach(keyword => {
+                html += `
+                    <div class="form-check">
+                        <input type="radio" name="type-${type.id}" value="${keyword.id}" id="keyword-${keyword.id}" class="form-check-input" />
+                        <label for="keyword-${keyword.id}" class="form-check-label">${escapeHtml(keyword.keyword)}</label>
+                    </div>
+                `;
             });
-            
-            select.disabled = false; // ドロップダウンを有効化
-          })
-          .withFailureHandler((error) => {
-            // エラー時の処理
-            alert('データの取得に失敗しました: ' + error.message);
-          })
-          .getCategories();
-      };
-    </script>
-  </body>
+        } else if (type.selection_type === 'MULTIPLE') {
+            // チェックボックス
+            type.keywords.forEach(keyword => {
+                html += `
+                    <div class="form-check">
+                        <input type="checkbox" name="type-${type.id}" value="${keyword.id}" id="keyword-${keyword.id}" class="form-check-input" />
+                        <label for="keyword-${keyword.id}" class="form-check-label">${escapeHtml(keyword.keyword)}</label>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    html += '</div>';
+    return html;
+}
+
+/**
+ * 名称生成処理
+ */
+async function onGenerateNames() {
+    const resultContainer = document.getElementById('naming-result');
+    const resultContent = document.getElementById('result-content');
+
+    try {
+        showLoading('result-content');
+        showElement(resultContainer);
+
+        // フォームデータの収集
+        const formData = collectFormData();
+
+        // API呼び出し
+        const result = await callGasApi('generateNames', formData);
+
+        // 結果を表示
+        displayResult(result);
+    } catch (error) {
+        console.error('Failed to generate names:', error);
+        showError('名称の生成に失敗しました', 'result-content');
+    }
+}
+
+/**
+ * フォームデータを収集
+ */
+function collectFormData() {
+    const categoryId = document.getElementById('category-select').value;
+    const formData = {
+        categoryId: categoryId,
+        fields: {},
+        types: {}
+    };
+
+    // TODO: フォーム値の収集ロジックを実装
+
+    return formData;
+}
+
+/**
+ * 生成結果を表示
+ */
+function displayResult(result) {
+    const resultContent = document.getElementById('result-content');
+    if (!resultContent) return;
+
+    let html = '<div class="card">';
+    html += `<h3>商品名</h3>`;
+    html += `<p class="text-lg font-bold">${escapeHtml(result.productName || '')}</p>`;
+    html += `<h3 class="mt-3">ページ名</h3>`;
+    html += `<p class="text-lg font-bold">${escapeHtml(result.pageName || '')}</p>`;
+    html += '</div>';
+
+    resultContent.innerHTML = html;
+}
+
+// 初期化
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', initNamingScreen);
+}
+
+
+// src/scripts/settings.js
+// src/scripts/settings.js
+// ルール設定画面のロジック
+
+/**
+ * 設定画面の初期化
+ */
+function initSettingsScreen() {
+    console.log('Initializing settings screen...');
+
+    // カテゴリの読み込み
+    loadSettingsCategories();
+
+    // カテゴリ選択時のイベント
+    const categorySelect = document.getElementById('settings-category-select');
+    if (categorySelect) {
+        categorySelect.addEventListener('change', onSettingsCategoryChange);
+    }
+
+    // カテゴリ追加ボタンのイベント
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    if (addCategoryBtn) {
+        addCategoryBtn.addEventListener('click', onAddCategory);
+    }
+}
+
+/**
+ * 設定画面用のカテゴリ一覧を読み込む
+ */
+async function loadSettingsCategories() {
+    const select = document.getElementById('settings-category-select');
+    if (!select) return;
+
+    try {
+        const categories = await callGasApi('getCategories');
+
+        // セレクトボックスをクリア
+        select.innerHTML = '<option value="">カテゴリを選択してください</option>';
+
+        // カテゴリをセレクトボックスに追加
+        categories.forEach(category => {
+            const option = document.createElement('option');
+            option.value = category.id;
+            option.textContent = category.category_name;
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Failed to load categories:', error);
+        showError('カテゴリの読み込みに失敗しました', 'types-list');
+    }
+}
+
+/**
+ * 設定画面のカテゴリ変更時の処理
+ */
+async function onSettingsCategoryChange(event) {
+    const categoryId = event.target.value;
+
+    if (!categoryId) {
+        document.getElementById('types-list').innerHTML = '';
+        return;
+    }
+
+    try {
+        showLoading('types-list');
+
+        // カテゴリのスキーマを取得
+        const schema = await callGasApi('getSchemaForCategory', categoryId);
+
+        // Type一覧を表示
+        renderTypesList(schema.types || []);
+    } catch (error) {
+        console.error('Failed to load schema:', error);
+        showError('スキーマの読み込みに失敗しました', 'types-list');
+    }
+}
+
+/**
+ * Type一覧を表示
+ */
+function renderTypesList(types) {
+    const listContainer = document.getElementById('types-list');
+    if (!listContainer) return;
+
+    if (types.length === 0) {
+        listContainer.innerHTML = '<p class="text-muted">項目がありません</p>';
+        return;
+    }
+
+    let html = '<div class="card">';
+    html += '<h3>入力項目一覧</h3>';
+
+    types.forEach(type => {
+        html += `
+            <div class="card mt-2">
+                <div class="d-flex justify-between align-center">
+                    <div>
+                        <h4>${escapeHtml(type.type_name)}</h4>
+                        <p class="text-sm text-muted">${escapeHtml(type.description || '')}</p>
+                        <span class="badge badge-primary">${escapeHtml(type.selection_type)}</span>
+                        ${type.is_required ? '<span class="badge badge-danger ml-1">必須</span>' : '<span class="badge badge-secondary ml-1">任意</span>'}
+                    </div>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-secondary btn-sm" onclick="editType(${type.id})">編集</button>
+                        <button class="btn btn-secondary btn-sm" onclick="manageKeywords(${type.id})">キーワード</button>
+                        <button class="btn btn-danger btn-sm" onclick="deleteType(${type.id})">削除</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    html += '</div>';
+
+    listContainer.innerHTML = html;
+}
+
+/**
+ * Type編集
+ */
+function editType(typeId) {
+    console.log('Edit type:', typeId);
+    // TODO: 編集モーダルの実装
+    alert('Type編集機能は今後実装予定です');
+}
+
+/**
+ * キーワード管理
+ */
+function manageKeywords(typeId) {
+    console.log('Manage keywords:', typeId);
+    // TODO: キーワード管理モーダルの実装
+    alert('キーワード管理機能は今後実装予定です');
+}
+
+/**
+ * Type削除
+ */
+async function deleteType(typeId) {
+    if (!confirm('本当にこの項目を削除しますか？')) {
+        return;
+    }
+
+    try {
+        await callGasApi('deleteType', typeId);
+        alert('削除しました');
+
+        // リロード
+        const categorySelect = document.getElementById('settings-category-select');
+        if (categorySelect && categorySelect.value) {
+            onSettingsCategoryChange({ target: categorySelect });
+        }
+    } catch (error) {
+        console.error('Failed to delete type:', error);
+        alert('削除に失敗しました');
+    }
+}
+
+/**
+ * カテゴリ追加
+ */
+function onAddCategory() {
+    console.log('Add new category');
+    // TODO: カテゴリ追加ウィザードの実装
+    alert('カテゴリ追加機能は今後実装予定です');
+}
+
+// 初期化
+if (typeof document !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', initSettingsScreen);
+}
+
+</script>
+</body>
 </html>

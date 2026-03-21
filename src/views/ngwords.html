@@ -1,0 +1,25 @@
+<!-- NGワード管理画面のテンプレート -->
+<div id="ngwords-screen" class="screen" style="display: none;">
+    <h1>NGワード管理</h1>
+    <p>商品名に含めてはいけないワードを管理します。</p>
+
+    <!-- NGワード追加ボタン -->
+    <button id="add-ngword-btn" class="btn btn-primary">NGワード追加</button>
+
+    <!-- NGワード一覧 -->
+    <div id="ngwords-list">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>NGワード</th>
+                    <th>理由</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="ngwords-tbody">
+                <!-- 動的に生成 -->
+            </tbody>
+        </table>
+    </div>
+</div>
