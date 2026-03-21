@@ -15,18 +15,16 @@
                     <option value="">カテゴリを選択してください</option>
                 </select>
             </div>
+            <div style="margin-top: 1rem;">
+                <button id="add-category-btn" class="btn secondary w-100">+ 新規カテゴリ追加</button>
+            </div>
         </div>
-
-        <!-- Type一覧 -->
-        <div id="types-list"></div>
 
         <!-- Regulation（命名ルール）セクション -->
         <div id="regulations-section"></div>
 
-        <!-- カテゴリ追加ボタン -->
-        <div class="form-card">
-            <button id="add-category-btn" class="btn secondary w-100">新規カテゴリ追加</button>
-        </div>
+        <!-- Type一覧 -->
+        <div id="types-list"></div>
     </div>
 
     <!-- Type編集モーダル -->
@@ -35,6 +33,12 @@
             <h3>入力項目の編集</h3>
             <form id="edit-type-form">
                 <input type="hidden" id="edit-type-id" />
+
+                <div class="form-group">
+                    <label for="edit-type-key-name">キー名</label>
+                    <input type="text" id="edit-type-key-name" class="form-control" readonly style="background-color: #f1f5f9; cursor: not-allowed;" />
+                    <p class="text-sm text-muted mt-1">キー名は変更できません</p>
+                </div>
 
                 <div class="form-group">
                     <label for="edit-type-name">項目名 *</label>
@@ -54,11 +58,6 @@
                         <option value="MULTI">複数選択</option>
                         <option value="TRUE_FALSE">True/False</option>
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit-type-priority">優先順位</label>
-                    <input type="number" id="edit-type-priority" class="form-control" min="1" />
                 </div>
 
                 <div class="form-group">
@@ -83,12 +82,13 @@
             <form id="add-type-form">
                 <div class="form-group">
                     <label for="add-type-name">項目名 *</label>
-                    <input type="text" id="add-type-name" class="form-control" required />
+                    <input type="text" id="add-type-name" class="form-control" required placeholder="例: N人掛け" />
+                    <p class="text-sm text-muted mt-1">項目名がそのままキー名として使用されます</p>
                 </div>
 
                 <div class="form-group">
                     <label for="add-type-description">説明</label>
-                    <textarea id="add-type-description" class="form-control" rows="3"></textarea>
+                    <textarea id="add-type-description" class="form-control" rows="3" placeholder="この項目の説明（任意）"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -110,6 +110,26 @@
 
                 <div class="modal-actions">
                     <button type="button" class="btn secondary" onclick="closeModal('add-type-modal')">キャンセル</button>
+                    <button type="submit" class="btn primary">追加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- キーワード追加モーダル -->
+    <div id="add-keyword-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3>キーワードを追加</h3>
+            <form id="add-keyword-form">
+                <input type="hidden" id="add-keyword-type-id" />
+
+                <div class="form-group">
+                    <label for="add-keyword-text">キーワード *</label>
+                    <input type="text" id="add-keyword-text" class="form-control" required placeholder="例: 2人掛け" />
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary" onclick="closeModal('add-keyword-modal')">キャンセル</button>
                     <button type="submit" class="btn primary">追加</button>
                 </div>
             </form>
@@ -155,7 +175,7 @@
                 <div id="placeholder-buttons" class="mb-3"></div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn secondary" onclick="closeModal('edit-regulation-modal')">キャンセル</button>
+                    <button type="button" id="cancel-regulation-edit" class="btn secondary">キャンセル</button>
                     <button type="submit" class="btn primary">保存</button>
                 </div>
             </form>

@@ -71,7 +71,7 @@ const testSupabaseConnection = () => {
 // NOTE: GAS環境では通常のimportは使えないが、esbuildがバンドル時に解決する
 import { getCategories, getSchemaForCategory, createNewCategory } from './api/categories';
 import { addType, updateType, deleteType } from './api/types';
-import { addKeyword, updateKeyword, deleteKeyword } from './api/keywords';
+import { addKeyword, updateKeyword, deleteKeyword, updateKeywordsPriority } from './api/keywords';
 import { updateRegulation } from './api/regulations';
 import { getNgWords, addNgWord, updateNgWord, deleteNgWord } from './api/ngwords';
 import { generateNames } from './api/naming';
@@ -90,6 +90,7 @@ import { generateNames } from './api/naming';
 (global as any).addKeyword = addKeyword;
 (global as any).updateKeyword = updateKeyword;
 (global as any).deleteKeyword = deleteKeyword;
+(global as any).updateKeywordsPriority = updateKeywordsPriority;
 
 // RegulationAPI関数をグローバルに公開
 (global as any).updateRegulation = updateRegulation;

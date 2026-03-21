@@ -213,3 +213,65 @@ export function deleteKeyword(payload: string | any) {
     message: `Keyword「${keywordToDelete.keyword}」を削除しました。`
   };
 }
+
+/**
+ * 【API】複数Keywordの優先順位を一括更新
+ * @param typeId Type ID
+ * @param updates 更新する配列 [{id: number, priority: number}, ...]
+ * @returns 更新結果
+ */
+export function updateKeywordsPriority(typeId: string, updates: any[]) {
+  if (!typeId) {
+    throw new Error('typeIdが指定されていません。');
+  }
+
+  if (!updates || !Array.isArray(updates) || updates.length === 0) {
+    throw new Error('更新データが指定されていません。');
+  }
+
+  const props = PropertiesService.getScriptProperties();
+  const supabaseUrl = props.getProperty('SUPABASE_URL');
+  const supabaseKey = props.getProperty('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('環境変数が設定されていません。');
+  }
+
+  // 各キーワードの優先順位を更新
+  const results = [];
+  for (const update of updates) {
+    if (!update.id || update.priority === undefined) {
+      throw new Error('IDまたは優先順位が指定されていません。');
+    }
+
+    const endpoint = `${supabaseUrl}/rest/v1/keywords?id=eq.${update.id}`;
+    const payload = {
+      priority: update.priority
+    };
+
+    const response = UrlFetchApp.fetch(endpoint, {
+      method: 'patch',
+      headers: {
+        'apikey': supabaseKey,
+        'Authorization': `Bearer ${supabaseKey}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+
+    if (response.getResponseCode() !== 200) {
+      throw new Error(`Keyword優先順位更新エラー: ${response.getContentText()}`);
+    }
+
+    const updatedKeyword = JSON.parse(response.getContentText())[0];
+    results.push(updatedKeyword);
+  }
+
+  return {
+    success: true,
+    keywords: results,
+    message: `${results.length}個のキーワードの優先順位を更新しました。`
+  };
+}

@@ -552,6 +552,51 @@ var global = this;
       message: `Keyword\u300C${keywordToDelete.keyword}\u300D\u3092\u524A\u9664\u3057\u307E\u3057\u305F\u3002`
     };
   }
+  function updateKeywordsPriority(typeId, updates) {
+    if (!typeId) {
+      throw new Error("typeId\u304C\u6307\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
+    }
+    if (!updates || !Array.isArray(updates) || updates.length === 0) {
+      throw new Error("\u66F4\u65B0\u30C7\u30FC\u30BF\u304C\u6307\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
+    }
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
+    }
+    const results = [];
+    for (const update of updates) {
+      if (!update.id || update.priority === void 0) {
+        throw new Error("ID\u307E\u305F\u306F\u512A\u5148\u9806\u4F4D\u304C\u6307\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
+      }
+      const endpoint = `${supabaseUrl}/rest/v1/keywords?id=eq.${update.id}`;
+      const payload = {
+        priority: update.priority
+      };
+      const response = UrlFetchApp.fetch(endpoint, {
+        method: "patch",
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+        },
+        payload: JSON.stringify(payload),
+        muteHttpExceptions: true
+      });
+      if (response.getResponseCode() !== 200) {
+        throw new Error(`Keyword\u512A\u5148\u9806\u4F4D\u66F4\u65B0\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+      }
+      const updatedKeyword = JSON.parse(response.getContentText())[0];
+      results.push(updatedKeyword);
+    }
+    return {
+      success: true,
+      keywords: results,
+      message: `${results.length}\u500B\u306E\u30AD\u30FC\u30EF\u30FC\u30C9\u306E\u512A\u5148\u9806\u4F4D\u3092\u66F4\u65B0\u3057\u307E\u3057\u305F\u3002`
+    };
+  }
 
   // src/api/regulations.ts
   function updateRegulation(regulationObject) {
@@ -878,6 +923,7 @@ var global = this;
   global.addKeyword = addKeyword;
   global.updateKeyword = updateKeyword;
   global.deleteKeyword = deleteKeyword;
+  global.updateKeywordsPriority = updateKeywordsPriority;
   global.updateRegulation = updateRegulation;
   global.getNgWords = getNgWords;
   global.addNgWord = addNgWord;
@@ -898,6 +944,7 @@ function deleteType() { return global.deleteType.apply(this, arguments); }
 function addKeyword() { return global.addKeyword.apply(this, arguments); }
 function updateKeyword() { return global.updateKeyword.apply(this, arguments); }
 function deleteKeyword() { return global.deleteKeyword.apply(this, arguments); }
+function updateKeywordsPriority() { return global.updateKeywordsPriority.apply(this, arguments); }
 function updateRegulation() { return global.updateRegulation.apply(this, arguments); }
 function getNgWords() { return global.getNgWords.apply(this, arguments); }
 function addNgWord() { return global.addNgWord.apply(this, arguments); }

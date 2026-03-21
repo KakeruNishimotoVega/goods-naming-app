@@ -1112,6 +1112,101 @@ button:disabled {
     }
 }
 
+/* ルール設定画面 - 項目ブロック */
+.type-block {
+    transition: box-shadow 0.2s ease;
+}
+
+.type-block:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.keywords-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* キーワードテーブル - ドラッグアンドドロップ */
+.keywords-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.keywords-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.keywords-table tbody tr[draggable="true"] {
+    cursor: move;
+}
+
+.drag-handle {
+    display: inline-block;
+    margin-right: 0.5rem;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: var(--text-main);
+}
+
+/* ドラッグ中のスタイル */
+.keywords-table tbody tr.dragging {
+    opacity: 0.5;
+    background-color: #e2e8f0;
+}
+
+/* Google検索ボタン */
+button[title="Google検索"] {
+    padding: 0.5rem 0.75rem;
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    font-size: 1rem;
+}
+
+button[title="Google検索"]:hover:not(:disabled) {
+    background-color: #e2e8f0;
+    transform: scale(1.05);
+}
+
+/* 項目ブロックヘッダーのボタングループ */
+.type-block .d-flex.gap-1 {
+    flex-wrap: nowrap;
+}
+
+/* キーワードテキストのインライン編集 */
+.keyword-text-cell {
+    transition: background-color 0.2s ease;
+}
+
+.keyword-text-cell:hover {
+    background-color: #f8fafc;
+}
+
+.keyword-text-cell input {
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+}
+
+/* キーワードテーブルのレスポンシブ対応 */
+@media (max-width: 768px) {
+    .keywords-table th:first-child,
+    .keywords-table td:first-child {
+        width: 60px;
+    }
+
+    .keywords-table th:last-child,
+    .keywords-table td:last-child {
+        width: 120px;
+    }
+
+    .drag-handle {
+        font-size: 1rem;
+    }
+}
+
 
 /* src/styles/utilities.css */
 /* ユーティリティクラス */
@@ -1305,18 +1400,16 @@ button:disabled {
                     <option value="">カテゴリを選択してください</option>
                 </select>
             </div>
+            <div style="margin-top: 1rem;">
+                <button id="add-category-btn" class="btn secondary w-100">+ 新規カテゴリ追加</button>
+            </div>
         </div>
-
-        <!-- Type一覧 -->
-        <div id="types-list"></div>
 
         <!-- Regulation（命名ルール）セクション -->
         <div id="regulations-section"></div>
 
-        <!-- カテゴリ追加ボタン -->
-        <div class="form-card">
-            <button id="add-category-btn" class="btn secondary w-100">新規カテゴリ追加</button>
-        </div>
+        <!-- Type一覧 -->
+        <div id="types-list"></div>
     </div>
 
     <!-- Type編集モーダル -->
@@ -1325,6 +1418,12 @@ button:disabled {
             <h3>入力項目の編集</h3>
             <form id="edit-type-form">
                 <input type="hidden" id="edit-type-id" />
+
+                <div class="form-group">
+                    <label for="edit-type-key-name">キー名</label>
+                    <input type="text" id="edit-type-key-name" class="form-control" readonly style="background-color: #f1f5f9; cursor: not-allowed;" />
+                    <p class="text-sm text-muted mt-1">キー名は変更できません</p>
+                </div>
 
                 <div class="form-group">
                     <label for="edit-type-name">項目名 *</label>
@@ -1344,11 +1443,6 @@ button:disabled {
                         <option value="MULTI">複数選択</option>
                         <option value="TRUE_FALSE">True/False</option>
                     </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="edit-type-priority">優先順位</label>
-                    <input type="number" id="edit-type-priority" class="form-control" min="1" />
                 </div>
 
                 <div class="form-group">
@@ -1373,12 +1467,13 @@ button:disabled {
             <form id="add-type-form">
                 <div class="form-group">
                     <label for="add-type-name">項目名 *</label>
-                    <input type="text" id="add-type-name" class="form-control" required />
+                    <input type="text" id="add-type-name" class="form-control" required placeholder="例: N人掛け" />
+                    <p class="text-sm text-muted mt-1">項目名がそのままキー名として使用されます</p>
                 </div>
 
                 <div class="form-group">
                     <label for="add-type-description">説明</label>
-                    <textarea id="add-type-description" class="form-control" rows="3"></textarea>
+                    <textarea id="add-type-description" class="form-control" rows="3" placeholder="この項目の説明（任意）"></textarea>
                 </div>
 
                 <div class="form-group">
@@ -1400,6 +1495,26 @@ button:disabled {
 
                 <div class="modal-actions">
                     <button type="button" class="btn secondary" onclick="closeModal('add-type-modal')">キャンセル</button>
+                    <button type="submit" class="btn primary">追加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- キーワード追加モーダル -->
+    <div id="add-keyword-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3>キーワードを追加</h3>
+            <form id="add-keyword-form">
+                <input type="hidden" id="add-keyword-type-id" />
+
+                <div class="form-group">
+                    <label for="add-keyword-text">キーワード *</label>
+                    <input type="text" id="add-keyword-text" class="form-control" required placeholder="例: 2人掛け" />
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary" onclick="closeModal('add-keyword-modal')">キャンセル</button>
                     <button type="submit" class="btn primary">追加</button>
                 </div>
             </form>
@@ -1445,7 +1560,7 @@ button:disabled {
                 <div id="placeholder-buttons" class="mb-3"></div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn secondary" onclick="closeModal('edit-regulation-modal')">キャンセル</button>
+                    <button type="button" id="cancel-regulation-edit" class="btn secondary">キャンセル</button>
                     <button type="submit" class="btn primary">保存</button>
                 </div>
             </form>
@@ -2434,48 +2549,72 @@ function renderTypesList(typesData) {
     html += '<button id="add-type-btn" class="btn primary btn-sm">+ 項目を追加</button>';
     html += '</div>';
 
-    // typesDataは [{type: {...}, keywords: [...]}] の形式
-    html += '<div class="table-responsive">';
-    html += '<table class="table">';
-    html += '<thead><tr>';
-    html += '<th style="width: 50px;">順</th>';
-    html += '<th>項目名</th>';
-    html += '<th style="width: 80px;">タイプ</th>';
-    html += '<th style="width: 80px;">必須</th>';
-    html += '<th style="width: 100px;">キーワード</th>';
-    html += '<th style="width: 220px;">操作</th>';
-    html += '</tr></thead>';
-    html += '<tbody>';
-
+    // 項目ごとにブロック分けして表示
     typesData.forEach((typeData) => {
         const type = typeData.type;
         const keywords = typeData.keywords || [];
 
-        html += '<tr>';
-        html += `<td>${type.priority}</td>`;
-        html += `<td>`;
-        html += `<div><strong>${escapeHtml(type.display_name)}</strong></div>`;
+        html += '<div class="type-block" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 1rem; margin-bottom: 1rem;">';
+
+        // 項目ヘッダー
+        html += '<div class="d-flex justify-between align-center mb-3">';
+        html += '<div>';
+        html += `<h4 style="margin: 0; font-size: 1rem; font-weight: 600;">${escapeHtml(type.display_name)}</h4>`;
         if (type.description) {
-            html += `<div class="text-xs text-muted">${escapeHtml(type.description)}</div>`;
+            html += `<p class="text-xs text-muted" style="margin: 0.25rem 0 0 0;">${escapeHtml(type.description)}</p>`;
         }
-        html += `</td>`;
-        html += `<td><span class="badge badge-secondary">${escapeHtml(type.selection_type)}</span></td>`;
-        html += `<td><span class="badge ${type.is_required ? 'badge-required' : 'badge-optional'}">${type.is_required ? '必須' : '任意'}</span></td>`;
-        html += `<td class="text-center">${keywords.length > 0 ? keywords.length + '個' : '-'}</td>`;
-        html += `<td>`;
-        html += `<div class="d-flex gap-1">`;
-        html += `<button class="btn secondary btn-sm" onclick="editType(${type.id})">編集</button>`;
-        if (type.selection_type !== 'TEXT' && type.selection_type !== 'TRUE_FALSE') {
-            html += `<button class="btn secondary btn-sm" onclick="manageKeywords(${type.id}, '${escapeHtml(type.display_name)}')">キーワード</button>`;
+        html += '</div>';
+        html += '<div class="d-flex gap-1">';
+        html += `<span class="badge badge-secondary">${escapeHtml(type.selection_type)}</span>`;
+        html += `<span class="badge ${type.is_required ? 'badge-required' : 'badge-optional'}">${type.is_required ? '必須' : '任意'}</span>`;
+        html += `<button class="btn secondary btn-sm btn-edit-type" data-type-id="${type.id}" title="項目を編集">項目編集</button>`;
+        html += `<button class="btn danger btn-sm btn-delete-type" data-type-id="${type.id}" data-type-name="${escapeHtml(type.display_name)}" title="項目を削除">削除</button>`;
+        html += '</div>';
+        html += '</div>';
+
+        // キーワードテーブル（SINGLE/MULTIの場合のみ）
+        if (type.selection_type === 'SINGLE' || type.selection_type === 'MULTI') {
+            html += '<div class="keywords-section">';
+            html += '<div class="d-flex justify-between align-center mb-2">';
+            html += '<h5 style="margin: 0; font-size: 0.9rem; font-weight: 600;">キーワード一覧</h5>';
+            html += `<button class="btn primary btn-sm btn-add-keyword" data-type-id="${type.id}" title="キーワードを追加">+ キーワード追加</button>`;
+            html += '</div>';
+
+            if (keywords.length > 0) {
+                html += '<div class="table-responsive">';
+                html += `<table class="table keywords-table" data-type-id="${type.id}">`;
+                html += '<thead><tr>';
+                html += '<th style="width: 80px;">優先順位</th>';
+                html += '<th>テキスト</th>';
+                html += '<th style="width: 150px;">操作</th>';
+                html += '</tr></thead>';
+                html += '<tbody class="sortable-keywords">';
+
+                keywords.forEach((keyword) => {
+                    html += `<tr data-keyword-id="${keyword.id}" draggable="true">`;
+                    html += `<td class="text-center"><span class="drag-handle" style="cursor: move;">☰</span> ${keyword.priority}</td>`;
+                    html += `<td class="keyword-text-cell" data-keyword-id="${keyword.id}" data-keyword-text="${escapeHtml(keyword.keyword)}" style="cursor: pointer;" title="クリックして編集">${escapeHtml(keyword.keyword)}</td>`;
+                    html += `<td>`;
+                    html += `<div class="d-flex gap-1">`;
+                    html += `<button class="btn secondary btn-sm btn-google-search" data-keyword="${escapeHtml(keyword.keyword)}" title="Google検索">🔍</button>`;
+                    html += `<button class="btn danger btn-sm btn-delete-keyword" data-keyword-id="${keyword.id}" data-keyword-text="${escapeHtml(keyword.keyword)}" title="削除">削除</button>`;
+                    html += `</div>`;
+                    html += `</td>`;
+                    html += '</tr>';
+                });
+
+                html += '</tbody></table>';
+                html += '</div>';
+            } else {
+                html += '<p class="text-muted text-sm">キーワードがありません</p>';
+            }
+
+            html += '</div>';
         }
-        html += `<button class="btn danger btn-sm" onclick="deleteType(${type.id}, '${escapeHtml(type.display_name)}')">削除</button>`;
-        html += `</div>`;
-        html += `</td>`;
-        html += '</tr>';
+
+        html += '</div>';
     });
 
-    html += '</tbody></table>';
-    html += '</div>';
     html += '</div>';
 
     listContainer.innerHTML = html;
@@ -2485,22 +2624,79 @@ function renderTypesList(typesData) {
     if (addTypeBtn) {
         addTypeBtn.addEventListener('click', onAddType);
     }
+
+    // 項目編集ボタンのイベント
+    document.querySelectorAll('.btn-edit-type').forEach(btn => {
+        btn.addEventListener('click', function() {
+            editType(this.dataset.typeId);
+        });
+    });
+
+    // 項目削除ボタンのイベント
+    document.querySelectorAll('.btn-delete-type').forEach(btn => {
+        btn.addEventListener('click', function() {
+            deleteType(this.dataset.typeId, this.dataset.typeName);
+        });
+    });
+
+    // キーワード追加ボタンのイベント
+    document.querySelectorAll('.btn-add-keyword').forEach(btn => {
+        btn.addEventListener('click', function() {
+            addKeywordInline(this.dataset.typeId);
+        });
+    });
+
+    // Google検索ボタンのイベント
+    document.querySelectorAll('.btn-google-search').forEach(btn => {
+        btn.addEventListener('click', function() {
+            window.open('https://www.google.com/search?q=' + encodeURIComponent(this.dataset.keyword), '_blank');
+        });
+    });
+
+    // キーワードテキストのインライン編集
+    document.querySelectorAll('.keyword-text-cell').forEach(cell => {
+        cell.addEventListener('click', function() {
+            makeKeywordEditable(this);
+        });
+    });
+
+    // キーワード削除ボタンのイベント
+    document.querySelectorAll('.btn-delete-keyword').forEach(btn => {
+        btn.addEventListener('click', function() {
+            deleteKeyword(this.dataset.keywordId, this.dataset.keywordText);
+        });
+    });
+
+    // ドラッグアンドドロップを初期化
+    initDragAndDrop();
 }
 
 /**
  * Type編集モーダルを開く
  */
 async function editType(typeId) {
+    // モーダルを先に開く（ローディング状態）
+    openModal('edit-type-modal');
+
+    // フォームをローディング状態に
+    const form = document.getElementById('edit-type-form');
+    const inputs = form.querySelectorAll('input, select, textarea, button');
+    inputs.forEach(input => input.disabled = true);
+
     try {
         // 現在のカテゴリIDを取得
         const categoryId = document.getElementById('settings-category-select').value;
-        if (!categoryId) return;
+        if (!categoryId) {
+            closeModal('edit-type-modal');
+            return;
+        }
 
         // スキーマを再取得してTypeを探す
         const schema = await callGasApi('getSchemaForCategory', categoryId);
         const typeData = schema.types.find(t => t.type.id === typeId);
 
         if (!typeData) {
+            closeModal('edit-type-modal');
             alert('項目が見つかりませんでした');
             return;
         }
@@ -2509,23 +2705,23 @@ async function editType(typeId) {
 
         // モーダルに値を設定
         document.getElementById('edit-type-id').value = type.id;
+        document.getElementById('edit-type-key-name').value = type.key_name || '';
         document.getElementById('edit-type-name').value = type.display_name;
         document.getElementById('edit-type-description').value = type.description || '';
         document.getElementById('edit-type-selection').value = type.selection_type;
-        document.getElementById('edit-type-priority').value = type.priority;
         document.getElementById('edit-type-required').checked = type.is_required;
 
-        // モーダルを開く
-        openModal('edit-type-modal');
+        // フォームを有効化
+        inputs.forEach(input => input.disabled = false);
 
         // フォーム送信イベント
-        const form = document.getElementById('edit-type-form');
         form.onsubmit = (e) => {
             e.preventDefault();
             saveTypeEdit();
         };
     } catch (error) {
         console.error('Failed to load type:', error);
+        closeModal('edit-type-modal');
         alert('項目の読み込みに失敗しました');
     }
 }
@@ -2536,11 +2732,10 @@ async function editType(typeId) {
 async function saveTypeEdit() {
     const typeId = document.getElementById('edit-type-id').value;
     const typeData = {
-        id: parseInt(typeId),
-        type_name: document.getElementById('edit-type-name').value,
+        id: typeId,
+        display_name: document.getElementById('edit-type-name').value,
         description: document.getElementById('edit-type-description').value,
         selection_type: document.getElementById('edit-type-selection').value,
-        priority: parseInt(document.getElementById('edit-type-priority').value),
         is_required: document.getElementById('edit-type-required').checked
     };
 
@@ -2630,29 +2825,45 @@ function renderKeywordsList(keywords) {
 }
 
 /**
- * キーワードをインライン追加
+ * キーワード追加モーダルを開く
  */
 function addKeywordInline(typeId) {
-    const keyword = prompt('追加するキーワードを入力してください');
-    if (!keyword) return;
+    // TypeIDを保存
+    document.getElementById('add-keyword-type-id').value = typeId;
+    document.getElementById('add-keyword-text').value = '';
 
-    addKeywordApi(typeId, keyword);
+    // モーダルを開く
+    openModal('add-keyword-modal');
+
+    // フォーム送信イベント
+    const form = document.getElementById('add-keyword-form');
+    form.onsubmit = (e) => {
+        e.preventDefault();
+        saveNewKeyword();
+    };
 }
 
 /**
- * キーワード追加API呼び出し
+ * 新しいキーワードを保存
  */
-async function addKeywordApi(typeId, keyword) {
+async function saveNewKeyword() {
+    const typeId = document.getElementById('add-keyword-type-id').value;
+    const keyword = document.getElementById('add-keyword-text').value.trim();
+
+    if (!keyword) {
+        alert('キーワードを入力してください');
+        return;
+    }
+
     try {
         await callGasApi('addKeyword', typeId, keyword);
+        closeModal('add-keyword-modal');
         showToast('キーワードを追加しました');
 
-        // キーワード一覧を再読み込み
-        const categoryId = document.getElementById('settings-category-select').value;
-        const schema = await callGasApi('getSchemaForCategory', categoryId);
-        const typeData = schema.types.find(t => t.type.id === typeId);
-        if (typeData) {
-            renderKeywordsList(typeData.keywords || []);
+        // 画面をリロード
+        const categorySelect = document.getElementById('settings-category-select');
+        if (categorySelect && categorySelect.value) {
+            onSettingsCategoryChange({ target: categorySelect });
         }
     } catch (error) {
         console.error('Failed to add keyword:', error);
@@ -2661,7 +2872,7 @@ async function addKeywordApi(typeId, keyword) {
 }
 
 /**
- * キーワード編集
+ * キーワード編集（モーダル用）
  */
 async function editKeyword(keywordId, currentKeyword, currentPriority) {
     const newKeyword = prompt('キーワードを編集してください', currentKeyword);
@@ -2682,7 +2893,7 @@ async function editKeyword(keywordId, currentKeyword, currentPriority) {
         const typeId = document.getElementById('keywords-type-id').value;
         const categoryId = document.getElementById('settings-category-select').value;
         const schema = await callGasApi('getSchemaForCategory', categoryId);
-        const typeData = schema.types.find(t => t.type.id === parseInt(typeId));
+        const typeData = schema.types.find(t => t.type.id === typeId);
         if (typeData) {
             renderKeywordsList(typeData.keywords || []);
         }
@@ -2690,6 +2901,83 @@ async function editKeyword(keywordId, currentKeyword, currentPriority) {
         console.error('Failed to update keyword:', error);
         alert('キーワードの更新に失敗しました');
     }
+}
+
+/**
+ * キーワードテキストをインライン編集可能にする
+ */
+function makeKeywordEditable(cell) {
+    // 既に編集中の場合は何もしない
+    if (cell.querySelector('input')) return;
+
+    const keywordId = cell.dataset.keywordId;
+    const currentText = cell.dataset.keywordText;
+
+    // テキストを入力フィールドに置き換え
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = currentText;
+    input.className = 'form-control';
+    input.style.width = '100%';
+
+    cell.textContent = '';
+    cell.appendChild(input);
+    input.focus();
+    input.select();
+
+    // 保存処理
+    const saveEdit = async () => {
+        const newText = input.value.trim();
+        if (!newText) {
+            alert('キーワードを入力してください');
+            input.focus();
+            return;
+        }
+
+        if (newText === currentText) {
+            // 変更なし
+            cell.textContent = currentText;
+            return;
+        }
+
+        try {
+            await callGasApi('updateKeyword', {
+                id: keywordId,
+                keyword: newText
+            });
+            showToast('キーワードを更新しました');
+
+            // 画面をリロード
+            const categorySelect = document.getElementById('settings-category-select');
+            if (categorySelect && categorySelect.value) {
+                onSettingsCategoryChange({ target: categorySelect });
+            }
+        } catch (error) {
+            console.error('Failed to update keyword:', error);
+            alert('キーワードの更新に失敗しました');
+            cell.textContent = currentText;
+        }
+    };
+
+    // Enterキーで保存
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            saveEdit();
+        } else if (e.key === 'Escape') {
+            // Escキーでキャンセル
+            cell.textContent = currentText;
+        }
+    });
+
+    // フォーカスが外れたら保存
+    input.addEventListener('blur', () => {
+        setTimeout(() => {
+            if (cell.contains(input)) {
+                saveEdit();
+            }
+        }, 100);
+    });
 }
 
 /**
@@ -2704,13 +2992,22 @@ async function deleteKeyword(keywordId, keyword) {
         await callGasApi('deleteKeyword', { id: keywordId });
         showToast('キーワードを削除しました');
 
-        // キーワード一覧を再読み込み
-        const typeId = document.getElementById('keywords-type-id').value;
-        const categoryId = document.getElementById('settings-category-select').value;
-        const schema = await callGasApi('getSchemaForCategory', categoryId);
-        const typeData = schema.types.find(t => t.type.id === parseInt(typeId));
-        if (typeData) {
-            renderKeywordsList(typeData.keywords || []);
+        // モーダル内から呼ばれた場合
+        const modalTypeId = document.getElementById('keywords-type-id');
+        if (modalTypeId && modalTypeId.value) {
+            const typeId = modalTypeId.value;
+            const categoryId = document.getElementById('settings-category-select').value;
+            const schema = await callGasApi('getSchemaForCategory', categoryId);
+            const typeData = schema.types.find(t => t.type.id === parseInt(typeId));
+            if (typeData) {
+                renderKeywordsList(typeData.keywords || []);
+            }
+        } else {
+            // インラインから呼ばれた場合
+            const categorySelect = document.getElementById('settings-category-select');
+            if (categorySelect && categorySelect.value) {
+                onSettingsCategoryChange({ target: categorySelect });
+            }
         }
     } catch (error) {
         console.error('Failed to delete keyword:', error);
@@ -2750,9 +3047,20 @@ function onAddType() {
  */
 async function saveNewType() {
     const categoryId = document.getElementById('settings-category-select').value;
+    const displayName = document.getElementById('add-type-name').value.trim();
+
+    if (!displayName) {
+        alert('項目名を入力してください');
+        return;
+    }
+
+    // key_nameは項目名と同じ
+    const keyName = displayName;
+
     const typeData = {
-        category_id: parseInt(categoryId),
-        type_name: document.getElementById('add-type-name').value,
+        category_id: categoryId,
+        key_name: keyName,
+        display_name: displayName,
         description: document.getElementById('add-type-description').value,
         selection_type: document.getElementById('add-type-selection').value,
         is_required: document.getElementById('add-type-required').checked
@@ -2809,15 +3117,21 @@ function renderRegulationsSection(regulations) {
         return;
     }
 
+    // 商品ページ名→商品名の順にソート
+    const sortedRegulations = [...regulations].sort((a, b) => {
+        const order = { '商品ページ名': 1, '商品名': 2 };
+        return (order[a.target] || 999) - (order[b.target] || 999);
+    });
+
     let html = '<div class="form-card">';
     html += '<h3>命名ルール</h3>';
 
-    regulations.forEach(regulation => {
+    sortedRegulations.forEach(regulation => {
         html += `
             <div class="input-group" style="border: 1px solid var(--border-color); padding: 1rem; border-radius: var(--border-radius-md); margin-top: 1rem;">
                 <div class="d-flex justify-between align-center mb-2">
                     <h4 style="margin: 0; font-size: 1rem;">${escapeHtml(regulation.target)}</h4>
-                    <button class="btn secondary btn-sm" onclick="editRegulation(${regulation.id})">編集</button>
+                    <button class="btn secondary btn-sm btn-edit-regulation" data-regulation-id="${regulation.id}">編集</button>
                 </div>
                 <div class="font-mono" style="background: var(--background-color); padding: 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.9rem; color: var(--text-main); word-break: break-all;">${escapeHtml(regulation.pattern_string)}</div>
             </div>
@@ -2826,20 +3140,39 @@ function renderRegulationsSection(regulations) {
 
     html += '</div>';
     section.innerHTML = html;
+
+    // 編集ボタンのイベントリスナーを追加
+    document.querySelectorAll('.btn-edit-regulation').forEach(btn => {
+        btn.addEventListener('click', function() {
+            editRegulation(this.dataset.regulationId);
+        });
+    });
 }
 
 /**
  * Regulation編集モーダルを開く
  */
 async function editRegulation(regulationId) {
+    // モーダルを先に開く（ローディング状態）
+    openModal('edit-regulation-modal');
+
+    // フォームをローディング状態に
+    const form = document.getElementById('edit-regulation-form');
+    const inputs = form.querySelectorAll('input, select, textarea, button');
+    inputs.forEach(input => input.disabled = true);
+
     try {
         const categoryId = document.getElementById('settings-category-select').value;
-        if (!categoryId) return;
+        if (!categoryId) {
+            closeModal('edit-regulation-modal');
+            return;
+        }
 
         const schema = await callGasApi('getSchemaForCategory', categoryId);
         const regulation = schema.regulations.find(r => r.id === regulationId);
 
         if (!regulation) {
+            closeModal('edit-regulation-modal');
             alert('ルールが見つかりませんでした');
             return;
         }
@@ -2852,18 +3185,41 @@ async function editRegulation(regulationId) {
         // プレースホルダーボタンを生成
         renderPlaceholderButtons(schema.types || []);
 
-        // モーダルを開く
-        openModal('edit-regulation-modal');
+        // フォームを有効化
+        inputs.forEach(input => input.disabled = false);
+
+        // キャンセルボタンのイベント（リセット処理付き）
+        const cancelBtn = document.getElementById('cancel-regulation-edit');
+        if (cancelBtn) {
+            cancelBtn.onclick = () => {
+                resetRegulationModal();
+                closeModal('edit-regulation-modal');
+            };
+        }
 
         // フォーム送信イベント
-        const form = document.getElementById('edit-regulation-form');
         form.onsubmit = (e) => {
             e.preventDefault();
             saveRegulationEdit();
         };
     } catch (error) {
         console.error('Failed to load regulation:', error);
+        closeModal('edit-regulation-modal');
         alert('ルールの読み込みに失敗しました');
+    }
+}
+
+/**
+ * Regulation編集モーダルをリセット
+ */
+function resetRegulationModal() {
+    document.getElementById('edit-regulation-id').value = '';
+    document.getElementById('edit-regulation-target').value = '';
+    document.getElementById('edit-regulation-pattern').value = '';
+
+    const placeholderButtons = document.getElementById('placeholder-buttons');
+    if (placeholderButtons) {
+        placeholderButtons.innerHTML = '';
     }
 }
 
@@ -2879,21 +3235,28 @@ function renderPlaceholderButtons(typesData) {
 
     typesData.forEach(typeData => {
         const type = typeData.type;
-        html += `<button type="button" class="btn btn-secondary btn-sm" onclick="insertPlaceholder(${type.id})">{${type.id}} - ${escapeHtml(type.display_name)}</button>`;
+        html += `<button type="button" class="btn btn-secondary btn-sm btn-insert-placeholder" data-type-id="${type.id}" data-type-name="${escapeHtml(type.display_name)}">${escapeHtml(type.display_name)}</button>`;
     });
 
     html += '</div>';
     container.innerHTML = html;
+
+    // イベントリスナーを追加
+    document.querySelectorAll('.btn-insert-placeholder').forEach(btn => {
+        btn.addEventListener('click', function() {
+            insertPlaceholder(this.dataset.typeId, this.dataset.typeName);
+        });
+    });
 }
 
 /**
  * プレースホルダーを挿入
  */
-function insertPlaceholder(typeId) {
+function insertPlaceholder(_typeId, typeName) {
     const textarea = document.getElementById('edit-regulation-pattern');
     if (!textarea) return;
 
-    const placeholder = `{${typeId}}`;
+    const placeholder = `{${typeName}}`;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const text = textarea.value;
@@ -2912,9 +3275,10 @@ async function saveRegulationEdit() {
 
     try {
         await callGasApi('updateRegulation', {
-            id: parseInt(regulationId),
+            id: regulationId,
             pattern_string: patternString
         });
+        resetRegulationModal();
         closeModal('edit-regulation-modal');
         showToast('ルールを更新しました');
 
@@ -2936,6 +3300,92 @@ function onAddCategory() {
     console.log('Add new category');
     // TODO: カテゴリ追加ウィザードの実装
     alert('カテゴリ追加機能は今後実装予定です');
+}
+
+/**
+ * ドラッグアンドドロップの初期化
+ */
+function initDragAndDrop() {
+    const tables = document.querySelectorAll('.keywords-table');
+
+    tables.forEach(table => {
+        const tbody = table.querySelector('.sortable-keywords');
+        if (!tbody) return;
+
+        let draggedRow = null;
+
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(row => {
+            row.addEventListener('dragstart', function(e) {
+                draggedRow = this;
+                this.style.opacity = '0.5';
+                e.dataTransfer.effectAllowed = 'move';
+            });
+
+            row.addEventListener('dragend', function() {
+                this.style.opacity = '1';
+                draggedRow = null;
+            });
+
+            row.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+
+                if (draggedRow && draggedRow !== this) {
+                    const rect = this.getBoundingClientRect();
+                    const midpoint = rect.top + rect.height / 2;
+
+                    if (e.clientY < midpoint) {
+                        this.parentNode.insertBefore(draggedRow, this);
+                    } else {
+                        this.parentNode.insertBefore(draggedRow, this.nextSibling);
+                    }
+                }
+            });
+
+            row.addEventListener('drop', function() {
+                // 順序変更を保存
+                saveKeywordOrder(table.dataset.typeId, tbody);
+            });
+        });
+    });
+}
+
+/**
+ * キーワードの順序を保存
+ */
+async function saveKeywordOrder(typeId, tbody) {
+    try {
+        const rows = tbody.querySelectorAll('tr');
+        const updates = [];
+
+        rows.forEach((row, index) => {
+            const keywordId = row.dataset.keywordId;
+            updates.push({
+                id: keywordId,
+                priority: index + 1
+            });
+        });
+
+        // 一括更新APIを呼び出す
+        await callGasApi('updateKeywordsPriority', typeId, updates);
+        showToast('優先順位を更新しました');
+
+        // 画面をリロード
+        const categorySelect = document.getElementById('settings-category-select');
+        if (categorySelect && categorySelect.value) {
+            onSettingsCategoryChange({ target: categorySelect });
+        }
+    } catch (error) {
+        console.error('Failed to update keyword order:', error);
+        alert('優先順位の更新に失敗しました');
+
+        // エラー時は画面をリロードして元に戻す
+        const categorySelect = document.getElementById('settings-category-select');
+        if (categorySelect && categorySelect.value) {
+            onSettingsCategoryChange({ target: categorySelect });
+        }
+    }
 }
 
 // 初期化

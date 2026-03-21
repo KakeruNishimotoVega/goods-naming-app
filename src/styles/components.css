@@ -684,3 +684,98 @@ button:disabled {
         bottom: 1rem;
     }
 }
+
+/* ルール設定画面 - 項目ブロック */
+.type-block {
+    transition: box-shadow 0.2s ease;
+}
+
+.type-block:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.keywords-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* キーワードテーブル - ドラッグアンドドロップ */
+.keywords-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.keywords-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.keywords-table tbody tr[draggable="true"] {
+    cursor: move;
+}
+
+.drag-handle {
+    display: inline-block;
+    margin-right: 0.5rem;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    color: var(--text-main);
+}
+
+/* ドラッグ中のスタイル */
+.keywords-table tbody tr.dragging {
+    opacity: 0.5;
+    background-color: #e2e8f0;
+}
+
+/* Google検索ボタン */
+button[title="Google検索"] {
+    padding: 0.5rem 0.75rem;
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    font-size: 1rem;
+}
+
+button[title="Google検索"]:hover:not(:disabled) {
+    background-color: #e2e8f0;
+    transform: scale(1.05);
+}
+
+/* 項目ブロックヘッダーのボタングループ */
+.type-block .d-flex.gap-1 {
+    flex-wrap: nowrap;
+}
+
+/* キーワードテキストのインライン編集 */
+.keyword-text-cell {
+    transition: background-color 0.2s ease;
+}
+
+.keyword-text-cell:hover {
+    background-color: #f8fafc;
+}
+
+.keyword-text-cell input {
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+}
+
+/* キーワードテーブルのレスポンシブ対応 */
+@media (max-width: 768px) {
+    .keywords-table th:first-child,
+    .keywords-table td:first-child {
+        width: 60px;
+    }
+
+    .keywords-table th:last-child,
+    .keywords-table td:last-child {
+        width: 120px;
+    }
+
+    .drag-handle {
+        font-size: 1rem;
+    }
+}
