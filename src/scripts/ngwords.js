@@ -30,14 +30,14 @@ async function loadNgWords() {
         const ngWords = await callGasApi('getNgWords');
 
         if (ngWords.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">NGワードが登録されていません</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">NGワードが登録されていません</td></tr>';
             return;
         }
 
         renderNgWordsList(ngWords);
     } catch (error) {
         console.error('Failed to load NG words:', error);
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">NGワードの読み込みに失敗しました</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">NGワードの読み込みに失敗しました</td></tr>';
     }
 }
 
@@ -53,18 +53,40 @@ function renderNgWordsList(ngWords) {
     ngWords.forEach(ngWord => {
         html += `
             <tr>
-                <td>${ngWord.id}</td>
-                <td><strong>${escapeHtml(ngWord.word)}</strong></td>
+                <td>
+                    <span class="ngword-text" data-id="${ngWord.id}" style="cursor: pointer; color: #007bff; text-decoration: underline;">
+                        ${escapeHtml(ngWord.word)}
+                    </span>
+                </td>
                 <td>${escapeHtml(ngWord.reason || '-')}</td>
                 <td>
-                    <button class="btn btn-secondary btn-sm" onclick="editNgWord(${ngWord.id}, '${escapeHtml(ngWord.word)}', '${escapeHtml(ngWord.reason || '')}')">編集</button>
-                    <button class="btn btn-danger btn-sm ml-1" onclick="deleteNgWord(${ngWord.id}, '${escapeHtml(ngWord.word)}')">削除</button>
+                    <button class="btn-delete-ngword btn btn-danger btn-sm" data-id="${ngWord.id}" data-word="${escapeHtml(ngWord.word)}">削除</button>
                 </td>
             </tr>
         `;
     });
 
     tbody.innerHTML = html;
+
+    // NGワードクリックでモーダルを開く
+    document.querySelectorAll('.ngword-text').forEach(el => {
+        el.addEventListener('click', function() {
+            const id = this.dataset.id; // UUIDなので文字列のまま
+            const ngWord = ngWords.find(ng => ng.id === id);
+            if (ngWord) {
+                editNgWord(ngWord.id, ngWord.word, ngWord.reason || '');
+            }
+        });
+    });
+
+    // 削除ボタンのイベント
+    document.querySelectorAll('.btn-delete-ngword').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id; // UUIDなので文字列のまま
+            const word = this.dataset.word;
+            deleteNgWord(id, word);
+        });
+    });
 }
 
 /**
@@ -128,7 +150,7 @@ function editNgWord(id, currentWord, currentReason) {
  * NGワード編集を保存
  */
 async function saveNgWordEdit() {
-    const id = parseInt(document.getElementById('edit-ngword-id').value);
+    const id = document.getElementById('edit-ngword-id').value; // UUIDなので文字列のまま
     const word = document.getElementById('edit-ngword-word').value;
     const reason = document.getElementById('edit-ngword-reason').value;
 
