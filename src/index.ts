@@ -52,8 +52,14 @@ const testSupabaseConnection = () => {
 // API関数のインポート（build.jsがバンドル時に解決）
 // NOTE: GAS環境では通常のimportは使えないが、esbuildがバンドル時に解決する
 import { getCategories, getSchemaForCategory, createNewCategory } from './api/categories';
+import { addType, updateType, deleteType } from './api/types';
 
 // カテゴリAPI関数をグローバルに公開
 (global as any).getCategories = getCategories;
 (global as any).getSchemaForCategory = getSchemaForCategory;
 (global as any).createNewCategory = createNewCategory;
+
+// TypeAPI関数をグローバルに公開
+(global as any).addType = addType;
+(global as any).updateType = updateType;
+(global as any).deleteType = deleteType;

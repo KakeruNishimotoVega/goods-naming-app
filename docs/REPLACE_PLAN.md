@@ -60,9 +60,9 @@
 - [x] `createNewCategory(wizardData)` - ウィザードによるカテゴリ作成 ✅
 
 ### 1.3 Type（入力項目）管理API（`src/api/types.ts`）
-- [ ] `addType(categoryId, typeData)` - 新規項目追加
-- [ ] `updateType(typeObject)` - 項目の更新
-- [ ] `deleteType(typeId)` - 項目の削除
+- [x] `addType(categoryId, typeData)` - 新規項目追加 ✅
+- [x] `updateType(typeObject)` - 項目の更新 ✅
+- [x] `deleteType(typeId)` - 項目の削除 ✅
 
 ### 1.4 Keyword（選択肢）管理API（`src/api/keywords.ts`）
 - [ ] `addKeyword(typeId, keyword)` - キーワード追加
