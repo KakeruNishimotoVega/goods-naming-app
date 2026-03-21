@@ -108,10 +108,11 @@
 - [ ] Tailwind CSS導入（CDN版で試験）※フェーズ6で実施
 
 ### 2.4 JavaScriptの分割
-- [ ] 共通ユーティリティ → `src/scripts/utils.js`
-- [ ] アプリケーションコア → `src/scripts/app.js`
-- [ ] 命名画面ロジック → `src/scripts/naming.js`
-- [ ] 設定画面ロジック → `src/scripts/settings.js`
+- [x] 共通ユーティリティ → `src/scripts/utils.js` ✅
+- [x] アプリケーションコア → `src/scripts/app.js` ✅
+- [x] 命名画面ロジック → `src/scripts/naming.js` ✅
+- [x] 設定画面ロジック → `src/scripts/settings.js` ✅
+- [ ] 詳細な実装はフェーズ3で実施（イベントハンドラ、API連携など）
 
 ### 2.5 Google Apps ScriptのHTML配信設定
 - [ ] `doGet()`関数でHTMLを配信
