@@ -284,3 +284,59 @@ input:disabled {
 .table tr:last-child td {
     border-bottom: none;
 }
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .navbar .container {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 0 1rem;
+    }
+
+    .navbar-menu {
+        gap: 1rem;
+    }
+
+    .container {
+        padding: 0 1rem;
+    }
+
+    .card {
+        padding: 1rem;
+    }
+
+    .modal-content {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+
+    .table {
+        font-size: 0.875rem;
+    }
+
+    .table th,
+    .table td {
+        padding: 0.5rem;
+    }
+
+    .d-flex.gap-2,
+    .d-flex.gap-1 {
+        flex-wrap: wrap;
+    }
+}
+
+/* スクリーン遷移アニメーション */
+.screen {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

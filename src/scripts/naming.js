@@ -42,7 +42,7 @@ async function loadCategories() {
 
         document.getElementById('dynamic-form').innerHTML = '';
     } catch (error) {
-        console.error('Failed to load categories:', error);
+        handleApiError(error, 'loadCategories');
         showError('カテゴリの読み込みに失敗しました', 'dynamic-form');
     }
 }
@@ -68,7 +68,7 @@ async function onCategoryChange(event) {
         // 動的フォームを生成
         renderDynamicForm(schema);
     } catch (error) {
-        console.error('Failed to load schema:', error);
+        handleApiError(error, 'onCategoryChange');
         showError('スキーマの読み込みに失敗しました', 'dynamic-form');
     }
 }
@@ -227,7 +227,7 @@ async function onGenerateNames(isRealtime = false) {
         // 結果を表示
         displayResult(result);
     } catch (error) {
-        console.error('Failed to generate names:', error);
+        handleApiError(error, 'onGenerateNames');
         if (!isRealtime) {
             showError('名称の生成に失敗しました', 'result-content');
         }
