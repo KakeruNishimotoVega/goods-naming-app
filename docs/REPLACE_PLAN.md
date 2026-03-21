@@ -37,9 +37,9 @@
 - [x] 各モジュールの責務を明確化 ✅
 
 ### 0.2 ドキュメント整備
-- [ ] `docs/API_SPEC.md` の作成（API仕様書のテンプレート）
-- [ ] `docs/ARCHITECTURE.md` の作成（アーキテクチャドキュメント）
-- [ ] `MEMORY.md` に初期設計方針を記録
+- [x] `docs/API_SPEC.md` の作成（API仕様書のテンプレート） ✅
+- [x] `docs/ARCHITECTURE.md` の作成（アーキテクチャドキュメント） ✅ (既存)
+- [x] `MEMORY.md` に初期設計方針を記録 ✅
 
 ### 0.3 共通ライブラリの準備
 - [ ] `src/lib/supabase.ts` - Supabase接続ヘルパー作成
