@@ -825,9 +825,18 @@ var global = this;
 
   // src/index.ts
   var doGet = (e) => {
-    return HtmlService.createHtmlOutputFromFile("index").setTitle("\u5546\u54C1\u540D\u30FB\u30AD\u30E3\u30C3\u30C1\u30B3\u30D4\u30FC\u547D\u540D\u30A2\u30D7\u30EA").addMetaTag("viewport", "width=device-width, initial-scale=1");
+    return HtmlService.createHtmlOutputFromFile("index").setTitle("LOWYA\u5546\u54C1\u547D\u540D\u30A2\u30D7\u30EA").addMetaTag("viewport", "width=device-width, initial-scale=1");
   };
   global.doGet = doGet;
+  var getEnvironmentVariables = () => {
+    const props = PropertiesService.getScriptProperties();
+    return {
+      supabaseUrl: props.getProperty("SUPABASE_URL") || "",
+      // NOTE: フロントエンドにはanon keyのみを渡す（service role keyは渡さない）
+      supabaseAnonKey: props.getProperty("SUPABASE_ANON_KEY") || ""
+    };
+  };
+  global.getEnvironmentVariables = getEnvironmentVariables;
   var testSupabaseConnection = () => {
     const props = PropertiesService.getScriptProperties();
     const supabaseUrl = props.getProperty("SUPABASE_URL");
@@ -869,6 +878,7 @@ var global = this;
 })();
 
 function doGet() { return global.doGet.apply(this, arguments); }
+function getEnvironmentVariables() { return global.getEnvironmentVariables.apply(this, arguments); }
 function testSupabaseConnection() { return global.testSupabaseConnection.apply(this, arguments); }
 function getCategories() { return global.getCategories.apply(this, arguments); }
 function getSchemaForCategory() { return global.getSchemaForCategory.apply(this, arguments); }

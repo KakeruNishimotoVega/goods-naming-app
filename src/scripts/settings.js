@@ -40,7 +40,7 @@ async function loadSettingsCategories() {
         categories.forEach(category => {
             const option = document.createElement('option');
             option.value = category.id;
-            option.textContent = category.category_name;
+            option.textContent = category.name;
             select.appendChild(option);
         });
     } catch (error) {
