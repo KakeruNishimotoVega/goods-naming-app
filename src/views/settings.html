@@ -1,24 +1,33 @@
 <!-- ルール設定画面のテンプレート -->
 <div id="settings-screen" class="screen" style="display: none;">
-    <h1>ルール設定</h1>
-    <p>カテゴリごとの命名ルールを編集できます。</p>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>ルール設定</h1>
+            <p class="helper-text">カテゴリごとの入力項目と命名ルールを管理できます。</p>
+        </div>
 
-    <!-- カテゴリ選択 -->
-    <div class="form-group">
-        <label for="settings-category-select">カテゴリ</label>
-        <select id="settings-category-select" class="form-control">
-            <option value="">カテゴリを選択してください</option>
-        </select>
+        <!-- カテゴリ選択カード -->
+        <div class="form-card">
+            <h3>カテゴリを選択</h3>
+            <div class="input-group">
+                <label for="settings-category-select">カテゴリ</label>
+                <select id="settings-category-select" class="form-control">
+                    <option value="">カテゴリを選択してください</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Type一覧 -->
+        <div id="types-list"></div>
+
+        <!-- Regulation（命名ルール）セクション -->
+        <div id="regulations-section"></div>
+
+        <!-- カテゴリ追加ボタン -->
+        <div class="form-card">
+            <button id="add-category-btn" class="btn secondary w-100">新規カテゴリ追加</button>
+        </div>
     </div>
-
-    <!-- Type一覧 -->
-    <div id="types-list"></div>
-
-    <!-- Regulation（命名ルール）セクション -->
-    <div id="regulations-section" class="mt-4"></div>
-
-    <!-- カテゴリ追加ボタン -->
-    <button id="add-category-btn" class="btn btn-primary mt-3">新規カテゴリ追加</button>
 
     <!-- Type編集モーダル -->
     <div id="edit-type-modal" class="modal-backdrop">
@@ -60,8 +69,8 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-type-modal')">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn secondary" onclick="closeModal('edit-type-modal')">キャンセル</button>
+                    <button type="submit" class="btn primary">保存</button>
                 </div>
             </form>
         </div>
@@ -100,8 +109,8 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('add-type-modal')">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">追加</button>
+                    <button type="button" class="btn secondary" onclick="closeModal('add-type-modal')">キャンセル</button>
+                    <button type="submit" class="btn primary">追加</button>
                 </div>
             </form>
         </div>
@@ -120,7 +129,7 @@
             <div id="keywords-list"></div>
 
             <div class="modal-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeModal('keywords-modal')">閉じる</button>
+                <button type="button" class="btn secondary" onclick="closeModal('keywords-modal')">閉じる</button>
             </div>
         </div>
     </div>
@@ -146,8 +155,8 @@
                 <div id="placeholder-buttons" class="mb-3"></div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-regulation-modal')">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn secondary" onclick="closeModal('edit-regulation-modal')">キャンセル</button>
+                    <button type="submit" class="btn primary">保存</button>
                 </div>
             </form>
         </div>

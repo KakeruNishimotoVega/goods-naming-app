@@ -1,22 +1,32 @@
 <!-- 命名画面のテンプレート -->
 <div id="naming-screen" class="screen">
-    <h1>商品命名</h1>
-    <p>カテゴリを選択して、フォームに入力してください。</p>
+    <div class="page-container">
+        <div class="page-header">
+            <h1>商品命名</h1>
+            <p class="helper-text">カテゴリを選択して、フォームに入力してください。リアルタイムで商品名が生成されます。</p>
+        </div>
 
-    <!-- カテゴリ選択 -->
-    <div class="form-group">
-        <label for="category-select">カテゴリ</label>
-        <select id="category-select" class="form-control">
-            <option value="">カテゴリを選択してください</option>
-        </select>
-    </div>
+        <!-- カテゴリ選択カード -->
+        <div class="form-card">
+            <h3>カテゴリを選択</h3>
+            <div class="input-group">
+                <label for="category-select">カテゴリ</label>
+                <select id="category-select" class="form-control">
+                    <option value="">カテゴリを選択してください</option>
+                </select>
+            </div>
+        </div>
 
-    <!-- 動的フォーム -->
-    <div id="dynamic-form"></div>
+        <!-- 動的フォーム -->
+        <div id="dynamic-form"></div>
 
-    <!-- 結果表示エリア -->
-    <div id="naming-result" class="result-display" style="display: none;">
-        <h2>生成結果</h2>
-        <div id="result-content"></div>
+        <!-- 結果表示エリア（フローティング） -->
+        <div id="naming-result" class="result-floating" style="display: none;">
+            <div class="result-header">
+                <h3>生成結果</h3>
+                <button id="close-result-btn" class="btn-icon-close" aria-label="閉じる">×</button>
+            </div>
+            <div id="result-content"></div>
+        </div>
     </div>
 </div>

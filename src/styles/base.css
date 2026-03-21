@@ -260,6 +260,11 @@ input:disabled {
     margin-top: var(--spacing-lg);
 }
 
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 .table thead {
     background-color: #f8fafc;
 }

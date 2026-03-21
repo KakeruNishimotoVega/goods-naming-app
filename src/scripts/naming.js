@@ -15,6 +15,17 @@ function initNamingScreen() {
     if (categorySelect) {
         categorySelect.addEventListener('change', onCategoryChange);
     }
+
+    // 結果エリアの閉じるボタン
+    const closeResultBtn = document.getElementById('close-result-btn');
+    if (closeResultBtn) {
+        closeResultBtn.addEventListener('click', () => {
+            const resultContainer = document.getElementById('naming-result');
+            if (resultContainer) {
+                resultContainer.style.display = 'none';
+            }
+        });
+    }
 }
 
 /**
@@ -80,20 +91,22 @@ function renderDynamicForm(schema) {
     const formContainer = document.getElementById('dynamic-form');
     if (!formContainer) return;
 
-    let html = '<div class="card">';
+    let html = '<div class="form-card">';
+    html += '<h3>入力項目</h3>';
 
     // Type（入力項目）
     if (schema.types && schema.types.length > 0) {
-        html += '<h3>入力項目</h3>';
         schema.types.forEach(typeData => {
             // typeDataは {type: {...}, keywords: [...]} の形式
             html += renderTypeField(typeData.type, typeData.keywords);
         });
+    } else {
+        html += '<p class="text-muted">このカテゴリには入力項目がありません。</p>';
     }
 
-    html += '<div class="d-flex gap-2">';
-    html += '<button id="generate-btn" class="btn btn-primary mt-3">名称を生成</button>';
-    html += '<button id="reset-btn" class="btn btn-secondary mt-3">リセット</button>';
+    html += '<div class="d-flex gap-2 mt-3">';
+    html += '<button id="generate-btn" class="btn primary">名称を生成</button>';
+    html += '<button id="reset-btn" class="btn secondary">リセット</button>';
     html += '</div>';
     html += '</div>';
 
@@ -121,57 +134,61 @@ function renderDynamicForm(schema) {
  * @param {Array} keywords - キーワード一覧
  */
 function renderTypeField(type, keywords) {
-    let html = `<div class="form-group">`;
+    let html = `<div class="input-group">`;
 
-    // ラベル（必須表示も含む）
-    html += `<label>${escapeHtml(type.type_name)}`;
+    // ラベル（必須バッジ付き）
+    html += `<label>`;
+    html += `${escapeHtml(type.type_name)}`;
     if (type.is_required) {
-        html += '<span class="text-danger"> *</span>';
+        html += ' <span class="badge badge-required">必須</span>';
+    } else {
+        html += ' <span class="badge badge-optional">任意</span>';
     }
     html += '</label>';
 
     // 説明文があれば表示
     if (type.description) {
-        html += `<p class="text-sm text-gray-600">${escapeHtml(type.description)}</p>`;
+        html += `<p class="text-sm text-muted" style="margin-top: 0.25rem; margin-bottom: 0.75rem;">${escapeHtml(type.description)}</p>`;
     }
 
     if (type.selection_type === 'TEXT') {
         // テキスト入力
-        html += `<input type="text" id="type-${type.id}" class="form-control" ${type.is_required ? 'required' : ''} />`;
+        html += `<input type="text" id="type-${type.id}" class="form-control" placeholder="入力してください..." ${type.is_required ? 'required' : ''} />`;
     } else if (keywords && keywords.length > 0) {
         // 選択肢がある場合
         if (type.selection_type === 'SINGLE') {
-            // ラジオボタン
+            // チップUI（ラジオボタン）
+            html += '<div class="chip-group">';
             keywords.forEach(keyword => {
                 html += `
-                    <div class="form-check keyword-item">
-                        <input type="radio" name="type-${type.id}" value="${keyword.id}" id="keyword-${keyword.id}" class="form-check-input" ${type.is_required ? 'required' : ''} />
-                        <label for="keyword-${keyword.id}" class="form-check-label">
-                            ${escapeHtml(keyword.keyword)}
-                            <a href="https://www.google.com/search?q=${encodeURIComponent(keyword.keyword)}" target="_blank" class="google-search-link" title="Googleで検索">🔍</a>
-                        </label>
-                    </div>
+                    <label class="chip-label">
+                        <input type="radio" name="type-${type.id}" value="${keyword.id}" id="keyword-${keyword.id}" ${type.is_required ? 'required' : ''} />
+                        <span class="chip-text">${escapeHtml(keyword.keyword)}</span>
+                    </label>
                 `;
             });
+            html += '</div>';
         } else if (type.selection_type === 'MULTIPLE') {
-            // チェックボックス
+            // チップUI（チェックボックス）
+            html += '<div class="chip-group">';
             keywords.forEach(keyword => {
                 html += `
-                    <div class="form-check keyword-item">
-                        <input type="checkbox" name="type-${type.id}" value="${keyword.id}" id="keyword-${keyword.id}" class="form-check-input" />
-                        <label for="keyword-${keyword.id}" class="form-check-label">
-                            ${escapeHtml(keyword.keyword)}
-                            <a href="https://www.google.com/search?q=${encodeURIComponent(keyword.keyword)}" target="_blank" class="google-search-link" title="Googleで検索">🔍</a>
-                        </label>
-                    </div>
+                    <label class="chip-label">
+                        <input type="checkbox" name="type-${type.id}" value="${keyword.id}" id="keyword-${keyword.id}" />
+                        <span class="chip-text">${escapeHtml(keyword.keyword)}</span>
+                    </label>
                 `;
             });
+            html += '</div>';
         } else if (type.selection_type === 'TRUE_FALSE') {
-            // True/Falseトグル
+            // トグルスイッチ
             html += `
-                <div class="form-check form-switch">
-                    <input type="checkbox" id="type-${type.id}" class="form-check-input" role="switch" />
-                    <label for="type-${type.id}" class="form-check-label">有効にする</label>
+                <div class="toggle-switch-container">
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="type-${type.id}" />
+                        <span class="slider"></span>
+                    </label>
+                    <span>有効にする</span>
                 </div>
             `;
         }
@@ -306,58 +323,44 @@ function displayResult(result) {
     const resultContent = document.getElementById('result-content');
     if (!resultContent) return;
 
-    let html = '<div class="card">';
+    let html = '';
 
     // 商品ページ名
-    html += '<div class="mb-4">';
-    html += '<h3>商品ページ名</h3>';
-    html += `<p class="text-lg font-bold">${escapeHtml(result.productPageName || '')}</p>`;
-    html += `<p class="text-sm text-gray-600">文字数: ${result.characterCounts?.productPageName || 0}</p>`;
+    html += '<div class="result-item">';
+    html += '<h4>商品ページ名</h4>';
+    html += `<div class="result-text">${escapeHtml(result.productPageName || '未生成')}</div>`;
+    html += '<div class="result-meta">';
+    html += `<span class="char-count">文字数: ${result.characterCounts?.productPageName || 0}文字</span>`;
+    html += `<button id="copy-page-name-btn" class="btn secondary btn-sm copy-btn">コピー</button>`;
+    html += '</div>';
 
     // 商品ページ名のNGワードチェック
     const pageNgWords = (result.prohibitedWordsFound || []).filter(item => item.target === 'productPageName');
     if (pageNgWords.length > 0) {
-        html += '<div class="alert alert-warning mt-2">';
-        html += '<strong>⚠ NGワードが検出されました:</strong><ul class="mb-0">';
-        pageNgWords.forEach(ng => {
-            html += `<li>"${escapeHtml(ng.word)}"`;
-            if (ng.reason) {
-                html += ` - ${escapeHtml(ng.reason)}`;
-            }
-            html += '</li>';
-        });
-        html += '</ul></div>';
+        html += '<div class="alert alert-warning mt-2" style="margin-top: 0.5rem; font-size: 0.85rem;">';
+        html += '<strong>⚠ NGワード検出:</strong> ';
+        html += pageNgWords.map(ng => `"${escapeHtml(ng.word)}"`).join(', ');
+        html += '</div>';
     }
     html += '</div>';
 
     // 商品名
-    html += '<div class="mb-4">';
-    html += '<h3>商品名</h3>';
-    html += `<p class="text-lg font-bold">${escapeHtml(result.productName || '')}</p>`;
-    html += `<p class="text-sm text-gray-600">文字数: ${result.characterCounts?.productName || 0}</p>`;
+    html += '<div class="result-item">';
+    html += '<h4>商品名</h4>';
+    html += `<div class="result-text">${escapeHtml(result.productName || '未生成')}</div>`;
+    html += '<div class="result-meta">';
+    html += `<span class="char-count">文字数: ${result.characterCounts?.productName || 0}文字</span>`;
+    html += `<button id="copy-product-name-btn" class="btn secondary btn-sm copy-btn">コピー</button>`;
+    html += '</div>';
 
     // 商品名のNGワードチェック
     const nameNgWords = (result.prohibitedWordsFound || []).filter(item => item.target === 'productName');
     if (nameNgWords.length > 0) {
-        html += '<div class="alert alert-warning mt-2">';
-        html += '<strong>⚠ NGワードが検出されました:</strong><ul class="mb-0">';
-        nameNgWords.forEach(ng => {
-            html += `<li>"${escapeHtml(ng.word)}"`;
-            if (ng.reason) {
-                html += ` - ${escapeHtml(ng.reason)}`;
-            }
-            html += '</li>';
-        });
-        html += '</ul></div>';
+        html += '<div class="alert alert-warning mt-2" style="margin-top: 0.5rem; font-size: 0.85rem;">';
+        html += '<strong>⚠ NGワード検出:</strong> ';
+        html += nameNgWords.map(ng => `"${escapeHtml(ng.word)}"`).join(', ');
+        html += '</div>';
     }
-    html += '</div>';
-
-    // コピーボタン
-    html += '<div class="d-flex gap-2">';
-    html += '<button id="copy-page-name-btn" class="btn btn-secondary">商品ページ名をコピー</button>';
-    html += '<button id="copy-product-name-btn" class="btn btn-secondary">商品名をコピー</button>';
-    html += '</div>';
-
     html += '</div>';
 
     resultContent.innerHTML = html;

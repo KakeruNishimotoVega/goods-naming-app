@@ -1,28 +1,32 @@
 <!-- NGワード管理画面のテンプレート -->
 <div id="ngwords-screen" class="screen" style="display: none;">
-    <div class="d-flex justify-between align-center mb-3">
-        <div>
-            <h1>NGワード管理</h1>
-            <p class="text-muted">商品名に含めてはいけないワードを管理します。</p>
+    <div class="page-container">
+        <div class="page-header">
+            <div class="d-flex justify-between align-center">
+                <div>
+                    <h1>NGワード管理</h1>
+                    <p class="helper-text">商品名に含めてはいけないワードを管理します。</p>
+                </div>
+                <button id="add-ngword-btn" class="btn primary">+ NGワード追加</button>
+            </div>
         </div>
-        <button id="add-ngword-btn" class="btn btn-primary">NGワード追加</button>
-    </div>
 
-    <!-- NGワード一覧 -->
-    <div id="ngwords-list" class="card">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th style="width: 80px;">ID</th>
-                    <th style="width: 200px;">NGワード</th>
-                    <th>理由</th>
-                    <th style="width: 180px;">操作</th>
-                </tr>
-            </thead>
-            <tbody id="ngwords-tbody">
-                <!-- 動的に生成 -->
-            </tbody>
-        </table>
+        <!-- NGワード一覧 -->
+        <div id="ngwords-list" class="form-card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">ID</th>
+                        <th style="width: 200px;">NGワード</th>
+                        <th>理由</th>
+                        <th style="width: 180px;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="ngwords-tbody">
+                    <!-- 動的に生成 -->
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <!-- NGワード追加モーダル -->
@@ -41,8 +45,8 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('add-ngword-modal')">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">追加</button>
+                    <button type="button" class="btnsecondary" onclick="closeModal('add-ngword-modal')">キャンセル</button>
+                    <button type="submit" class="btnprimary">追加</button>
                 </div>
             </form>
         </div>
@@ -66,8 +70,8 @@
                 </div>
 
                 <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal('edit-ngword-modal')">キャンセル</button>
-                    <button type="submit" class="btn btn-primary">保存</button>
+                    <button type="button" class="btnsecondary" onclick="closeModal('edit-ngword-modal')">キャンセル</button>
+                    <button type="submit" class="btnprimary">保存</button>
                 </div>
             </form>
         </div>

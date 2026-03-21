@@ -89,43 +89,54 @@ function renderTypesList(typesData) {
         return;
     }
 
-    let html = '<div class="card">';
+    let html = '<div class="form-card">';
     html += '<div class="d-flex justify-between align-center mb-3">';
     html += '<h3>入力項目一覧</h3>';
-    html += '<button id="add-type-btn" class="btn btn-primary btn-sm">項目を追加</button>';
+    html += '<button id="add-type-btn" class="btn primary btn-sm">+ 項目を追加</button>';
     html += '</div>';
 
     // typesDataは [{type: {...}, keywords: [...]}] の形式
+    html += '<div class="table-responsive">';
+    html += '<table class="table">';
+    html += '<thead><tr>';
+    html += '<th style="width: 50px;">順</th>';
+    html += '<th>項目名</th>';
+    html += '<th style="width: 80px;">タイプ</th>';
+    html += '<th style="width: 80px;">必須</th>';
+    html += '<th style="width: 100px;">キーワード</th>';
+    html += '<th style="width: 220px;">操作</th>';
+    html += '</tr></thead>';
+    html += '<tbody>';
+
     typesData.forEach((typeData) => {
         const type = typeData.type;
         const keywords = typeData.keywords || [];
 
-        html += `
-            <div class="card mt-2">
-                <div class="d-flex justify-between align-center">
-                    <div style="flex: 1;">
-                        <div class="d-flex align-center gap-2">
-                            <h4 class="mb-1">${escapeHtml(type.type_name)}</h4>
-                            <span class="badge ${type.is_required ? 'badge-required' : 'badge-optional'}">${type.is_required ? '必須' : '任意'}</span>
-                        </div>
-                        <p class="text-sm text-muted mb-2">${escapeHtml(type.description || '説明なし')}</p>
-                        <div class="d-flex gap-1 align-center">
-                            <span class="text-xs text-muted">タイプ: ${escapeHtml(type.selection_type)}</span>
-                            <span class="text-xs text-muted">| 優先順位: ${type.priority}</span>
-                            ${keywords.length > 0 ? `<span class="text-xs text-muted">| キーワード: ${keywords.length}個</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="d-flex gap-1" style="flex-shrink: 0;">
-                        <button class="btn btn-secondary btn-sm" onclick="editType(${type.id})">編集</button>
-                        ${type.selection_type !== 'TEXT' && type.selection_type !== 'TRUE_FALSE' ?
-                            `<button class="btn btn-secondary btn-sm" onclick="manageKeywords(${type.id}, '${escapeHtml(type.type_name)}')">キーワード</button>` : ''}
-                        <button class="btn btn-danger btn-sm" onclick="deleteType(${type.id}, '${escapeHtml(type.type_name)}')">削除</button>
-                    </div>
-                </div>
-            </div>
-        `;
+        html += '<tr>';
+        html += `<td>${type.priority}</td>`;
+        html += `<td>`;
+        html += `<div><strong>${escapeHtml(type.type_name)}</strong></div>`;
+        if (type.description) {
+            html += `<div class="text-xs text-muted">${escapeHtml(type.description)}</div>`;
+        }
+        html += `</td>`;
+        html += `<td><span class="badge badge-secondary">${escapeHtml(type.selection_type)}</span></td>`;
+        html += `<td><span class="badge ${type.is_required ? 'badge-required' : 'badge-optional'}">${type.is_required ? '必須' : '任意'}</span></td>`;
+        html += `<td class="text-center">${keywords.length > 0 ? keywords.length + '個' : '-'}</td>`;
+        html += `<td>`;
+        html += `<div class="d-flex gap-1">`;
+        html += `<button class="btn secondary btn-sm" onclick="editType(${type.id})">編集</button>`;
+        if (type.selection_type !== 'TEXT' && type.selection_type !== 'TRUE_FALSE') {
+            html += `<button class="btn secondary btn-sm" onclick="manageKeywords(${type.id}, '${escapeHtml(type.type_name)}')">キーワード</button>`;
+        }
+        html += `<button class="btn danger btn-sm" onclick="deleteType(${type.id}, '${escapeHtml(type.type_name)}')">削除</button>`;
+        html += `</div>`;
+        html += `</td>`;
+        html += '</tr>';
     });
 
+    html += '</tbody></table>';
+    html += '</div>';
     html += '</div>';
 
     listContainer.innerHTML = html;
@@ -459,21 +470,17 @@ function renderRegulationsSection(regulations) {
         return;
     }
 
-    let html = '<div class="card">';
+    let html = '<div class="form-card">';
     html += '<h3>命名ルール</h3>';
 
     regulations.forEach(regulation => {
         html += `
-            <div class="card mt-2">
-                <div class="d-flex justify-between align-center">
-                    <div style="flex: 1;">
-                        <h4 class="mb-1">${escapeHtml(regulation.target)}</h4>
-                        <p class="text-sm font-mono bg-gray-100 p-2 rounded">${escapeHtml(regulation.pattern_string)}</p>
-                    </div>
-                    <div>
-                        <button class="btn btn-secondary btn-sm" onclick="editRegulation(${regulation.id})">編集</button>
-                    </div>
+            <div class="input-group" style="border: 1px solid var(--border-color); padding: 1rem; border-radius: var(--border-radius-md); margin-top: 1rem;">
+                <div class="d-flex justify-between align-center mb-2">
+                    <h4 style="margin: 0; font-size: 1rem;">${escapeHtml(regulation.target)}</h4>
+                    <button class="btn secondary btn-sm" onclick="editRegulation(${regulation.id})">編集</button>
                 </div>
+                <div class="font-mono" style="background: var(--background-color); padding: 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.9rem; color: var(--text-main); word-break: break-all;">${escapeHtml(regulation.pattern_string)}</div>
             </div>
         `;
     });
