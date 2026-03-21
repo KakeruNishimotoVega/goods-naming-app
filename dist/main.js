@@ -2,6 +2,10 @@ var global = this;
 "use strict";
 (() => {
   // src/index.ts
+  var doGet = (e) => {
+    return HtmlService.createHtmlOutputFromFile("index").setTitle("\u5546\u54C1\u540D\u30FB\u30AD\u30E3\u30C3\u30C1\u30B3\u30D4\u30FC\u547D\u540D\u30A2\u30D7\u30EA").addMetaTag("viewport", "width=device-width, initial-scale=1");
+  };
+  global.doGet = doGet;
   var testSupabaseConnection = () => {
     const props = PropertiesService.getScriptProperties();
     const supabaseUrl = props.getProperty("SUPABASE_URL");
@@ -27,4 +31,5 @@ var global = this;
   global.testSupabaseConnection = testSupabaseConnection;
 })();
 
+function doGet() { return global.doGet.apply(this, arguments); }
 function testSupabaseConnection() { return global.testSupabaseConnection.apply(this, arguments); }
