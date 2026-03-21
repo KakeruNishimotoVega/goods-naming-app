@@ -65,9 +65,9 @@
 - [x] `deleteType(typeId)` - 項目の削除 ✅
 
 ### 1.4 Keyword（選択肢）管理API（`src/api/keywords.ts`）
-- [ ] `addKeyword(typeId, keyword)` - キーワード追加
-- [ ] `updateKeyword(typeId, keywordData)` - キーワード更新
-- [ ] `deleteKeyword(payload)` - キーワード削除
+- [x] `addKeyword(typeId, keyword)` - キーワード追加 ✅
+- [x] `updateKeyword(keywordData)` - キーワード更新 ✅
+- [x] `deleteKeyword(payload)` - キーワード削除 ✅
 
 ### 1.5 Regulation（命名ルール）管理API（`src/api/regulations.ts`）
 - [ ] `updateRegulation(regulationObject)` - ルールの更新

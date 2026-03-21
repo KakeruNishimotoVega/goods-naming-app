@@ -53,6 +53,7 @@ const testSupabaseConnection = () => {
 // NOTE: GAS環境では通常のimportは使えないが、esbuildがバンドル時に解決する
 import { getCategories, getSchemaForCategory, createNewCategory } from './api/categories';
 import { addType, updateType, deleteType } from './api/types';
+import { addKeyword, updateKeyword, deleteKeyword } from './api/keywords';
 
 // カテゴリAPI関数をグローバルに公開
 (global as any).getCategories = getCategories;
@@ -63,3 +64,8 @@ import { addType, updateType, deleteType } from './api/types';
 (global as any).addType = addType;
 (global as any).updateType = updateType;
 (global as any).deleteType = deleteType;
+
+// KeywordAPI関数をグローバルに公開
+(global as any).addKeyword = addKeyword;
+(global as any).updateKeyword = updateKeyword;
+(global as any).deleteKeyword = deleteKeyword;
