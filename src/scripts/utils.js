@@ -95,3 +95,69 @@ function objectToQueryString(obj) {
         .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(obj[key])}`)
         .join('&');
 }
+
+/**
+ * クリップボードにテキストをコピー
+ */
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                showToast('コピーしました！');
+            })
+            .catch(err => {
+                console.error('Failed to copy:', err);
+                fallbackCopy(text);
+            });
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+/**
+ * フォールバックコピー機能（古いブラウザ対応）
+ */
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.select();
+
+    try {
+        document.execCommand('copy');
+        showToast('コピーしました！');
+    } catch (err) {
+        console.error('Failed to copy:', err);
+        alert('コピーに失敗しました');
+    }
+
+    document.body.removeChild(textarea);
+}
+
+/**
+ * トーストメッセージを表示
+ */
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #333;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        z-index: 10000;
+        animation: fadeInOut 2s ease-in-out;
+    `;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        document.body.removeChild(toast);
+    }, 2000);
+}
