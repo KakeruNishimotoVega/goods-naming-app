@@ -3234,7 +3234,7 @@ function renderPlaceholderButtons(typesData) {
     if (!container) return;
 
     let html = '<p class="text-sm mb-2"><strong>プレースホルダーを挿入:</strong></p>';
-    html += '<div class="d-flex flex-wrap gap-1">';
+    html += '<div class="d-flex flex-wrap gap-1" id="placeholder-buttons-container">';
 
     typesData.forEach(typeData => {
         const type = typeData.type;
@@ -3250,6 +3250,17 @@ function renderPlaceholderButtons(typesData) {
             insertPlaceholder(this.dataset.typeId, this.dataset.typeName);
         });
     });
+
+    // テキストエリアの変更を監視
+    const textarea = document.getElementById('edit-regulation-pattern');
+    if (textarea) {
+        // 初期状態をチェック
+        updatePlaceholderButtonStates();
+
+        // input イベントで変更を監視（既存のリスナーをクリア）
+        textarea.removeEventListener('input', updatePlaceholderButtonStates);
+        textarea.addEventListener('input', updatePlaceholderButtonStates);
+    }
 }
 
 /**
@@ -3267,6 +3278,65 @@ function insertPlaceholder(_typeId, typeName) {
     textarea.value = text.substring(0, start) + placeholder + text.substring(end);
     textarea.focus();
     textarea.setSelectionRange(start + placeholder.length, start + placeholder.length);
+
+    // ボタンの状態を更新
+    updatePlaceholderButtonStates();
+}
+
+/**
+ * プレースホルダーボタンの状態を更新（使用済みを無効化）
+ */
+function updatePlaceholderButtonStates() {
+    const textarea = document.getElementById('edit-regulation-pattern');
+    if (!textarea) return;
+
+    const pattern = textarea.value;
+    
+    // パターンから使用されているプレースホルダーを抽出
+    const usedPlaceholders = new Set();
+    const regex = /\{([^}]+)\}/g;
+    let match;
+    while ((match = regex.exec(pattern)) !== null) {
+        usedPlaceholders.add(match[1]);
+    }
+
+    // 各ボタンの状態を更新
+    document.querySelectorAll('.btn-insert-placeholder').forEach(btn => {
+        const typeName = btn.dataset.typeName;
+        
+        if (usedPlaceholders.has(typeName)) {
+            // 使用済み: ボタンを無効化してスタイルを変更
+            btn.disabled = true;
+            btn.classList.add('btn-used');
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            btn.style.backgroundColor = '#e2e8f0';
+            btn.style.color = '#64748b';
+            
+            // チェックマークを追加（まだない場合）
+            if (!btn.querySelector('.checkmark')) {
+                const checkmark = document.createElement('span');
+                checkmark.className = 'checkmark';
+                checkmark.textContent = ' ✓';
+                checkmark.style.color = '#10b981';
+                btn.appendChild(checkmark);
+            }
+        } else {
+            // 未使用: ボタンを有効化
+            btn.disabled = false;
+            btn.classList.remove('btn-used');
+            btn.style.opacity = '';
+            btn.style.cursor = '';
+            btn.style.backgroundColor = '';
+            btn.style.color = '';
+            
+            // チェックマークを削除
+            const checkmark = btn.querySelector('.checkmark');
+            if (checkmark) {
+                checkmark.remove();
+            }
+        }
+    });
 }
 
 /**
