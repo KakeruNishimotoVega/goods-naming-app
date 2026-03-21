@@ -101,11 +101,11 @@
 - [ ] 詳細な実装はフェーズ3で実施（動的フォーム生成など）
 
 ### 2.3 CSSの整理とトンマナ定義
-- [ ] CSS変数の抽出 → `src/styles/variables.css`
-- [ ] カラーパレットの文書化
-- [ ] 基本スタイル → `src/styles/base.css`
-- [ ] コンポーネント → `src/styles/components.css`
-- [ ] Tailwind CSS導入（CDN版で試験）
+- [x] CSS変数の抽出 → `src/styles/variables.css` ✅
+- [x] カラーパレットの文書化 ✅
+- [x] 基本スタイル → `src/styles/base.css` ✅
+- [x] コンポーネント → `src/styles/components.css` ✅
+- [ ] Tailwind CSS導入（CDN版で試験）※フェーズ6で実施
 
 ### 2.4 JavaScriptの分割
 - [ ] 共通ユーティリティ → `src/scripts/utils.js`

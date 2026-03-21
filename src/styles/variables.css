@@ -1,49 +1,66 @@
-/* CSS変数定義 */
+/* CSS変数定義 - LOWYA商品命名アプリ */
 :root {
-    /* カラーパレット */
-    --color-primary: #2b8b84;
-    --color-primary-light: #3da599;
-    --color-primary-dark: #1f6962;
+    /* ブランドカラー */
+    --primary-color: #2b8b84;
+    --primary-hover-color: #206d67;
+    --primary-light: #e6f3f2;
 
-    --color-secondary: #f0f0f0;
-    --color-secondary-dark: #d0d0d0;
+    /* 背景色 */
+    --background-color: #f4f6f8;
+    --card-background: #ffffff;
 
-    --color-success: #28a745;
-    --color-danger: #dc3545;
-    --color-warning: #ffc107;
-    --color-info: #17a2b8;
+    /* テキストカラー */
+    --text-main: #333333;
+    --text-muted: #737b8a;
 
-    --color-text: #333333;
-    --color-text-light: #666666;
-    --color-text-muted: #999999;
+    /* ボーダー・区切り線 */
+    --border-color: #e2e6ea;
 
-    --color-border: #ddd;
-    --color-background: #ffffff;
-    --color-background-light: #f8f9fa;
+    /* 角丸 */
+    --border-radius-lg: 16px;
+    --border-radius-md: 8px;
+    --border-radius-sm: 4px;
 
-    /* サイズ */
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
-
-    --border-radius: 4px;
-    --border-radius-lg: 8px;
-
-    /* フォント */
-    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
-    --font-size-sm: 12px;
-    --font-size-base: 14px;
-    --font-size-lg: 16px;
-    --font-size-xl: 20px;
+    /* バッジカラー */
+    --badge-required-bg: #ffe9e9;
+    --badge-required-text: #d94b4b;
+    --badge-optional-bg: #f0f2f5;
+    --badge-optional-text: #6c757d;
 
     /* シャドウ */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.06);
+    --shadow-floating: 0 12px 36px rgba(0, 0, 0, 0.12);
+
+    /* サイズ・スペーシング */
+    --spacing-xs: 0.25rem;  /* 4px */
+    --spacing-sm: 0.5rem;   /* 8px */
+    --spacing-md: 1rem;     /* 16px */
+    --spacing-lg: 1.5rem;   /* 24px */
+    --spacing-xl: 2rem;     /* 32px */
+    --spacing-2xl: 2.5rem;  /* 40px */
+
+    /* フォント */
+    --font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --font-size-xs: 0.75rem;   /* 12px */
+    --font-size-sm: 0.85rem;   /* 13.6px */
+    --font-size-base: 0.95rem; /* 15.2px */
+    --font-size-lg: 1.15rem;   /* 18.4px */
+    --font-size-xl: 1.75rem;   /* 28px */
 
     /* トランジション */
-    --transition-fast: 0.15s ease;
+    --transition-fast: 0.2s ease;
     --transition-base: 0.3s ease;
 }
+
+/* カラーパレット（デザインガイド用コメント）
+ * プライマリ: #2b8b84 - LOWYAブランドカラー（ティールグリーン）
+ * プライマリホバー: #206d67 - 濃いティールグリーン
+ * プライマリライト: #e6f3f2 - 淡いティールグリーン（背景用）
+ * 背景: #f4f6f8 - ライトグレー（ページ全体の背景）
+ * カード: #ffffff - 白（カードやモーダルの背景）
+ * テキスト: #333333 - ダークグレー（メインテキスト）
+ * テキスト（サブ）: #737b8a - ミディアムグレー（説明文など）
+ * 必須バッジ: #d94b4b（テキスト）/ #ffe9e9（背景）
+ * 任意バッジ: #6c757d（テキスト）/ #f0f2f5（背景）
+ */
