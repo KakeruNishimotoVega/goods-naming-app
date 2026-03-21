@@ -28,8 +28,33 @@ var global = this;
     console.log("\u30B9\u30C6\u30FC\u30BF\u30B9\u30B3\u30FC\u30C9:", response.getResponseCode());
     console.log("\u30EC\u30B9\u30DD\u30F3\u30B9\u5185\u5BB9:", response.getContentText());
   };
+  var getCategories = () => {
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
+    }
+    const endpoint = `${supabaseUrl}/rest/v1/categories?select=*&order=created_at.asc`;
+    const options = {
+      method: "get",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json"
+      },
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() !== 200) {
+      throw new Error(`DB\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+    }
+    return JSON.parse(response.getContentText());
+  };
   global.testSupabaseConnection = testSupabaseConnection;
+  global.getCategories = getCategories;
 })();
 
 function doGet() { return global.doGet.apply(this, arguments); }
 function testSupabaseConnection() { return global.testSupabaseConnection.apply(this, arguments); }
+function getCategories() { return global.getCategories.apply(this, arguments); }

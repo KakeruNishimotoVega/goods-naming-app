@@ -4,9 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>商品名・キャッチコピー命名アプリ (V2)</title>
+    <style>
+      body { font-family: sans-serif; padding: 2rem; background-color: #f9fafb; }
+      .container { max-width: 600px; margin: 0 auto; background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      select { width: 100%; padding: 0.5rem; font-size: 1rem; margin-top: 0.5rem; }
+    </style>
   </head>
   <body>
-    <h1>Hello, Modern GAS!</h1>
-    <p>フロントエンドとバックエンドの連携準備が完了しました。</p>
+    <div class="container">
+      <h1>🏷️ 命名アプリ V2</h1>
+      
+      <div style="margin-top: 2rem;">
+        <label for="category-select"><strong>1. 大カテゴリを選択してください</strong></label>
+        <select id="category-select" disabled>
+          <option>データを読み込み中...</option>
+        </select>
+      </div>
+    </div>
+
+    <script>
+      // 画面が読み込まれたら実行される処理
+      window.onload = () => {
+        
+        // 🌟 バックエンドの getCategories() を呼び出す
+        google.script.run
+          .withSuccessHandler((categories) => {
+            // 取得成功時の処理
+            const select = document.getElementById('category-select');
+            select.innerHTML = '<option value="">カテゴリを選択してください</option>';
+            
+            // 取得したデータ（配列）をループして <option> を追加
+            categories.forEach(category => {
+              const option = document.createElement('option');
+              option.value = category.id; // UUID
+              option.textContent = category.name; // 「N人掛けソファ・座椅子」など
+              select.appendChild(option);
+            });
+            
+            select.disabled = false; // ドロップダウンを有効化
+          })
+          .withFailureHandler((error) => {
+            // エラー時の処理
+            alert('データの取得に失敗しました: ' + error.message);
+          })
+          .getCategories();
+      };
+    </script>
   </body>
 </html>
