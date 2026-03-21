@@ -100,21 +100,53 @@ function renderTypesList(typesData) {
         const type = typeData.type;
         const keywords = typeData.keywords || [];
 
-        html += '<div class="type-block" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 1rem; margin-bottom: 1rem;">';
+        html += '<div class="type-block" style="border: 1px solid var(--border-color); border-radius: var(--border-radius-md); padding: 1.5rem; margin-bottom: 1rem; background-color: white;">';
 
         // 項目ヘッダー
         html += '<div class="d-flex justify-between align-center mb-3">';
         html += '<div>';
-        html += `<h4 style="margin: 0; font-size: 1rem; font-weight: 600;">${escapeHtml(type.display_name)}</h4>`;
-        if (type.description) {
-            html += `<p class="text-xs text-muted" style="margin: 0.25rem 0 0 0;">${escapeHtml(type.description)}</p>`;
-        }
+        html += `<h4 style="margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-main);">${escapeHtml(type.display_name)}</h4>`;
         html += '</div>';
         html += '<div class="d-flex gap-1">';
-        html += `<span class="badge badge-secondary">${escapeHtml(type.selection_type)}</span>`;
-        html += `<span class="badge ${type.is_required ? 'badge-required' : 'badge-optional'}">${type.is_required ? '必須' : '任意'}</span>`;
-        html += `<button class="btn secondary btn-sm btn-edit-type" data-type-id="${type.id}" title="項目を編集">項目編集</button>`;
+        html += `<button class="btn secondary btn-sm btn-edit-type" data-type-id="${type.id}" title="項目を編集">編集</button>`;
         html += `<button class="btn danger btn-sm btn-delete-type" data-type-id="${type.id}" data-type-name="${escapeHtml(type.display_name)}" title="項目を削除">削除</button>`;
+        html += '</div>';
+        html += '</div>';
+
+        // 説明文（あれば）
+        if (type.description) {
+            html += `<p class="text-sm text-muted" style="margin: 0 0 1rem 0; line-height: 1.5;">${escapeHtml(type.description)}</p>`;
+        }
+
+        // 項目情報（ラベル: 値の形式）
+        html += '<div style="background-color: #f8fafc; border-radius: 6px; padding: 1rem; margin-bottom: 1rem;">';
+        html += '<div style="display: grid; grid-template-columns: 140px 1fr; gap: 0.75rem; font-size: 0.9rem;">';
+        
+        // 選択方式
+        const selectionTypeLabel = {
+            'TEXT': 'テキスト入力',
+            'SINGLE': '単一選択（ラジオボタン）',
+            'MULTI': '複数選択（チェックボックス）',
+            'TRUE_FALSE': 'True/False（トグル）'
+        }[type.selection_type] || type.selection_type;
+        
+        html += '<div style="font-weight: 600; color: var(--text-muted);">選択方式:</div>';
+        html += `<div style="color: var(--text-main);">${escapeHtml(selectionTypeLabel)}</div>`;
+        
+        // 入力形式
+        html += '<div style="font-weight: 600; color: var(--text-muted);">入力形式:</div>';
+        html += `<div style="color: var(--text-main);"><span class="badge ${type.is_required ? 'badge-required' : 'badge-optional'}">${type.is_required ? '必須' : '任意'}</span></div>`;
+        
+        // キー名（プレースホルダーで使用）
+        html += '<div style="font-weight: 600; color: var(--text-muted);">キー名:</div>';
+        html += `<div style="font-family: monospace; color: var(--primary-color); font-weight: 500;">{${escapeHtml(type.key_name || type.display_name)}}</div>`;
+        
+        // プレースホルダー（TEXT入力の場合のみ）
+        if (type.selection_type === 'TEXT' && type.placeholder) {
+            html += '<div style="font-weight: 600; color: var(--text-muted);">プレースホルダー:</div>';
+            html += `<div style="color: var(--text-muted); font-style: italic;">"${escapeHtml(type.placeholder)}"</div>`;
+        }
+        
         html += '</div>';
         html += '</div>';
 
@@ -122,8 +154,8 @@ function renderTypesList(typesData) {
         if (type.selection_type === 'SINGLE' || type.selection_type === 'MULTI') {
             html += '<div class="keywords-section">';
             html += '<div class="d-flex justify-between align-center mb-2">';
-            html += '<h5 style="margin: 0; font-size: 0.9rem; font-weight: 600;">キーワード一覧</h5>';
-            html += `<button class="btn primary btn-sm btn-add-keyword" data-type-id="${type.id}" title="キーワードを追加">+ キーワード追加</button>`;
+            html += '<h5 style="margin: 0; font-size: 0.9rem; font-weight: 600;">選択肢一覧</h5>';
+            html += `<button class="btn primary btn-sm btn-add-keyword" data-type-id="${type.id}" title="キーワードを追加">+ 選択肢を追加</button>`;
             html += '</div>';
 
             if (keywords.length > 0) {
@@ -152,7 +184,7 @@ function renderTypesList(typesData) {
                 html += '</tbody></table>';
                 html += '</div>';
             } else {
-                html += '<p class="text-muted text-sm">キーワードがありません</p>';
+                html += '<p class="text-muted text-sm">選択肢がありません</p>';
             }
 
             html += '</div>';
