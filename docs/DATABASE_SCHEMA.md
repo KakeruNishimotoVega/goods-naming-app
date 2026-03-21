@@ -56,9 +56,10 @@ LOWYA商品命名アプリのデータベーススキーマ定義。Supabase (Po
 - keywords.type_id → types.id
 
 **selection_typeの値:**
+- `TEXT`: フリーテキスト入力
 - `SINGLE`: 単一選択（ラジオボタン）
 - `MULTI`: 複数選択（チェックボックス）
-- `text`: テキスト入力
+- `BOOLEAN`: ON/OFF切り替え（トグル）
 
 **データ例:**
 - 幅N (text入力、優先度1)

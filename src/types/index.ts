@@ -32,8 +32,12 @@ export interface Type {
 
 /**
  * selection_typeの値
+ * - TEXT: フリーテキスト入力
+ * - SINGLE: 単一選択（ラジオボタン）
+ * - MULTI: 複数選択（チェックボックス）
+ * - BOOLEAN: ON/OFF切り替え（トグル）
  */
-export type SelectionType = 'SINGLE' | 'MULTI' | 'text';
+export type SelectionType = 'TEXT' | 'SINGLE' | 'MULTI' | 'BOOLEAN';
 
 /**
  * keywords（キーワード・選択肢）テーブルの型
