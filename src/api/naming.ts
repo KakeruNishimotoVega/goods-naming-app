@@ -49,17 +49,10 @@ export function generateNames(formData: any) {
     });
   }
 
-  // typesデータを追加
+  // typesデータを追加（フロントエンドから既にkeyword文字列として送信される）
   if (formData.types) {
-    Object.keys(formData.types).forEach(key => {
-      const value = formData.types[key];
-
-      // 配列の場合はスペース区切りで結合
-      if (Array.isArray(value)) {
-        replacementData[key] = value.join(' ');
-      } else {
-        replacementData[key] = value || '';
-      }
+    Object.keys(formData.types).forEach(keyName => {
+      replacementData[keyName] = formData.types[keyName] || '';
     });
   }
 
@@ -77,6 +70,13 @@ export function generateNames(formData: any) {
       // グローバル置換を実行
       result = result.split(placeholder).join(value);
     });
+
+    // 未置換のプレースホルダー（値が入力されていない項目）を削除
+    // パターン: {任意の文字列} を空文字列に置換
+    result = result.replace(/\{[^}]+\}/g, '');
+
+    // 連続するスペースを1つにまとめ、前後の空白を削除
+    result = result.replace(/\s+/g, ' ').trim();
 
     // targetに応じて結果を振り分け
     if (regulation.target === '商品ページ名') {

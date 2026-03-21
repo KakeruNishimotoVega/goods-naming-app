@@ -336,6 +336,9 @@ button:disabled {
     cursor: pointer;
     user-select: none;
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
 }
 
 .chip-label input {
@@ -353,6 +356,24 @@ button:disabled {
     font-size: 0.9rem;
     color: var(--text-muted);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.google-search-link {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    text-decoration: none;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem;
+}
+
+.chip-label:hover .google-search-link {
+    opacity: 0.7;
+}
+
+.google-search-link:hover {
+    opacity: 1 !important;
 }
 
 .chip-label input:checked + .chip-text {
@@ -597,6 +618,33 @@ button:disabled {
 .char-count {
     font-size: 0.85rem;
     color: var(--text-muted);
+}
+
+.char-count-warning {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+/* NGワード警告とinfo */
+.alert-danger {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    color: #c33;
+    padding: 0.75rem;
+    border-radius: var(--border-radius-md);
+}
+
+.ng-reason-icon {
+    cursor: help;
+    display: inline-block;
+    font-size: 0.9rem;
+    margin-left: 0.25rem;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.ng-reason-icon:hover {
+    opacity: 1;
 }
 
 .copy-btn {

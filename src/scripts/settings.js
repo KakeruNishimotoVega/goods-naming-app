@@ -115,7 +115,7 @@ function renderTypesList(typesData) {
         html += '<tr>';
         html += `<td>${type.priority}</td>`;
         html += `<td>`;
-        html += `<div><strong>${escapeHtml(type.type_name)}</strong></div>`;
+        html += `<div><strong>${escapeHtml(type.display_name)}</strong></div>`;
         if (type.description) {
             html += `<div class="text-xs text-muted">${escapeHtml(type.description)}</div>`;
         }
@@ -127,9 +127,9 @@ function renderTypesList(typesData) {
         html += `<div class="d-flex gap-1">`;
         html += `<button class="btn secondary btn-sm" onclick="editType(${type.id})">編集</button>`;
         if (type.selection_type !== 'TEXT' && type.selection_type !== 'TRUE_FALSE') {
-            html += `<button class="btn secondary btn-sm" onclick="manageKeywords(${type.id}, '${escapeHtml(type.type_name)}')">キーワード</button>`;
+            html += `<button class="btn secondary btn-sm" onclick="manageKeywords(${type.id}, '${escapeHtml(type.display_name)}')">キーワード</button>`;
         }
-        html += `<button class="btn danger btn-sm" onclick="deleteType(${type.id}, '${escapeHtml(type.type_name)}')">削除</button>`;
+        html += `<button class="btn danger btn-sm" onclick="deleteType(${type.id}, '${escapeHtml(type.display_name)}')">削除</button>`;
         html += `</div>`;
         html += `</td>`;
         html += '</tr>';
@@ -170,7 +170,7 @@ async function editType(typeId) {
 
         // モーダルに値を設定
         document.getElementById('edit-type-id').value = type.id;
-        document.getElementById('edit-type-name').value = type.type_name;
+        document.getElementById('edit-type-name').value = type.display_name;
         document.getElementById('edit-type-description').value = type.description || '';
         document.getElementById('edit-type-selection').value = type.selection_type;
         document.getElementById('edit-type-priority').value = type.priority;
@@ -540,7 +540,7 @@ function renderPlaceholderButtons(typesData) {
 
     typesData.forEach(typeData => {
         const type = typeData.type;
-        html += `<button type="button" class="btn btn-secondary btn-sm" onclick="insertPlaceholder(${type.id})">{${type.id}} - ${escapeHtml(type.type_name)}</button>`;
+        html += `<button type="button" class="btn btn-secondary btn-sm" onclick="insertPlaceholder(${type.id})">{${type.id}} - ${escapeHtml(type.display_name)}</button>`;
     });
 
     html += '</div>';

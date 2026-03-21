@@ -98,8 +98,20 @@ var global = this;
       throw new Error(`Regulations\u53D6\u5F97\u30A8\u30E9\u30FC: ${regulationsResponse.getContentText()}`);
     }
     const regulations = JSON.parse(regulationsResponse.getContentText());
+    const fieldsEndpoint = `${supabaseUrl}/rest/v1/fields?select=*&order=priority.asc`;
+    const fieldsResponse = UrlFetchApp.fetch(fieldsEndpoint, {
+      method: "get",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json"
+      },
+      muteHttpExceptions: true
+    });
+    const fields = fieldsResponse.getResponseCode() === 200 ? JSON.parse(fieldsResponse.getContentText()) : [];
     return {
       category,
+      fields,
       types: typesWithKeywords,
       regulations
     };
@@ -758,13 +770,8 @@ var global = this;
       });
     }
     if (formData.types) {
-      Object.keys(formData.types).forEach((key) => {
-        const value = formData.types[key];
-        if (Array.isArray(value)) {
-          replacementData[key] = value.join(" ");
-        } else {
-          replacementData[key] = value || "";
-        }
+      Object.keys(formData.types).forEach((keyName) => {
+        replacementData[keyName] = formData.types[keyName] || "";
       });
     }
     let productPageName = "";
@@ -776,6 +783,8 @@ var global = this;
         const value = replacementData[key] || "";
         result = result.split(placeholder).join(value);
       });
+      result = result.replace(/\{[^}]+\}/g, "");
+      result = result.replace(/\s+/g, " ").trim();
       if (regulation.target === "\u5546\u54C1\u30DA\u30FC\u30B8\u540D") {
         productPageName = result;
       } else if (regulation.target === "\u5546\u54C1\u540D") {

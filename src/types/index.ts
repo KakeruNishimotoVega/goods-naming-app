@@ -35,9 +35,9 @@ export interface Type {
  * - TEXT: フリーテキスト入力
  * - SINGLE: 単一選択（ラジオボタン）
  * - MULTI: 複数選択（チェックボックス）
- * - BOOLEAN: ON/OFF切り替え（トグル）
+ * - TRUE_FALSE: ON/OFF切り替え（トグル）
  */
-export type SelectionType = 'TEXT' | 'SINGLE' | 'MULTI' | 'BOOLEAN';
+export type SelectionType = 'TEXT' | 'SINGLE' | 'MULTI' | 'TRUE_FALSE';
 
 /**
  * keywords（キーワード・選択肢）テーブルの型
@@ -97,10 +97,11 @@ export interface AppUser {
 // ==================== API用の複合型定義 ====================
 
 /**
- * カテゴリとそのスキーマ（types + keywords）を含む複合型
+ * カテゴリとそのスキーマ（fields + types + keywords + regulations）を含む複合型
  */
 export interface CategorySchema {
   category: Category;
+  fields: Field[];
   types: TypeWithKeywords[];
   regulations: Regulation[];
 }

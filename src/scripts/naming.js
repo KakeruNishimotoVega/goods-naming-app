@@ -64,9 +64,14 @@ async function loadCategories() {
 async function onCategoryChange(event) {
     const categoryId = event.target.value;
 
+    // カテゴリが変更されたら生成結果をリセット
+    const resultContainer = document.getElementById('naming-result');
+    if (resultContainer) {
+        hideElement(resultContainer);
+    }
+
     if (!categoryId) {
         document.getElementById('dynamic-form').innerHTML = '';
-        hideElement(document.getElementById('naming-result'));
         return;
     }
 
@@ -94,6 +99,16 @@ function renderDynamicForm(schema) {
     let html = '<div class="form-card">';
     html += '<h3>入力項目</h3>';
 
+    // Fields（共通フィールド）を先に表示
+    if (schema.fields && schema.fields.length > 0) {
+        schema.fields.forEach(field => {
+            html += '<div class="input-group">';
+            html += `<label>${escapeHtml(field.display_name)}</label>`;
+            html += `<input type="${field.input_type || 'text'}" id="field-${field.field_key}" data-field-key="${field.field_key}" class="form-control" placeholder="${field.placeholder || ''}" />`;
+            html += '</div>';
+        });
+    }
+
     // Type（入力項目）
     if (schema.types && schema.types.length > 0) {
         schema.types.forEach(typeData => {
@@ -104,25 +119,9 @@ function renderDynamicForm(schema) {
         html += '<p class="text-muted">このカテゴリには入力項目がありません。</p>';
     }
 
-    html += '<div class="d-flex gap-2 mt-3">';
-    html += '<button id="generate-btn" class="btn primary">名称を生成</button>';
-    html += '<button id="reset-btn" class="btn secondary">リセット</button>';
-    html += '</div>';
     html += '</div>';
 
     formContainer.innerHTML = html;
-
-    // 生成ボタンのイベント
-    const generateBtn = document.getElementById('generate-btn');
-    if (generateBtn) {
-        generateBtn.addEventListener('click', onGenerateNames);
-    }
-
-    // リセットボタンのイベント
-    const resetBtn = document.getElementById('reset-btn');
-    if (resetBtn) {
-        resetBtn.addEventListener('click', onResetForm);
-    }
 
     // リアルタイム生成のためのイベントリスナーを追加
     setupRealtimeGeneration();
@@ -138,7 +137,7 @@ function renderTypeField(type, keywords) {
 
     // ラベル（必須バッジ付き）
     html += `<label>`;
-    html += `${escapeHtml(type.type_name)}`;
+    html += `${escapeHtml(type.display_name)}`;
     if (type.is_required) {
         html += ' <span class="badge badge-required">必須</span>';
     } else {
@@ -151,9 +150,12 @@ function renderTypeField(type, keywords) {
         html += `<p class="text-sm text-muted" style="margin-top: 0.25rem; margin-bottom: 0.75rem;">${escapeHtml(type.description)}</p>`;
     }
 
+    // key_nameをdata属性として保存（フォーム収集時に使用）
+    const dataKeyName = type.key_name ? `data-key-name="${escapeHtml(type.key_name)}"` : '';
+
     if (type.selection_type === 'TEXT') {
         // テキスト入力
-        html += `<input type="text" id="type-${type.id}" class="form-control" placeholder="入力してください..." ${type.is_required ? 'required' : ''} />`;
+        html += `<input type="text" id="type-${type.id}" ${dataKeyName} class="form-control" placeholder="入力してください..." ${type.is_required ? 'required' : ''} />`;
     } else if (keywords && keywords.length > 0) {
         // 選択肢がある場合
         if (type.selection_type === 'SINGLE') {
@@ -162,20 +164,22 @@ function renderTypeField(type, keywords) {
             keywords.forEach(keyword => {
                 html += `
                     <label class="chip-label">
-                        <input type="radio" name="type-${type.id}" value="${keyword.id}" id="keyword-${keyword.id}" ${type.is_required ? 'required' : ''} />
+                        <input type="radio" name="type-${type.id}" value="${escapeHtml(keyword.keyword)}" id="keyword-${keyword.id}" ${dataKeyName} ${type.is_required ? 'required' : ''} />
                         <span class="chip-text">${escapeHtml(keyword.keyword)}</span>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(keyword.keyword)}" target="_blank" class="google-search-link" title="Googleで検索">🔍</a>
                     </label>
                 `;
             });
             html += '</div>';
-        } else if (type.selection_type === 'MULTIPLE') {
+        } else if (type.selection_type === 'MULTIPLE' || type.selection_type === 'MULTI') {
             // チップUI（チェックボックス）
             html += '<div class="chip-group">';
             keywords.forEach(keyword => {
                 html += `
                     <label class="chip-label">
-                        <input type="checkbox" name="type-${type.id}" value="${keyword.id}" id="keyword-${keyword.id}" />
+                        <input type="checkbox" name="type-${type.id}" value="${escapeHtml(keyword.keyword)}" ${dataKeyName} id="keyword-${keyword.id}" />
                         <span class="chip-text">${escapeHtml(keyword.keyword)}</span>
+                        <a href="https://www.google.com/search?q=${encodeURIComponent(keyword.keyword)}" target="_blank" class="google-search-link" title="Googleで検索">🔍</a>
                     </label>
                 `;
             });
@@ -185,7 +189,7 @@ function renderTypeField(type, keywords) {
             html += `
                 <div class="toggle-switch-container">
                     <label class="toggle-switch">
-                        <input type="checkbox" id="type-${type.id}" />
+                        <input type="checkbox" id="type-${type.id}" ${dataKeyName} />
                         <span class="slider"></span>
                     </label>
                     <span>有効にする</span>
@@ -265,22 +269,28 @@ function collectFormData() {
     // 基本フィールド（Fields）の値を収集
     const fieldInputs = document.querySelectorAll('[id^="field-"]');
     fieldInputs.forEach(input => {
-        const fieldName = input.id.replace('field-', '');
-        formData.fields[fieldName] = input.value;
-    });
-
-    // Type（入力項目）の値を収集
-    const typeInputs = document.querySelectorAll('[id^="type-"]');
-    typeInputs.forEach(input => {
-        const typeId = input.id.replace('type-', '');
-
-        if (input.type === 'text') {
-            // テキスト入力の場合
-            formData.types[typeId] = input.value;
+        const fieldKey = input.getAttribute('data-field-key');
+        if (fieldKey) {
+            formData.fields[fieldKey] = input.value;
         }
     });
 
-    // ラジオボタンとチェックボックスの値を収集
+    // Type（入力項目）の値を収集（key_nameをキーとして使用）
+    const typeInputs = document.querySelectorAll('[id^="type-"]');
+    typeInputs.forEach(input => {
+        const keyName = input.getAttribute('data-key-name');
+        if (!keyName) return; // key_nameがない場合はスキップ
+
+        if (input.type === 'text') {
+            // テキスト入力の場合
+            formData.types[keyName] = input.value;
+        } else if (input.type === 'checkbox' && !input.name) {
+            // トグルスイッチ（TRUE_FALSE）の場合（nameが設定されていない単独のチェックボックス）
+            formData.types[keyName] = input.checked ? 'true' : 'false';
+        }
+    });
+
+    // ラジオボタンとチェックボックス（複数選択）の値を収集
     const radioGroups = new Set();
     const checkboxGroups = new Set();
 
@@ -296,20 +306,24 @@ function collectFormData() {
 
     // ラジオボタン（単一選択）の値を収集
     radioGroups.forEach(groupName => {
-        const typeId = groupName.replace('type-', '');
         const selected = document.querySelector(`input[name="${groupName}"]:checked`);
         if (selected) {
-            formData.types[typeId] = selected.value;
+            const keyName = selected.getAttribute('data-key-name');
+            if (keyName) {
+                formData.types[keyName] = selected.value;
+            }
         }
     });
 
     // チェックボックス（複数選択）の値を収集
     checkboxGroups.forEach(groupName => {
-        const typeId = groupName.replace('type-', '');
         const selected = document.querySelectorAll(`input[name="${groupName}"]:checked`);
-        const values = Array.from(selected).map(input => input.value);
-        if (values.length > 0) {
-            formData.types[typeId] = values;
+        if (selected.length > 0) {
+            const keyName = selected[0].getAttribute('data-key-name');
+            if (keyName) {
+                const values = Array.from(selected).map(input => input.value);
+                formData.types[keyName] = values.join(' '); // スペース区切りで結合
+            }
         }
     });
 
@@ -323,6 +337,10 @@ function displayResult(result) {
     const resultContent = document.getElementById('result-content');
     if (!resultContent) return;
 
+    // 推奨文字数の上限設定
+    const MAX_PAGE_NAME_LENGTH = 17; // 商品ページ名の推奨上限
+    const MAX_PRODUCT_NAME_LENGTH = 27; // 商品名の推奨上限
+
     let html = '';
 
     // 商品ページ名
@@ -330,16 +348,22 @@ function displayResult(result) {
     html += '<h4>商品ページ名</h4>';
     html += `<div class="result-text">${escapeHtml(result.productPageName || '未生成')}</div>`;
     html += '<div class="result-meta">';
-    html += `<span class="char-count">文字数: ${result.characterCounts?.productPageName || 0}文字</span>`;
+
+    const pageNameLength = result.characterCounts?.productPageName || 0;
+    const pageNameExceedsLimit = pageNameLength > MAX_PAGE_NAME_LENGTH;
+    html += `<span class="char-count ${pageNameExceedsLimit ? 'char-count-warning' : ''}">${pageNameExceedsLimit ? '⚠ ' : ''}文字数: ${pageNameLength}文字${pageNameExceedsLimit ? ` (推奨: ${MAX_PAGE_NAME_LENGTH}文字以内)` : ''}</span>`;
     html += `<button id="copy-page-name-btn" class="btn secondary btn-sm copy-btn">コピー</button>`;
     html += '</div>';
 
     // 商品ページ名のNGワードチェック
     const pageNgWords = (result.prohibitedWordsFound || []).filter(item => item.target === 'productPageName');
     if (pageNgWords.length > 0) {
-        html += '<div class="alert alert-warning mt-2" style="margin-top: 0.5rem; font-size: 0.85rem;">';
+        html += '<div class="alert alert-danger mt-2" style="margin-top: 0.5rem; font-size: 0.85rem;">';
         html += '<strong>⚠ NGワード検出:</strong> ';
-        html += pageNgWords.map(ng => `"${escapeHtml(ng.word)}"`).join(', ');
+        html += pageNgWords.map(ng => {
+            const reason = ng.reason ? ` <span class="ng-reason-icon" title="${escapeHtml(ng.reason)}">ℹ️</span>` : '';
+            return `"${escapeHtml(ng.word)}"${reason}`;
+        }).join(', ');
         html += '</div>';
     }
     html += '</div>';
@@ -349,18 +373,29 @@ function displayResult(result) {
     html += '<h4>商品名</h4>';
     html += `<div class="result-text">${escapeHtml(result.productName || '未生成')}</div>`;
     html += '<div class="result-meta">';
-    html += `<span class="char-count">文字数: ${result.characterCounts?.productName || 0}文字</span>`;
+
+    const productNameLength = result.characterCounts?.productName || 0;
+    const productNameExceedsLimit = productNameLength > MAX_PRODUCT_NAME_LENGTH;
+    html += `<span class="char-count ${productNameExceedsLimit ? 'char-count-warning' : ''}">${productNameExceedsLimit ? '⚠ ' : ''}文字数: ${productNameLength}文字${productNameExceedsLimit ? ` (推奨: ${MAX_PRODUCT_NAME_LENGTH}文字以内)` : ''}</span>`;
     html += `<button id="copy-product-name-btn" class="btn secondary btn-sm copy-btn">コピー</button>`;
     html += '</div>';
 
     // 商品名のNGワードチェック
     const nameNgWords = (result.prohibitedWordsFound || []).filter(item => item.target === 'productName');
     if (nameNgWords.length > 0) {
-        html += '<div class="alert alert-warning mt-2" style="margin-top: 0.5rem; font-size: 0.85rem;">';
+        html += '<div class="alert alert-danger mt-2" style="margin-top: 0.5rem; font-size: 0.85rem;">';
         html += '<strong>⚠ NGワード検出:</strong> ';
-        html += nameNgWords.map(ng => `"${escapeHtml(ng.word)}"`).join(', ');
+        html += nameNgWords.map(ng => {
+            const reason = ng.reason ? ` <span class="ng-reason-icon" title="${escapeHtml(ng.reason)}">ℹ️</span>` : '';
+            return `"${escapeHtml(ng.word)}"${reason}`;
+        }).join(', ');
         html += '</div>';
     }
+    html += '</div>';
+
+    // リセットボタン
+    html += '<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">';
+    html += '<button id="reset-from-result-btn" class="btn secondary w-100">入力内容をリセット</button>';
     html += '</div>';
 
     resultContent.innerHTML = html;
@@ -373,6 +408,9 @@ function displayResult(result) {
     document.getElementById('copy-product-name-btn')?.addEventListener('click', () => {
         copyToClipboard(result.productName || '');
     });
+
+    // リセットボタンのイベントリスナー
+    document.getElementById('reset-from-result-btn')?.addEventListener('click', onResetForm);
 }
 
 /**

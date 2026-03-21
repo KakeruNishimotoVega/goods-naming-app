@@ -34,6 +34,14 @@ function setupScreenNavigation() {
             const screenId = link.getAttribute('data-screen');
             if (screenId) {
                 showScreen(screenId);
+
+                // 命名画面から離れるとき、生成結果をリセット
+                if (screenId !== 'naming-screen') {
+                    const resultContainer = document.getElementById('naming-result');
+                    if (resultContainer) {
+                        hideElement(resultContainer);
+                    }
+                }
             }
         });
     });

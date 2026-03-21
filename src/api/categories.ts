@@ -138,9 +138,26 @@ export function getSchemaForCategory(categoryId: string) {
 
   const regulations = JSON.parse(regulationsResponse.getContentText());
 
-  // 5. すべてをまとめて返す
+  // 5. Fieldsを取得（全カテゴリ共通）
+  const fieldsEndpoint = `${supabaseUrl}/rest/v1/fields?select=*&order=priority.asc`;
+  const fieldsResponse = UrlFetchApp.fetch(fieldsEndpoint, {
+    method: 'get',
+    headers: {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json'
+    },
+    muteHttpExceptions: true
+  });
+
+  const fields = fieldsResponse.getResponseCode() === 200
+    ? JSON.parse(fieldsResponse.getContentText())
+    : [];
+
+  // 6. すべてをまとめて返す
   return {
     category: category,
+    fields: fields,
     types: typesWithKeywords,
     regulations: regulations
   };
