@@ -50,9 +50,9 @@
 
 ## フェーズ1: データベース・バックエンド基盤
 ### 1.1 データベーススキーマの検証と調整
-- [ ] 現在のSupabaseスキーマを確認（`DATABASE_SCHEMA.md`と実際のDB）
-- [ ] 移行前のスプレッドシート構造と比較
-- [ ] 必要に応じてマイグレーションを作成・適用
+- [x] 現在のSupabaseスキーマを確認（`DATABASE_SCHEMA.md`と実際のDB） ✅
+- [x] selection_typeの値を統一（text → TEXT） ✅
+- [x] マイグレーション適用（normalize_selection_type_values） ✅
 
 ### 1.2 カテゴリ関連API（`src/api/categories.ts`）
 - [x] `getCategories()` - カテゴリ一覧取得 ✅
