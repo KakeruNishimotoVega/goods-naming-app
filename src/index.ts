@@ -46,41 +46,14 @@ const testSupabaseConnection = () => {
   console.log('レスポンス内容:', response.getContentText());
 };
 
-/**
- * 【API】Supabaseからカテゴリ一覧を取得してフロントに返す関数
- */
-const getCategories = () => {
-  const props = PropertiesService.getScriptProperties();
-  const supabaseUrl = props.getProperty('SUPABASE_URL');
-  const supabaseKey = props.getProperty('SUPABASE_SERVICE_ROLE_KEY');
-
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('環境変数が設定されていません。');
-  }
-
-  // カテゴリ一覧を作成日時の昇順で取得するAPIエンドポイント
-  const endpoint = `${supabaseUrl}/rest/v1/categories?select=*&order=created_at.asc`;
-
-  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
-    method: 'get',
-    headers: {
-      'apikey': supabaseKey,
-      'Authorization': `Bearer ${supabaseKey}`,
-      'Content-Type': 'application/json'
-    },
-    muteHttpExceptions: true
-  };
-
-  const response = UrlFetchApp.fetch(endpoint, options);
-  
-  if (response.getResponseCode() !== 200) {
-    throw new Error(`DBエラー: ${response.getContentText()}`);
-  }
-
-  // 取得したJSON文字列をオブジェクトに変換してフロントエンドへ返す
-  return JSON.parse(response.getContentText());
-};
-
 // GASのエディタに認識させるためグローバルに登録
 (global as any).testSupabaseConnection = testSupabaseConnection;
+
+// API関数のインポート（build.jsがバンドル時に解決）
+// NOTE: GAS環境では通常のimportは使えないが、esbuildがバンドル時に解決する
+import { getCategories, getSchemaForCategory, createNewCategory } from './api/categories';
+
+// カテゴリAPI関数をグローバルに公開
 (global as any).getCategories = getCategories;
+(global as any).getSchemaForCategory = getSchemaForCategory;
+(global as any).createNewCategory = createNewCategory;

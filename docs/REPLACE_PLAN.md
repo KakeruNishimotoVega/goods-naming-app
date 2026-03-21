@@ -56,8 +56,8 @@
 
 ### 1.2 カテゴリ関連API（`src/api/categories.ts`）
 - [x] `getCategories()` - カテゴリ一覧取得 ✅
-- [ ] `getSchemaForCategory(categoryId)` - カテゴリ別のスキーマ取得
-- [ ] `createNewCategory(wizardData)` - ウィザードによるカテゴリ作成
+- [x] `getSchemaForCategory(categoryId)` - カテゴリ別のスキーマ取得 ✅
+- [x] `createNewCategory(wizardData)` - ウィザードによるカテゴリ作成 ✅
 
 ### 1.3 Type（入力項目）管理API（`src/api/types.ts`）
 - [ ] `addType(categoryId, typeData)` - 新規項目追加
