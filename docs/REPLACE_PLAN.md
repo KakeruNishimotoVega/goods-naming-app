@@ -79,8 +79,8 @@
 - [x] `deleteNgWord(id)` - NGワード削除 ✅
 
 ### 1.7 命名生成API（`src/api/naming.ts`）
-- [ ] `generateNames(formData)` - 商品名・ページ名生成
-- [ ] NGワードチェック機能の組み込み
+- [x] `generateNames(formData)` - 商品名・ページ名生成 ✅
+- [x] NGワードチェック機能の組み込み ✅
 
 ---
 
