@@ -109,11 +109,15 @@ var global = this;
       muteHttpExceptions: true
     });
     const fields = fieldsResponse.getResponseCode() === 200 ? JSON.parse(fieldsResponse.getContentText()) : [];
+    const hasTypes = types.length > 0;
+    const hasRegulations = regulations.length > 0;
+    const isMinimalCategory = !hasTypes && !hasRegulations;
     return {
       category,
       fields,
       types: typesWithKeywords,
-      regulations
+      regulations,
+      isMinimalCategory
     };
   }
   function createNewCategory(wizardData) {
@@ -876,6 +880,58 @@ var global = this;
       }
     };
   }
+  function generateNamesMinimal(inputData) {
+    if (!inputData) {
+      throw new Error("\u5165\u529B\u30C7\u30FC\u30BF\u304C\u6307\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
+    }
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
+    }
+    const productPageName = inputData.catchcopy || "";
+    const productName = inputData.productname || "";
+    const ngWordsEndpoint = `${supabaseUrl}/rest/v1/prohibited_words?select=*`;
+    const ngWordsResponse = UrlFetchApp.fetch(ngWordsEndpoint, {
+      method: "get",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json"
+      },
+      muteHttpExceptions: true
+    });
+    let prohibitedWordsFound = [];
+    if (ngWordsResponse.getResponseCode() === 200) {
+      const ngWords = JSON.parse(ngWordsResponse.getContentText());
+      ngWords.forEach((ngWord) => {
+        if (productPageName.includes(ngWord.word)) {
+          prohibitedWordsFound.push({
+            word: ngWord.word,
+            reason: ngWord.reason,
+            target: "productPageName"
+          });
+        }
+        if (productName.includes(ngWord.word)) {
+          prohibitedWordsFound.push({
+            word: ngWord.word,
+            reason: ngWord.reason,
+            target: "productName"
+          });
+        }
+      });
+    }
+    return {
+      productPageName,
+      productName,
+      prohibitedWordsFound,
+      characterCounts: {
+        productPageName: productPageName.length,
+        productName: productName.length
+      }
+    };
+  }
 
   // src/index.ts
   var doGet = (e) => {
@@ -930,6 +986,7 @@ var global = this;
   global.updateNgWord = updateNgWord;
   global.deleteNgWord = deleteNgWord;
   global.generateNames = generateNames;
+  global.generateNamesMinimal = generateNamesMinimal;
 })();
 
 function doGet() { return global.doGet.apply(this, arguments); }
@@ -951,3 +1008,4 @@ function addNgWord() { return global.addNgWord.apply(this, arguments); }
 function updateNgWord() { return global.updateNgWord.apply(this, arguments); }
 function deleteNgWord() { return global.deleteNgWord.apply(this, arguments); }
 function generateNames() { return global.generateNames.apply(this, arguments); }
+function generateNamesMinimal() { return global.generateNamesMinimal.apply(this, arguments); }

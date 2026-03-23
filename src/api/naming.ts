@@ -139,3 +139,78 @@ export function generateNames(formData: any) {
     }
   };
 }
+
+/**
+ * 【API】ミニマルカテゴリ用の命名生成（NGワードチェックのみ）
+ * @param inputData フリーテキスト入力データ（catchcopy, productname）
+ * @returns 生成結果（キャッチコピー、商品名、NGワード検出情報）
+ */
+export function generateNamesMinimal(inputData: any) {
+  if (!inputData) {
+    throw new Error('入力データが指定されていません。');
+  }
+
+  const props = PropertiesService.getScriptProperties();
+  const supabaseUrl = props.getProperty('SUPABASE_URL');
+  const supabaseKey = props.getProperty('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('環境変数が設定されていません。');
+  }
+
+  const productPageName = inputData.catchcopy || '';
+  const productName = inputData.productname || '';
+
+  // NGワードをチェック
+  const ngWordsEndpoint = `${supabaseUrl}/rest/v1/prohibited_words?select=*`;
+  const ngWordsResponse = UrlFetchApp.fetch(ngWordsEndpoint, {
+    method: 'get',
+    headers: {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json'
+    },
+    muteHttpExceptions: true
+  });
+
+  let prohibitedWordsFound: Array<{
+    word: string;
+    reason: string | null;
+    target: 'productPageName' | 'productName';
+  }> = [];
+
+  if (ngWordsResponse.getResponseCode() === 200) {
+    const ngWords = JSON.parse(ngWordsResponse.getContentText());
+
+    ngWords.forEach((ngWord: any) => {
+      // キャッチコピーにNGワードが含まれているかチェック
+      if (productPageName.includes(ngWord.word)) {
+        prohibitedWordsFound.push({
+          word: ngWord.word,
+          reason: ngWord.reason,
+          target: 'productPageName'
+        });
+      }
+
+      // 商品名にNGワードが含まれているかチェック
+      if (productName.includes(ngWord.word)) {
+        prohibitedWordsFound.push({
+          word: ngWord.word,
+          reason: ngWord.reason,
+          target: 'productName'
+        });
+      }
+    });
+  }
+
+  // 結果を返す
+  return {
+    productPageName: productPageName,
+    productName: productName,
+    prohibitedWordsFound: prohibitedWordsFound,
+    characterCounts: {
+      productPageName: productPageName.length,
+      productName: productName.length
+    }
+  };
+}

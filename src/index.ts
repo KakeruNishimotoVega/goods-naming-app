@@ -74,7 +74,7 @@ import { addType, updateType, deleteType } from './api/types';
 import { addKeyword, updateKeyword, deleteKeyword, updateKeywordsPriority } from './api/keywords';
 import { updateRegulation } from './api/regulations';
 import { getNgWords, addNgWord, updateNgWord, deleteNgWord } from './api/ngwords';
-import { generateNames } from './api/naming';
+import { generateNames, generateNamesMinimal } from './api/naming';
 
 // カテゴリAPI関数をグローバルに公開
 (global as any).getCategories = getCategories;
@@ -103,3 +103,4 @@ import { generateNames } from './api/naming';
 
 // 命名生成API関数をグローバルに公開
 (global as any).generateNames = generateNames;
+(global as any).generateNamesMinimal = generateNamesMinimal;

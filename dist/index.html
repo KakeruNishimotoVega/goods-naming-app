@@ -2099,6 +2099,12 @@ function renderDynamicForm(schema) {
     const formContainer = document.getElementById('dynamic-form');
     if (!formContainer) return;
 
+    // ミニマルカテゴリ（types, regulations が未設定）の場合
+    if (schema.isMinimalCategory) {
+        renderMinimalCategoryForm();
+        return;
+    }
+
     let html = '<div class="form-card">';
     html += '<h3>入力項目</h3>';
 
@@ -2128,6 +2134,68 @@ function renderDynamicForm(schema) {
 
     // リアルタイム生成のためのイベントリスナーを追加
     setupRealtimeGeneration();
+}
+
+/**
+ * ミニマルカテゴリ（レギュレーション未設定）のフォームを生成
+ */
+function renderMinimalCategoryForm() {
+    const formContainer = document.getElementById('dynamic-form');
+    if (!formContainer) return;
+
+    let html = '<div class="form-card">';
+    
+    // 説明文
+    html += '<div class="alert alert-info" style="margin-bottom: 1.5rem;">';
+    html += '<h4 style="margin-top: 0; margin-bottom: 0.5rem;">このカテゴリは現時点ではレギュレーションが未設定です</h4>';
+    html += '<p style="margin: 0;">理由：対象商品数が少ない、または、レギュレーション設定の費用対効果と判断されたため。</p>';
+    html += '</div>';
+    
+    // フリーテキストフィールド
+    html += '<h3>命名入力</h3>';
+    html += '<div class="input-group">';
+    html += '<label for="minimal-catchcopy">キャッチコピー</label>';
+    html += '<input type="text" id="minimal-catchcopy" class="form-control" placeholder="キャッチコピーを入力してください" />';
+    html += '</div>';
+    
+    html += '<div class="input-group">';
+    html += '<label for="minimal-productname">商品名</label>';
+    html += '<input type="text" id="minimal-productname" class="form-control" placeholder="商品名を入力してください" />';
+    html += '</div>';
+    
+    // 共通レギュレーション例
+    html += '<div style="margin-top: 2rem; padding: 1rem; background-color: #f5f5f5; border-radius: 4px;">';
+    html += '<h4 style="margin-top: 0; margin-bottom: 1rem;">共通レギュレーション例</h4>';
+    html += '<p style="margin: 0.5rem 0;"><strong>キャッチコピー：</strong>{nickname} / {カテゴリ}</p>';
+    html += '<p style="margin: 0.5rem 0;"><strong>商品名：</strong>[{幅N}] {カテゴリ} {機能性} {素材}</p>';
+    html += '</div>';
+    
+    // 共通ルール
+    html += '<div style="margin-top: 1.5rem; padding: 1rem; background-color: #f9f9f9; border-radius: 4px;">';
+    html += '<h4 style="margin-top: 0; margin-bottom: 1rem;">共通ルール</h4>';
+    html += '<dl style="margin: 0;">';
+    
+    html += '<dt style="font-weight: bold; margin-top: 0.75rem;">◯幅の表記について</dt>';
+    html += '<dd style="margin-left: 1rem; margin-bottom: 0.5rem;">同じページ内に異なる幅のSKUがある場合：幅80/100<br>商品の幅が伸縮する場合：幅80〜100</dd>';
+    
+    html += '<dt style="font-weight: bold; margin-top: 0.75rem;">◯製造国</dt>';
+    html += '<dd style="margin-left: 1rem; margin-bottom: 0.5rem;">国内工場で製造された商品は「日本製」と表記すること。<br>表記揺れを防ぐため、「国産」表記はNG。</dd>';
+    
+    html += '<dt style="font-weight: bold; margin-top: 0.75rem;">◯開梱設置付き</dt>';
+    html += '<dd style="margin-left: 1rem; margin-bottom: 0.5rem;">商品名・キャッチコピーともに「開梱設置付き」は表示しない。</dd>';
+    
+    html += '<dt style="font-weight: bold; margin-top: 0.75rem;">◯完成レベル</dt>';
+    html += '<dd style="margin-left: 1rem; margin-bottom: 0.5rem;">「半完成品」表記はNG。<br>「完成品」は"TV台", "収納", "デスク", "テーブル", "ソファ", "キッチン", "照明", "チェア"のみ表記すること。</dd>';
+    
+    html += '</dl>';
+    html += '</div>';
+    
+    html += '</div>';
+
+    formContainer.innerHTML = html;
+
+    // リアルタイム生成のためのイベントリスナーを追加
+    setupRealtimeGenerationForMinimal();
 }
 
 /**
@@ -2230,6 +2298,27 @@ function setupRealtimeGeneration() {
 }
 
 /**
+ * ミニマルカテゴリ用のリアルタイム生成セットアップ
+ */
+function setupRealtimeGenerationForMinimal() {
+    const catchcopyInput = document.getElementById('minimal-catchcopy');
+    const productnameInput = document.getElementById('minimal-productname');
+
+    if (!catchcopyInput || !productnameInput) return;
+
+    const handleInput = () => {
+        // デバウンス処理（500ms）
+        clearTimeout(generateTimeout);
+        generateTimeout = setTimeout(() => {
+            onGenerateNamesMinimal();
+        }, 500);
+    };
+
+    catchcopyInput.addEventListener('input', handleInput);
+    productnameInput.addEventListener('input', handleInput);
+}
+
+/**
  * 名称生成処理
  * @param {boolean} isRealtime - リアルタイム生成かどうか
  */
@@ -2256,6 +2345,38 @@ async function onGenerateNames(isRealtime = false) {
         if (!isRealtime) {
             showError('名称の生成に失敗しました', 'result-content');
         }
+    }
+}
+
+/**
+ * ミニマルカテゴリ用の名称生成処理
+ */
+async function onGenerateNamesMinimal() {
+    const resultContainer = document.getElementById('naming-result');
+    const resultContent = document.getElementById('result-content');
+
+    const catchcopy = document.getElementById('minimal-catchcopy')?.value?.trim() || '';
+    const productname = document.getElementById('minimal-productname')?.value?.trim() || '';
+
+    // 両方空の場合は結果エリアを非表示
+    if (!catchcopy && !productname) {
+        hideElement(resultContainer);
+        return;
+    }
+
+    try {
+        showElement(resultContainer);
+
+        // API呼び出し（NGワードチェックのみ）
+        const result = await callGasApi('generateNamesMinimal', {
+            catchcopy: catchcopy,
+            productname: productname
+        });
+
+        // 結果を表示
+        displayResult(result);
+    } catch (error) {
+        handleApiError(error, 'onGenerateNamesMinimal');
     }
 }
 

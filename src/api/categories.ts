@@ -154,12 +154,18 @@ export function getSchemaForCategory(categoryId: string) {
     ? JSON.parse(fieldsResponse.getContentText())
     : [];
 
-  // 6. すべてをまとめて返す
+  // 6. types, keywords, regulations が全て空の場合、ミニマルカテゴリとして扱う
+  const hasTypes = types.length > 0;
+  const hasRegulations = regulations.length > 0;
+  const isMinimalCategory = !hasTypes && !hasRegulations;
+
+  // 7. すべてをまとめて返す
   return {
     category: category,
     fields: fields,
     types: typesWithKeywords,
-    regulations: regulations
+    regulations: regulations,
+    isMinimalCategory: isMinimalCategory
   };
 }
 
