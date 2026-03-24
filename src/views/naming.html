@@ -8,12 +8,17 @@
 
         <!-- カテゴリ選択カード -->
         <div class="form-card">
-            <h3>カテゴリを選択</h3>
-            <div class="input-group">
-                <label for="category-select">カテゴリ</label>
-                <select id="category-select" class="form-control">
-                    <option value="">カテゴリを選択してください</option>
-                </select>
+            <h3>Step 1: 大カテゴリを選択</h3>
+            <div id="parent-category-list" class="category-grid">
+                <!-- 親カテゴリボタンが動的に追加される -->
+            </div>
+        </div>
+
+        <!-- 子カテゴリ選択カード（親カテゴリ選択後に表示） -->
+        <div id="child-category-card" class="form-card" style="display: none;">
+            <h3>Step 2: カテゴリを選択</h3>
+            <div id="child-category-list" class="category-grid">
+                <!-- 子カテゴリボタンが動的に追加される -->
             </div>
         </div>
 

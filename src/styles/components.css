@@ -780,3 +780,123 @@ button[title="Google検索"]:hover:not(:disabled) {
         font-size: 1rem;
     }
 }
+
+/* カテゴリフィルタUI */
+.category-filters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+    border-radius: var(--border-radius-md);
+    border: 1px solid #e2e8f0;
+}
+
+.category-filters .input-group {
+    margin-bottom: 0;
+}
+
+.category-filters label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+.category-filters .form-control {
+    font-size: 0.95rem;
+}
+
+/* 検索ボックスのスタイル */
+.category-filters input[type="text"] {
+    padding-left: 2.5rem;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgba(100, 116, 139, 0.6)" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
+    background-repeat: no-repeat;
+    background-position: 0.75rem center;
+    background-size: 16px;
+}
+
+.category-filters input[type="text"]::placeholder {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.category-filters input[type="text"]:focus {
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="rgba(43, 139, 132, 0.8)" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/></svg>');
+}
+
+/* カテゴリ件数のテキスト */
+.helper-text {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .category-filters {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+}
+
+/* カテゴリグリッド（2段階選択UI） */
+.category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (max-width: 768px) {
+    .category-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 0.75rem;
+    }
+}
+
+/* カテゴリカード */
+.category-card {
+    padding: 1.25rem 1.5rem;
+    background-color: white;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--border-radius-md);
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.category-card:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(43, 139, 132, 0.03);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(43, 139, 132, 0.15);
+}
+
+.category-card.active {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(43, 139, 132, 0.3);
+}
+
+.category-card.active:hover {
+    background-color: var(--primary-hover-color);
+    border-color: var(--primary-hover-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(43, 139, 132, 0.4);
+}
+
+/* カテゴリカードのローディング状態 */
+.category-grid .local-loader {
+    grid-column: 1 / -1;
+}
+
+

@@ -1,6 +1,12 @@
 // src/scripts/naming.js
 // 命名画面のロジック
 
+// カテゴリデータのグローバル変数
+let allCategories = []; // 全カテゴリのキャッシュ
+let allParentCategories = []; // 全親カテゴリのキャッシュ
+let selectedParentId = null; // 選択中の親カテゴリID
+let selectedCategoryId = null; // 選択中の子カテゴリID
+
 /**
  * 命名画面の初期化
  */
@@ -9,12 +15,6 @@ function initNamingScreen() {
 
     // カテゴリの読み込み
     loadCategories();
-
-    // カテゴリ選択時のイベント
-    const categorySelect = document.getElementById('category-select');
-    if (categorySelect) {
-        categorySelect.addEventListener('change', onCategoryChange);
-    }
 
     // 結果エリアの閉じるボタン
     const closeResultBtn = document.getElementById('close-result-btn');
@@ -32,47 +32,137 @@ function initNamingScreen() {
  * カテゴリ一覧を読み込む
  */
 async function loadCategories() {
-    const select = document.getElementById('category-select');
-    if (!select) return;
-
     try {
-        showLoading('dynamic-form');
+        showLoading('parent-category-list');
 
-        const categories = await callGasApi('getCategories');
+        // 全カテゴリと親カテゴリを並行取得
+        const [categories, parentCategories] = await Promise.all([
+            callGasApi('getCategories'),
+            callGasApi('getParentCategories')
+        ]);
 
-        // セレクトボックスをクリア
-        select.innerHTML = '<option value="">カテゴリを選択してください</option>';
+        // グローバルキャッシュに保存
+        allCategories = categories;
+        allParentCategories = parentCategories;
 
-        // カテゴリをセレクトボックスに追加
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.id;
-            option.textContent = category.name;
-            select.appendChild(option);
-        });
+        // 親カテゴリリストを表示
+        renderParentCategories();
 
+        // 動的フォームをクリア
         document.getElementById('dynamic-form').innerHTML = '';
     } catch (error) {
         handleApiError(error, 'loadCategories');
-        showError('カテゴリの読み込みに失敗しました', 'dynamic-form');
+        showError('カテゴリの読み込みに失敗しました', 'parent-category-list');
     }
 }
 
 /**
- * カテゴリ変更時の処理
+ * 親カテゴリリストを表示
  */
-async function onCategoryChange(event) {
-    const categoryId = event.target.value;
+function renderParentCategories() {
+    const container = document.getElementById('parent-category-list');
+    if (!container) return;
 
-    // カテゴリが変更されたら生成結果をリセット
+    container.innerHTML = '';
+
+    allParentCategories.forEach(parent => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'category-card';
+        button.dataset.parentId = parent.id;
+        button.textContent = parent.name;
+
+        // 選択中の親カテゴリをハイライト
+        if (selectedParentId === parent.id) {
+            button.classList.add('active');
+        }
+
+        // クリックイベント
+        button.addEventListener('click', () => {
+            onParentCategoryClick(parent.id);
+        });
+
+        container.appendChild(button);
+    });
+}
+
+/**
+ * 親カテゴリクリック時の処理
+ */
+function onParentCategoryClick(parentId) {
+    selectedParentId = parentId;
+    selectedCategoryId = null; // 子カテゴリ選択をリセット
+
+    // 親カテゴリリストを再描画（選択状態を反映）
+    renderParentCategories();
+
+    // 子カテゴリリストを表示
+    renderChildCategories(parentId);
+
+    // 動的フォームをクリア
+    document.getElementById('dynamic-form').innerHTML = '';
+
+    // 結果エリアを非表示
     const resultContainer = document.getElementById('naming-result');
     if (resultContainer) {
         hideElement(resultContainer);
     }
+}
 
-    if (!categoryId) {
-        document.getElementById('dynamic-form').innerHTML = '';
+/**
+ * 子カテゴリリストを表示
+ */
+function renderChildCategories(parentId) {
+    const card = document.getElementById('child-category-card');
+    const container = document.getElementById('child-category-list');
+    if (!card || !container) return;
+
+    // 該当する子カテゴリをフィルタ
+    const childCategories = allCategories.filter(c => c.parent_id === parentId);
+
+    if (childCategories.length === 0) {
+        card.style.display = 'none';
         return;
+    }
+
+    // カードを表示
+    card.style.display = 'block';
+    container.innerHTML = '';
+
+    childCategories.forEach(category => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'category-card';
+        button.dataset.categoryId = category.id;
+        button.textContent = category.name;
+
+        // 選択中の子カテゴリをハイライト
+        if (selectedCategoryId === category.id) {
+            button.classList.add('active');
+        }
+
+        // クリックイベント
+        button.addEventListener('click', () => {
+            onChildCategoryClick(category.id);
+        });
+
+        container.appendChild(button);
+    });
+}
+
+/**
+ * 子カテゴリクリック時の処理
+ */
+async function onChildCategoryClick(categoryId) {
+    selectedCategoryId = categoryId;
+
+    // 子カテゴリリストを再描画（選択状態を反映）
+    renderChildCategories(selectedParentId);
+
+    // 結果エリアを非表示
+    const resultContainer = document.getElementById('naming-result');
+    if (resultContainer) {
+        hideElement(resultContainer);
     }
 
     try {
@@ -84,7 +174,7 @@ async function onCategoryChange(event) {
         // 動的フォームを生成
         renderDynamicForm(schema);
     } catch (error) {
-        handleApiError(error, 'onCategoryChange');
+        handleApiError(error, 'onChildCategoryClick');
         showError('スキーマの読み込みに失敗しました', 'dynamic-form');
     }
 }

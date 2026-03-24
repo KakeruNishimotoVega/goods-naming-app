@@ -1,6 +1,12 @@
 // src/scripts/settings.js
 // ルール設定画面のロジック
 
+// カテゴリデータのグローバル変数
+let settingsAllCategories = []; // 全カテゴリのキャッシュ
+let settingsAllParentCategories = []; // 全親カテゴリのキャッシュ
+let settingsSelectedParentId = null; // 選択中の親カテゴリID
+let settingsSelectedCategoryId = null; // 選択中の子カテゴリID
+
 /**
  * 設定画面の初期化
  */
@@ -9,12 +15,6 @@ function initSettingsScreen() {
 
     // カテゴリの読み込み
     loadSettingsCategories();
-
-    // カテゴリ選択時のイベント
-    const categorySelect = document.getElementById('settings-category-select');
-    if (categorySelect) {
-        categorySelect.addEventListener('change', onSettingsCategoryChange);
-    }
 
     // カテゴリ追加ボタンのイベント
     const addCategoryBtn = document.getElementById('add-category-btn');
@@ -27,38 +27,128 @@ function initSettingsScreen() {
  * 設定画面用のカテゴリ一覧を読み込む
  */
 async function loadSettingsCategories() {
-    const select = document.getElementById('settings-category-select');
-    if (!select) return;
-
     try {
-        const categories = await callGasApi('getCategories');
+        showLoading('settings-parent-category-list');
 
-        // セレクトボックスをクリア
-        select.innerHTML = '<option value="">カテゴリを選択してください</option>';
+        // 全カテゴリと親カテゴリを並行取得
+        const [categories, parentCategories] = await Promise.all([
+            callGasApi('getCategories'),
+            callGasApi('getParentCategories')
+        ]);
 
-        // カテゴリをセレクトボックスに追加
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category.id;
-            option.textContent = category.name;
-            select.appendChild(option);
-        });
+        // グローバルキャッシュに保存
+        settingsAllCategories = categories;
+        settingsAllParentCategories = parentCategories;
+
+        // 親カテゴリリストを表示
+        renderSettingsParentCategories();
+
+        // Type一覧とRegulations一覧をクリア
+        document.getElementById('types-list').innerHTML = '';
+        document.getElementById('regulations-section').innerHTML = '';
     } catch (error) {
         console.error('Failed to load categories:', error);
-        showError('カテゴリの読み込みに失敗しました', 'types-list');
+        showError('カテゴリの読み込みに失敗しました', 'settings-parent-category-list');
     }
 }
 
 /**
- * 設定画面のカテゴリ変更時の処理
+ * 親カテゴリリストを表示
  */
-async function onSettingsCategoryChange(event) {
-    const categoryId = event.target.value;
+function renderSettingsParentCategories() {
+    const container = document.getElementById('settings-parent-category-list');
+    if (!container) return;
 
-    if (!categoryId) {
-        document.getElementById('types-list').innerHTML = '';
+    container.innerHTML = '';
+
+    settingsAllParentCategories.forEach(parent => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'category-card';
+        button.dataset.parentId = parent.id;
+        button.textContent = parent.name;
+
+        // 選択中の親カテゴリをハイライト
+        if (settingsSelectedParentId === parent.id) {
+            button.classList.add('active');
+        }
+
+        // クリックイベント
+        button.addEventListener('click', () => {
+            onSettingsParentCategoryClick(parent.id);
+        });
+
+        container.appendChild(button);
+    });
+}
+
+/**
+ * 親カテゴリクリック時の処理
+ */
+function onSettingsParentCategoryClick(parentId) {
+    settingsSelectedParentId = parentId;
+    settingsSelectedCategoryId = null; // 子カテゴリ選択をリセット
+
+    // 親カテゴリリストを再描画（選択状態を反映）
+    renderSettingsParentCategories();
+
+    // 子カテゴリリストを表示
+    renderSettingsChildCategories(parentId);
+
+    // Type一覧とRegulations一覧をクリア
+    document.getElementById('types-list').innerHTML = '';
+    document.getElementById('regulations-section').innerHTML = '';
+}
+
+/**
+ * 子カテゴリリストを表示
+ */
+function renderSettingsChildCategories(parentId) {
+    const card = document.getElementById('settings-child-category-card');
+    const container = document.getElementById('settings-child-category-list');
+    if (!card || !container) return;
+
+    // 該当する子カテゴリをフィルタ
+    const childCategories = settingsAllCategories.filter(c => c.parent_id === parentId);
+
+    if (childCategories.length === 0) {
+        card.style.display = 'none';
         return;
     }
+
+    // カードを表示
+    card.style.display = 'block';
+    container.innerHTML = '';
+
+    childCategories.forEach(category => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'category-card';
+        button.dataset.categoryId = category.id;
+        button.textContent = category.name;
+
+        // 選択中の子カテゴリをハイライト
+        if (settingsSelectedCategoryId === category.id) {
+            button.classList.add('active');
+        }
+
+        // クリックイベント
+        button.addEventListener('click', () => {
+            onSettingsChildCategoryClick(category.id);
+        });
+
+        container.appendChild(button);
+    });
+}
+
+/**
+ * 子カテゴリクリック時の処理
+ */
+async function onSettingsChildCategoryClick(categoryId) {
+    settingsSelectedCategoryId = categoryId;
+
+    // 子カテゴリリストを再描画（選択状態を反映）
+    renderSettingsChildCategories(settingsSelectedParentId);
 
     try {
         showLoading('types-list');

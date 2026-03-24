@@ -3,7 +3,7 @@
 ## 概要
 LOWYA商品命名アプリのデータベーススキーマ定義。Supabase (PostgreSQL) を使用。
 
-**最終更新:** 2026-03-21
+**最終更新:** 2026-03-24
 **データソース:** Supabase MCP経由で取得
 
 ---
@@ -11,25 +11,48 @@ LOWYA商品命名アプリのデータベーススキーマ定義。Supabase (Po
 ## テーブル一覧
 
 ### 1. categories（カテゴリ）
-商品カテゴリのマスタテーブル。
+商品カテゴリのマスタテーブル。親子階層構造に対応。
 
-**現在のレコード数:** 3件
+**現在のレコード数:** 約50件（12の親カテゴリ + 40以上の子カテゴリ）
 **RLS有効:** Yes
 
 | カラム名 | 型 | 制約 | デフォルト値 | 説明 |
 |---------|-----|------|-------------|------|
 | id | uuid | PRIMARY KEY | gen_random_uuid() | カテゴリID（自動生成） |
 | name | text | NOT NULL | - | カテゴリ名（例: N人掛けソファ・座椅子） |
+| parent_id | uuid | FOREIGN KEY → categories(id) ON DELETE CASCADE, NULLABLE | NULL | 親カテゴリID（NULLの場合は親カテゴリを示す） |
 | created_at | timestamptz | NOT NULL | timezone('utc'::text, now()) | 作成日時（UTC） |
+
+**インデックス:**
+- `idx_categories_parent_id` ON parent_id（親カテゴリでのフィルタリングを高速化）
 
 **外部キー参照元:**
 - types.category_id → categories.id
 - regulations.category_id → categories.id
 
-**データ例:**
-- N人掛けソファ・座椅子
-- オットマン
-- ソファカバー
+**階層構造:**
+- parent_id = NULL: 親カテゴリ（例: ソファ、テレビ台、収納、寝具、照明など）
+- parent_id != NULL: 子カテゴリ（例: オットマン、ソファカバー、壁面収納テレビ台など）
+
+**親カテゴリ例:**
+- ソファ
+- テレビ台
+- 収納
+- 寝具
+- 照明
+- 家電
+- 雑貨
+- 机
+- チェア
+- カーテン
+- アウトドア
+- その他
+
+**子カテゴリ例:**
+- オットマン（親: ソファ）
+- 壁面収納テレビ台（親: テレビ台）
+- 衣類収納（親: 収納）
+- ペンダントライト（親: 照明）
 
 ---
 

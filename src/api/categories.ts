@@ -5,7 +5,8 @@
 
 /**
  * 【API】Supabaseからカテゴリ一覧を取得
- * @returns カテゴリ一覧の配列
+ * 階層構造に対応し、親カテゴリ情報を含めて返す
+ * @returns カテゴリ一覧の配列（parent_id, parent_name含む）
  */
 export function getCategories() {
   const props = PropertiesService.getScriptProperties();
@@ -16,8 +17,9 @@ export function getCategories() {
     throw new Error('環境変数が設定されていません。');
   }
 
-  // カテゴリ一覧を作成日時の昇順で取得するAPIエンドポイント
-  const endpoint = `${supabaseUrl}/rest/v1/categories?select=*&order=created_at.asc`;
+  // カテゴリ一覧を名前順で取得するAPIエンドポイント
+  // parent_idを含めて取得
+  const endpoint = `${supabaseUrl}/rest/v1/categories?select=*&order=name.asc`;
 
   const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
     method: 'get',
@@ -35,7 +37,55 @@ export function getCategories() {
     throw new Error(`DBエラー: ${response.getContentText()}`);
   }
 
-  // 取得したJSON文字列をオブジェクトに変換してフロントエンドへ返す
+  const categories = JSON.parse(response.getContentText());
+
+  // 親カテゴリ名を追加（parent_idがある場合は親の名前を取得）
+  const categoriesWithParent = categories.map((category: any) => {
+    if (category.parent_id) {
+      const parent = categories.find((c: any) => c.id === category.parent_id);
+      return {
+        ...category,
+        parent_name: parent ? parent.name : null
+      };
+    }
+    return category;
+  });
+
+  return categoriesWithParent;
+}
+
+/**
+ * 【API】親カテゴリのみを取得
+ * @returns 親カテゴリの配列（parent_id = NULLのみ）
+ */
+export function getParentCategories() {
+  const props = PropertiesService.getScriptProperties();
+  const supabaseUrl = props.getProperty('SUPABASE_URL');
+  const supabaseKey = props.getProperty('SUPABASE_SERVICE_ROLE_KEY');
+
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('環境変数が設定されていません。');
+  }
+
+  // parent_id IS NULLで親カテゴリのみをフィルタ、名前順でソート
+  const endpoint = `${supabaseUrl}/rest/v1/categories?select=*&parent_id=is.null&order=name.asc`;
+
+  const options: GoogleAppsScript.URL_Fetch.URLFetchRequestOptions = {
+    method: 'get',
+    headers: {
+      'apikey': supabaseKey,
+      'Authorization': `Bearer ${supabaseKey}`,
+      'Content-Type': 'application/json'
+    },
+    muteHttpExceptions: true
+  };
+
+  const response = UrlFetchApp.fetch(endpoint, options);
+
+  if (response.getResponseCode() !== 200) {
+    throw new Error(`DBエラー: ${response.getContentText()}`);
+  }
+
   return JSON.parse(response.getContentText());
 }
 

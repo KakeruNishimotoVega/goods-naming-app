@@ -9,7 +9,41 @@ var global = this;
     if (!supabaseUrl || !supabaseKey) {
       throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
     }
-    const endpoint = `${supabaseUrl}/rest/v1/categories?select=*&order=created_at.asc`;
+    const endpoint = `${supabaseUrl}/rest/v1/categories?select=*&order=name.asc`;
+    const options = {
+      method: "get",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json"
+      },
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() !== 200) {
+      throw new Error(`DB\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+    }
+    const categories = JSON.parse(response.getContentText());
+    const categoriesWithParent = categories.map((category) => {
+      if (category.parent_id) {
+        const parent = categories.find((c) => c.id === category.parent_id);
+        return {
+          ...category,
+          parent_name: parent ? parent.name : null
+        };
+      }
+      return category;
+    });
+    return categoriesWithParent;
+  }
+  function getParentCategories() {
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002");
+    }
+    const endpoint = `${supabaseUrl}/rest/v1/categories?select=*&parent_id=is.null&order=name.asc`;
     const options = {
       method: "get",
       headers: {
@@ -971,6 +1005,7 @@ var global = this;
   };
   global.testSupabaseConnection = testSupabaseConnection;
   global.getCategories = getCategories;
+  global.getParentCategories = getParentCategories;
   global.getSchemaForCategory = getSchemaForCategory;
   global.createNewCategory = createNewCategory;
   global.addType = addType;
@@ -993,6 +1028,7 @@ function doGet() { return global.doGet.apply(this, arguments); }
 function getEnvironmentVariables() { return global.getEnvironmentVariables.apply(this, arguments); }
 function testSupabaseConnection() { return global.testSupabaseConnection.apply(this, arguments); }
 function getCategories() { return global.getCategories.apply(this, arguments); }
+function getParentCategories() { return global.getParentCategories.apply(this, arguments); }
 function getSchemaForCategory() { return global.getSchemaForCategory.apply(this, arguments); }
 function createNewCategory() { return global.createNewCategory.apply(this, arguments); }
 function addType() { return global.addType.apply(this, arguments); }

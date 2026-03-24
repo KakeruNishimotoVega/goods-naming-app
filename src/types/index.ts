@@ -11,6 +11,8 @@
 export interface Category {
   id: string; // uuid
   name: string;
+  parent_id: string | null; // 親カテゴリID（NULL = 親カテゴリ）
+  parent_name?: string; // 親カテゴリ名（JOIN結果）
   created_at: string; // timestamptz
 }
 

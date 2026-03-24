@@ -69,7 +69,7 @@ const testSupabaseConnection = () => {
 
 // API関数のインポート（build.jsがバンドル時に解決）
 // NOTE: GAS環境では通常のimportは使えないが、esbuildがバンドル時に解決する
-import { getCategories, getSchemaForCategory, createNewCategory } from './api/categories';
+import { getCategories, getParentCategories, getSchemaForCategory, createNewCategory } from './api/categories';
 import { addType, updateType, deleteType } from './api/types';
 import { addKeyword, updateKeyword, deleteKeyword, updateKeywordsPriority } from './api/keywords';
 import { updateRegulation } from './api/regulations';
@@ -78,6 +78,7 @@ import { generateNames, generateNamesMinimal } from './api/naming';
 
 // カテゴリAPI関数をグローバルに公開
 (global as any).getCategories = getCategories;
+(global as any).getParentCategories = getParentCategories;
 (global as any).getSchemaForCategory = getSchemaForCategory;
 (global as any).createNewCategory = createNewCategory;
 
