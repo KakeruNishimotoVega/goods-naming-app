@@ -471,7 +471,7 @@ async function onGenerateNamesMinimal() {
  * フォームデータを収集
  */
 function collectFormData() {
-    const categoryId = document.getElementById('category-select').value;
+    const categoryId = selectedCategoryId;
     const formData = {
         categoryId: categoryId,
         fields: {},
