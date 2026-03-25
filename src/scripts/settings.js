@@ -378,6 +378,7 @@ async function editType(typeId) {
         document.getElementById('edit-type-key-name').value = type.key_name || '';
         document.getElementById('edit-type-name').value = type.display_name;
         document.getElementById('edit-type-description').value = type.description || '';
+        document.getElementById('edit-type-placeholder').value = type.placeholder || '';
         document.getElementById('edit-type-selection').value = type.selection_type;
         document.getElementById('edit-type-required').checked = type.is_required;
 
@@ -405,6 +406,7 @@ async function saveTypeEdit(categoryId) {
         id: typeId,
         display_name: document.getElementById('edit-type-name').value,
         description: document.getElementById('edit-type-description').value,
+        placeholder: document.getElementById('edit-type-placeholder').value || null,
         selection_type: document.getElementById('edit-type-selection').value,
         is_required: document.getElementById('edit-type-required').checked
     };
@@ -694,6 +696,7 @@ function onAddType() {
     // フォームをクリア
     document.getElementById('add-type-name').value = '';
     document.getElementById('add-type-description').value = '';
+    document.getElementById('add-type-placeholder').value = '';
     document.getElementById('add-type-selection').value = 'TEXT';
     document.getElementById('add-type-required').checked = false;
 
@@ -728,6 +731,7 @@ async function saveNewType() {
         key_name: keyName,
         display_name: displayName,
         description: document.getElementById('add-type-description').value,
+        placeholder: document.getElementById('add-type-placeholder').value || null,
         selection_type: document.getElementById('add-type-selection').value,
         is_required: document.getElementById('add-type-required').checked
     };

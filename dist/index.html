@@ -1570,6 +1570,12 @@ button[title="Google検索"]:hover:not(:disabled) {
                 </div>
 
                 <div class="form-group">
+                    <label for="edit-type-placeholder">プレースホルダー</label>
+                    <input type="text" id="edit-type-placeholder" class="form-control" placeholder="例: N人掛け" />
+                    <p class="text-sm text-muted mt-1">テキスト入力型の場合に入力欄に表示されます</p>
+                </div>
+
+                <div class="form-group">
                     <label for="edit-type-selection">選択タイプ *</label>
                     <select id="edit-type-selection" class="form-control" required>
                         <option value="TEXT">テキスト入力</option>
@@ -1608,6 +1614,12 @@ button[title="Google検索"]:hover:not(:disabled) {
                 <div class="form-group">
                     <label for="add-type-description">説明</label>
                     <textarea id="add-type-description" class="form-control" rows="3" placeholder="この項目の説明（任意）"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="add-type-placeholder">プレースホルダー</label>
+                    <input type="text" id="add-type-placeholder" class="form-control" placeholder="例: N人掛け" />
+                    <p class="text-sm text-muted mt-1">テキスト入力型の場合に入力欄に表示されます</p>
                 </div>
 
                 <div class="form-group">
@@ -3178,6 +3190,7 @@ async function editType(typeId) {
         document.getElementById('edit-type-key-name').value = type.key_name || '';
         document.getElementById('edit-type-name').value = type.display_name;
         document.getElementById('edit-type-description').value = type.description || '';
+        document.getElementById('edit-type-placeholder').value = type.placeholder || '';
         document.getElementById('edit-type-selection').value = type.selection_type;
         document.getElementById('edit-type-required').checked = type.is_required;
 
@@ -3205,6 +3218,7 @@ async function saveTypeEdit(categoryId) {
         id: typeId,
         display_name: document.getElementById('edit-type-name').value,
         description: document.getElementById('edit-type-description').value,
+        placeholder: document.getElementById('edit-type-placeholder').value || null,
         selection_type: document.getElementById('edit-type-selection').value,
         is_required: document.getElementById('edit-type-required').checked
     };
@@ -3494,6 +3508,7 @@ function onAddType() {
     // フォームをクリア
     document.getElementById('add-type-name').value = '';
     document.getElementById('add-type-description').value = '';
+    document.getElementById('add-type-placeholder').value = '';
     document.getElementById('add-type-selection').value = 'TEXT';
     document.getElementById('add-type-required').checked = false;
 
@@ -3528,6 +3543,7 @@ async function saveNewType() {
         key_name: keyName,
         display_name: displayName,
         description: document.getElementById('add-type-description').value,
+        placeholder: document.getElementById('add-type-placeholder').value || null,
         selection_type: document.getElementById('add-type-selection').value,
         is_required: document.getElementById('add-type-required').checked
     };
