@@ -355,7 +355,7 @@ async function editType(typeId) {
 
     try {
         // 現在のカテゴリIDを取得
-        const categoryId = document.getElementById('settings-category-select').value;
+        const categoryId = settingsSelectedCategoryId;
         if (!categoryId) {
             closeModal('edit-type-modal');
             return;
@@ -387,7 +387,7 @@ async function editType(typeId) {
         // フォーム送信イベント
         form.onsubmit = (e) => {
             e.preventDefault();
-            saveTypeEdit();
+            saveTypeEdit(settingsSelectedCategoryId);
         };
     } catch (error) {
         console.error('Failed to load type:', error);
@@ -399,7 +399,7 @@ async function editType(typeId) {
 /**
  * Type編集を保存
  */
-async function saveTypeEdit() {
+async function saveTypeEdit(categoryId) {
     const typeId = document.getElementById('edit-type-id').value;
     const typeData = {
         id: typeId,
@@ -415,9 +415,8 @@ async function saveTypeEdit() {
         showToast('更新しました');
 
         // リロード
-        const categorySelect = document.getElementById('settings-category-select');
-        if (categorySelect && categorySelect.value) {
-            onSettingsCategoryChange({ target: categorySelect });
+        if (categoryId) {
+            onSettingsChildCategoryClick(categoryId);
         }
     } catch (error) {
         console.error('Failed to update type:', error);
@@ -431,7 +430,7 @@ async function saveTypeEdit() {
 async function manageKeywords(typeId, typeName) {
     try {
         // 現在のカテゴリIDを取得
-        const categoryId = document.getElementById('settings-category-select').value;
+        const categoryId = settingsSelectedCategoryId;
         if (!categoryId) return;
 
         // スキーマを再取得
@@ -531,9 +530,8 @@ async function saveNewKeyword() {
         showToast('キーワードを追加しました');
 
         // 画面をリロード
-        const categorySelect = document.getElementById('settings-category-select');
-        if (categorySelect && categorySelect.value) {
-            onSettingsCategoryChange({ target: categorySelect });
+        if (settingsSelectedCategoryId) {
+            onSettingsChildCategoryClick(settingsSelectedCategoryId);
         }
     } catch (error) {
         console.error('Failed to add keyword:', error);
@@ -561,7 +559,7 @@ async function editKeyword(keywordId, currentKeyword, currentPriority) {
 
         // キーワード一覧を再読み込み
         const typeId = document.getElementById('keywords-type-id').value;
-        const categoryId = document.getElementById('settings-category-select').value;
+        const categoryId = settingsSelectedCategoryId;
         const schema = await callGasApi('getSchemaForCategory', categoryId);
         const typeData = schema.types.find(t => t.type.id === typeId);
         if (typeData) {
@@ -618,9 +616,8 @@ function makeKeywordEditable(cell) {
             showToast('キーワードを更新しました');
 
             // 画面をリロード
-            const categorySelect = document.getElementById('settings-category-select');
-            if (categorySelect && categorySelect.value) {
-                onSettingsCategoryChange({ target: categorySelect });
+            if (settingsSelectedCategoryId) {
+                onSettingsChildCategoryClick(settingsSelectedCategoryId);
             }
         } catch (error) {
             console.error('Failed to update keyword:', error);
@@ -666,7 +663,7 @@ async function deleteKeyword(keywordId, keyword) {
         const modalTypeId = document.getElementById('keywords-type-id');
         if (modalTypeId && modalTypeId.value) {
             const typeId = modalTypeId.value;
-            const categoryId = document.getElementById('settings-category-select').value;
+            const categoryId = settingsSelectedCategoryId;
             const schema = await callGasApi('getSchemaForCategory', categoryId);
             const typeData = schema.types.find(t => t.type.id === parseInt(typeId));
             if (typeData) {
@@ -674,9 +671,8 @@ async function deleteKeyword(keywordId, keyword) {
             }
         } else {
             // インラインから呼ばれた場合
-            const categorySelect = document.getElementById('settings-category-select');
-            if (categorySelect && categorySelect.value) {
-                onSettingsCategoryChange({ target: categorySelect });
+            if (settingsSelectedCategoryId) {
+                onSettingsChildCategoryClick(settingsSelectedCategoryId);
             }
         }
     } catch (error) {
@@ -689,7 +685,7 @@ async function deleteKeyword(keywordId, keyword) {
  * Type追加モーダルを開く
  */
 function onAddType() {
-    const categoryId = document.getElementById('settings-category-select').value;
+    const categoryId = settingsSelectedCategoryId;
     if (!categoryId) {
         alert('カテゴリを選択してください');
         return;
@@ -716,7 +712,7 @@ function onAddType() {
  * Type追加を保存
  */
 async function saveNewType() {
-    const categoryId = document.getElementById('settings-category-select').value;
+    const categoryId = settingsSelectedCategoryId;
     const displayName = document.getElementById('add-type-name').value.trim();
 
     if (!displayName) {
@@ -742,9 +738,8 @@ async function saveNewType() {
         showToast('項目を追加しました');
 
         // リロード
-        const categorySelect = document.getElementById('settings-category-select');
-        if (categorySelect && categorySelect.value) {
-            onSettingsCategoryChange({ target: categorySelect });
+        if (categoryId) {
+            onSettingsChildCategoryClick(categoryId);
         }
     } catch (error) {
         console.error('Failed to add type:', error);
@@ -765,9 +760,8 @@ async function deleteType(typeId, typeName) {
         showToast('削除しました');
 
         // リロード
-        const categorySelect = document.getElementById('settings-category-select');
-        if (categorySelect && categorySelect.value) {
-            onSettingsCategoryChange({ target: categorySelect });
+        if (settingsSelectedCategoryId) {
+            onSettingsChildCategoryClick(settingsSelectedCategoryId);
         }
     } catch (error) {
         console.error('Failed to delete type:', error);
@@ -835,7 +829,7 @@ async function editRegulation(regulationId) {
     inputs.forEach(input => input.disabled = true);
 
     try {
-        const categoryId = document.getElementById('settings-category-select').value;
+        const categoryId = settingsSelectedCategoryId;
         if (!categoryId) {
             closeModal('edit-regulation-modal');
             return;
@@ -1027,9 +1021,8 @@ async function saveRegulationEdit() {
         showToast('ルールを更新しました');
 
         // リロード
-        const categorySelect = document.getElementById('settings-category-select');
-        if (categorySelect && categorySelect.value) {
-            onSettingsCategoryChange({ target: categorySelect });
+        if (settingsSelectedCategoryId) {
+            onSettingsChildCategoryClick(settingsSelectedCategoryId);
         }
     } catch (error) {
         console.error('Failed to update regulation:', error);
@@ -1116,18 +1109,16 @@ async function saveKeywordOrder(typeId, tbody) {
         showToast('優先順位を更新しました');
 
         // 画面をリロード
-        const categorySelect = document.getElementById('settings-category-select');
-        if (categorySelect && categorySelect.value) {
-            onSettingsCategoryChange({ target: categorySelect });
+        if (settingsSelectedCategoryId) {
+            onSettingsChildCategoryClick(settingsSelectedCategoryId);
         }
     } catch (error) {
         console.error('Failed to update keyword order:', error);
         alert('優先順位の更新に失敗しました');
 
         // エラー時は画面をリロードして元に戻す
-        const categorySelect = document.getElementById('settings-category-select');
-        if (categorySelect && categorySelect.value) {
-            onSettingsCategoryChange({ target: categorySelect });
+        if (settingsSelectedCategoryId) {
+            onSettingsChildCategoryClick(settingsSelectedCategoryId);
         }
     }
 }
