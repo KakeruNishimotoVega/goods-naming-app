@@ -237,6 +237,54 @@ button:disabled {
     }
 }
 
+/* フォームコンポーネント */
+.input-group {
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background-color: #eef2f5;
+    border-radius: var(--border-radius-md);
+    border: 1px solid #dce4eb;
+    transition: all var(--transition-fast);
+}
+
+.input-group:last-child {
+    margin-bottom: 0;
+}
+
+.input-group:hover {
+    background-color: #e5eef3;
+    border-color: #c5d3e0;
+}
+
+.input-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: var(--font-size-base);
+}
+
+.input-group .form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: var(--font-size-base);
+    border: 1px solid #cbd5e0;
+    border-radius: var(--border-radius-md);
+    background-color: white;
+    color: var(--text-main);
+    transition: all var(--transition-fast);
+}
+
+.input-group .form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(43, 139, 132, 0.1);
+}
+
+.input-group .form-control::placeholder {
+    color: #a0aec0;
+}
+
 /* モーダル */
 .modal-backdrop {
     position: fixed;
