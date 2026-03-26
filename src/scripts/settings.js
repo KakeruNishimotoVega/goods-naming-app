@@ -266,7 +266,7 @@ function renderTypesList(typesData) {
                     html += `<td class="keyword-text-cell" data-keyword-id="${keyword.id}" data-keyword-text="${escapeHtml(keyword.keyword)}" style="cursor: pointer;" title="クリックして編集">${escapeHtml(keyword.keyword)}</td>`;
                     html += `<td>`;
                     html += `<div class="d-flex gap-1">`;
-                    html += `<button class="btn secondary btn-sm btn-google-search" data-keyword="${escapeHtml(keyword.keyword)}" title="Google検索">🔍</button>`;
+                    html += `<button class="btn secondary btn-sm btn-google-search" data-keyword="${escapeHtml(keyword.keyword)}" title="Google検索"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="search-icon"><circle cx="10" cy="10" r="6" stroke="currentColor" stroke-width="2"/><path d="M14 14L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>`;
                     html += `<button class="btn danger btn-sm btn-delete-keyword" data-keyword-id="${keyword.id}" data-keyword-text="${escapeHtml(keyword.keyword)}" title="削除">削除</button>`;
                     html += `</div>`;
                     html += `</td>`;
