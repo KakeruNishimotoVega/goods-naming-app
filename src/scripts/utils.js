@@ -34,7 +34,12 @@ function toggleElement(element) {
 function showLoading(containerId) {
     const container = document.getElementById(containerId);
     if (container) {
-        container.innerHTML = '<div class="local-loader"><div class="spinner"></div><span>読み込み中...</span></div>';
+        container.innerHTML = `
+            <div class="local-loader">
+                <div class="spinner"></div>
+                <span style="font-size: 0.95rem; font-weight: 500; letter-spacing: 0.05em;">読み込み中...</span>
+            </div>
+        `;
     }
 }
 
