@@ -1763,9 +1763,6 @@ button[title="Google検索"]:hover:not(:disabled) {
             <div id="settings-child-category-list" class="category-grid">
                 <!-- 子カテゴリボタンが動的に追加される -->
             </div>
-            <div style="margin-top: 1.5rem;">
-                <button id="add-category-btn" class="btn secondary w-100">+ 新規カテゴリ追加</button>
-            </div>
         </div>
 
         <!-- Regulation（命名ルール）セクション -->
@@ -3283,12 +3280,6 @@ function initSettingsScreen() {
 
     // カテゴリの読み込み
     loadSettingsCategories();
-
-    // カテゴリ追加ボタンのイベント
-    const addCategoryBtn = document.getElementById('add-category-btn');
-    if (addCategoryBtn) {
-        addCategoryBtn.addEventListener('click', onAddCategory);
-    }
 }
 
 /**
@@ -4305,12 +4296,6 @@ async function saveRegulationEdit() {
 /**
  * カテゴリ追加
  */
-function onAddCategory() {
-    console.log('Add new category');
-    // TODO: カテゴリ追加ウィザードの実装
-    alert('カテゴリ追加機能は今後実装予定です');
-}
-
 /**
  * ドラッグアンドドロップの初期化
  */

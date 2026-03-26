@@ -15,12 +15,6 @@ function initSettingsScreen() {
 
     // カテゴリの読み込み
     loadSettingsCategories();
-
-    // カテゴリ追加ボタンのイベント
-    const addCategoryBtn = document.getElementById('add-category-btn');
-    if (addCategoryBtn) {
-        addCategoryBtn.addEventListener('click', onAddCategory);
-    }
 }
 
 /**
@@ -1037,12 +1031,6 @@ async function saveRegulationEdit() {
 /**
  * カテゴリ追加
  */
-function onAddCategory() {
-    console.log('Add new category');
-    // TODO: カテゴリ追加ウィザードの実装
-    alert('カテゴリ追加機能は今後実装予定です');
-}
-
 /**
  * ドラッグアンドドロップの初期化
  */
