@@ -436,6 +436,12 @@ input:disabled {
     border-bottom: 1px solid var(--border-color);
     padding: 1rem 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
 }
 
 .navbar .container {
@@ -486,6 +492,10 @@ input:disabled {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
+}
+
+.page-container {
+    margin-top: 70px;
 }
 
 .mt-4 {
@@ -1039,6 +1049,11 @@ button:disabled {
     word-break: break-word;
 }
 
+.result-text.disabled {
+    opacity: 0.5;
+    color: #94a3b8;
+}
+
 .result-meta {
     display: flex;
     align-items: center;
@@ -1057,12 +1072,22 @@ button:disabled {
 }
 
 /* NGワード警告とinfo */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: var(--border-radius-md);
+    margin-bottom: 0.5rem;
+}
+
 .alert-danger {
     background-color: #fee;
     border: 1px solid #fcc;
     color: #c33;
-    padding: 0.75rem;
-    border-radius: var(--border-radius-md);
+}
+
+.alert-warning {
+    background-color: #fef3c7;
+    border: 1px solid #fcd34d;
+    color: #92400e;
 }
 
 .ng-reason-icon {
@@ -1480,19 +1505,35 @@ button[title="Google検索"]:hover:not(:disabled) {
             <p class="helper-text">カテゴリを選択して、フォームに入力してください。リアルタイムで商品名が生成されます。</p>
         </div>
 
-        <!-- カテゴリ選択カード -->
-        <div class="form-card">
-            <h3>Step 1: 大カテゴリを選択</h3>
-            <div id="parent-category-list" class="category-grid">
-                <!-- 親カテゴリボタンが動的に追加される -->
+        <!-- カテゴリ選択パネル -->
+        <div id="category-selection-panel">
+            <!-- Step 1: 親カテゴリ -->
+            <div id="parent-category-card" class="form-card">
+                <h3>Step 1: 大カテゴリを選択</h3>
+                <div id="parent-category-list" class="category-grid">
+                    <!-- 親カテゴリボタンが動的に追加される -->
+                </div>
+            </div>
+
+            <!-- Step 2: 子カテゴリ（親選択後に表示） -->
+            <div id="child-category-card" class="form-card" style="display: none;">
+                <h3>Step 2: カテゴリを選択</h3>
+                <div id="child-category-list" class="category-grid">
+                    <!-- 子カテゴリボタンが動的に追加される -->
+                </div>
             </div>
         </div>
 
-        <!-- 子カテゴリ選択カード（親カテゴリ選択後に表示） -->
-        <div id="child-category-card" class="form-card" style="display: none;">
-            <h3>Step 2: カテゴリを選択</h3>
-            <div id="child-category-list" class="category-grid">
-                <!-- 子カテゴリボタンが動的に追加される -->
+        <!-- 「変更」ボタンセクション（カテゴリ選択完了後に表示） -->
+        <div id="category-toggle-section" style="display: none;">
+            <div class="form-card">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <p style="margin: 0; font-weight: 500; font-size: 0.875rem; color: var(--text-muted);">選択済み</p>
+                        <p style="margin: 0.5rem 0 0 0; font-weight: 600;"><span id="selected-category-breadcrumb"></span></p>
+                    </div>
+                    <button id="change-category-btn" class="btn secondary">カテゴリを変更</button>
+                </div>
             </div>
         </div>
 
@@ -2151,6 +2192,7 @@ let allCategories = []; // 全カテゴリのキャッシュ
 let allParentCategories = []; // 全親カテゴリのキャッシュ
 let selectedParentId = null; // 選択中の親カテゴリID
 let selectedCategoryId = null; // 選択中の子カテゴリID
+let currentSchema = null; // 現在のスキーマキャッシュ
 
 /**
  * 命名画面の初期化
@@ -2169,6 +2211,30 @@ function initNamingScreen() {
             if (resultContainer) {
                 resultContainer.style.display = 'none';
             }
+        });
+    }
+
+    // 「変更」ボタンのクリックリスナー
+    const changeCategoryBtn = document.getElementById('change-category-btn');
+    if (changeCategoryBtn) {
+        changeCategoryBtn.addEventListener('click', () => {
+            // 選択状態をリセット
+            selectedParentId = null;
+            selectedCategoryId = null;
+
+            // UIをリセット
+            const categorySelectionPanel = document.getElementById('category-selection-panel');
+            const categoryToggleSection = document.getElementById('category-toggle-section');
+            const dynamicForm = document.getElementById('dynamic-form');
+            const resultContainer = document.getElementById('naming-result');
+
+            if (categorySelectionPanel) showElement(categorySelectionPanel);
+            if (categoryToggleSection) hideElement(categoryToggleSection);
+            if (dynamicForm) dynamicForm.innerHTML = '';
+            if (resultContainer) hideElement(resultContainer);
+
+            // 親カテゴリを再描画（選択状態をクリア）
+            renderParentCategories();
         });
     }
 }
@@ -2310,6 +2376,11 @@ async function onChildCategoryClick(categoryId) {
         hideElement(resultContainer);
     }
 
+    // カテゴリ選択パネルを即座に非表示化
+    const categorySelectionPanel = document.getElementById('category-selection-panel');
+    const categoryToggleSection = document.getElementById('category-toggle-section');
+    if (categorySelectionPanel) hideElement(categorySelectionPanel);
+
     try {
         showLoading('dynamic-form');
 
@@ -2318,9 +2389,31 @@ async function onChildCategoryClick(categoryId) {
 
         // 動的フォームを生成
         renderDynamicForm(schema);
+
+        // 「変更」ボタンセクションを表示
+        if (categoryToggleSection) showElement(categoryToggleSection);
+
+        // 選択済みカテゴリをブレッドクラムに表示
+        updateSelectedCategoryBreadcrumb();
     } catch (error) {
         handleApiError(error, 'onChildCategoryClick');
         showError('スキーマの読み込みに失敗しました', 'dynamic-form');
+    }
+}
+
+/**
+ * 選択済みカテゴリをブレッドクラムに表示
+ */
+function updateSelectedCategoryBreadcrumb() {
+    const parentCategory = allParentCategories.find(p => p.id === selectedParentId);
+    const childCategory = allCategories.find(c => c.id === selectedCategoryId);
+
+    const parentName = parentCategory ? escapeHtml(parentCategory.name) : '';
+    const childName = childCategory ? escapeHtml(childCategory.name) : '';
+
+    const breadcrumb = document.getElementById('selected-category-breadcrumb');
+    if (breadcrumb) {
+        breadcrumb.textContent = `${parentName} > ${childName}`;
     }
 }
 
@@ -2330,6 +2423,9 @@ async function onChildCategoryClick(categoryId) {
 function renderDynamicForm(schema) {
     const formContainer = document.getElementById('dynamic-form');
     if (!formContainer) return;
+
+    // スキーマをキャッシュ（バリデーション用）
+    currentSchema = schema;
 
     // ミニマルカテゴリ（types, regulations が未設定）の場合
     if (schema.isMinimalCategory) {
@@ -2345,7 +2441,8 @@ function renderDynamicForm(schema) {
         schema.fields.forEach(field => {
             html += '<div class="input-group">';
             html += `<label>${escapeHtml(field.display_name)}</label>`;
-            html += `<input type="${field.input_type || 'text'}" id="field-${field.field_key}" data-field-key="${field.field_key}" class="form-control" placeholder="${field.placeholder || ''}" />`;
+            const placeholder = field.placeholder ? `例：${field.placeholder}` : '例：';
+            html += `<input type="${field.input_type || 'text'}" id="field-${field.field_key}" data-field-key="${field.field_key}" class="form-control" placeholder="${placeholder}" />`;
             html += '</div>';
         });
     }
@@ -2387,12 +2484,12 @@ function renderMinimalCategoryForm() {
     html += '<h3>命名入力</h3>';
     html += '<div class="input-group">';
     html += '<label for="minimal-catchcopy">キャッチコピー</label>';
-    html += '<input type="text" id="minimal-catchcopy" class="form-control" placeholder="キャッチコピーを入力してください" />';
+    html += '<input type="text" id="minimal-catchcopy" class="form-control" placeholder="例：キャッチコピーを入力してください" />';
     html += '</div>';
     
     html += '<div class="input-group">';
     html += '<label for="minimal-productname">商品名</label>';
-    html += '<input type="text" id="minimal-productname" class="form-control" placeholder="商品名を入力してください" />';
+    html += '<input type="text" id="minimal-productname" class="form-control" placeholder="例：商品名を入力してください" />';
     html += '</div>';
     
     // 共通レギュレーション例
@@ -2458,7 +2555,7 @@ function renderTypeField(type, keywords) {
 
     if (type.selection_type === 'TEXT') {
         // テキスト入力
-        const placeholder = type.placeholder || '入力してください...';
+        const placeholder = type.placeholder ? `例：${type.placeholder}` : '例：入力してください';
         html += `<input type="text" id="type-${type.id}" ${dataKeyName} class="form-control" placeholder="${escapeHtml(placeholder)}" ${type.is_required ? 'required' : ''} />`;
     } else if (type.selection_type === 'TRUE_FALSE' || type.selection_type === 'BOOLEAN') {
         // トグルスイッチ（キーワード不要）
@@ -2559,6 +2656,13 @@ async function onGenerateNames(isRealtime = false) {
     const resultContent = document.getElementById('result-content');
 
     try {
+        // 必須項目のバリデーション
+        if (!validateRequiredFields()) {
+            showElement(resultContainer);
+            showError('必須項目を入力してください', 'result-content');
+            return;
+        }
+
         if (!isRealtime) {
             showLoading('result-content');
         }
@@ -2689,6 +2793,63 @@ function collectFormData() {
 }
 
 /**
+ * 必須項目のバリデーション
+ */
+function validateRequiredFields() {
+    if (!currentSchema) return true; // スキーマがない場合はそのまま進める
+
+    // ミニマルカテゴリの場合
+    if (currentSchema.isMinimalCategory) {
+        const catchcopyInput = document.getElementById('minimal-catchcopy');
+        const productnameInput = document.getElementById('minimal-productname');
+        if (!catchcopyInput || !productnameInput) return true;
+        
+        const catchcopyValue = catchcopyInput.value.trim();
+        const productnameValue = productnameInput.value.trim();
+        
+        return catchcopyValue.length > 0 && productnameValue.length > 0;
+    }
+
+    // 通常カテゴリの場合：必須フィールド（Type）をチェック
+    if (currentSchema.types && currentSchema.types.length > 0) {
+        for (const typeData of currentSchema.types) {
+            const type = typeData.type;
+            if (!type.is_required) continue; // 必須項目のみチェック
+
+            const inputElement = document.querySelector(`[data-key-name="${type.key_name}"]`);
+            if (!inputElement) continue;
+
+            // テキスト入力の場合
+            if (type.selection_type === 'TEXT') {
+                if (!inputElement.value || inputElement.value.trim() === '') {
+                    return false; // 必須項目が空
+                }
+            }
+            // ラジオボタン（SINGLE）の場合
+            else if (type.selection_type === 'SINGLE') {
+                const selectedRadio = document.querySelector(`input[name="type-${type.id}"]:checked`);
+                if (!selectedRadio) {
+                    return false; // 必須項目が未選択
+                }
+            }
+            // チェックボックス（MULTIPLE）の場合
+            else if (type.selection_type === 'MULTIPLE' || type.selection_type === 'MULTI') {
+                const selectedCheckboxes = document.querySelectorAll(`input[name="type-${type.id}"]:checked`);
+                if (selectedCheckboxes.length === 0) {
+                    return false; // 必須項目が未選択
+                }
+            }
+            // トグルスイッチの場合（TR UE_FALSEは通常必須ではないが、念のため処理）
+            else if (type.selection_type === 'TRUE_FALSE' || type.selection_type === 'BOOLEAN') {
+                // トグルスイッチは必須チェックが不要（常に値がある）
+            }
+        }
+    }
+
+    return true; // すべての必須項目が入力されている
+}
+
+/**
  * 生成結果を表示
  */
 function displayResult(result) {
@@ -2699,18 +2860,29 @@ function displayResult(result) {
     const MAX_PAGE_NAME_LENGTH = 17; // キャッチコピーの推奨上限
     const MAX_PRODUCT_NAME_LENGTH = 27; // 商品名の推奨上限
 
+    // 無効状態の判定：NGワード検出のみ（必須項目チェックは生成前に実施済み）
+    const hasNgWords = (result.prohibitedWordsFound || []).length > 0;
+    const isDisabled = hasNgWords;
+
     let html = '';
+
+    // 警告バナー（NGワード検出の場合）
+    if (isDisabled) {
+        html += '<div class="alert alert-warning" style="margin-bottom: 1em; background-color: #fef3c7; border: 1px solid #fcd34d; color: #92400e; padding: 0.75rem 1rem; border-radius: var(--border-radius-md);">';
+        html += '<strong>⚠️ NGワードが検出されています。</strong> 下記の結果はコピーできません。';
+        html += '</div>';
+    }
 
     // キャッチコピー
     html += '<div class="result-item">';
     html += '<h4>キャッチコピー</h4>';
-    html += `<div class="result-text">${escapeHtml(result.productPageName || '未生成')}</div>`;
+    html += `<div class="result-text${isDisabled ? ' disabled' : ''}">${escapeHtml(result.productPageName || '未生成')}</div>`;
     html += '<div class="result-meta">';
 
     const pageNameLength = result.characterCounts?.productPageName || 0;
     const pageNameExceedsLimit = pageNameLength > MAX_PAGE_NAME_LENGTH;
     html += `<span class="char-count ${pageNameExceedsLimit ? 'char-count-warning' : ''}">${pageNameExceedsLimit ? '⚠ ' : ''}文字数: ${pageNameLength}文字${pageNameExceedsLimit ? ` (推奨: ${MAX_PAGE_NAME_LENGTH}文字以内)` : ''}</span>`;
-    html += `<button id="copy-page-name-btn" class="btn secondary btn-sm copy-btn">コピー</button>`;
+    html += `<button id="copy-page-name-btn" class="btn secondary btn-sm copy-btn"${isDisabled ? ' disabled' : ''} ${isDisabled ? 'title="NGワード検出または必須項目が未入力です"' : ''}>コピー</button>`;
     html += '</div>';
 
     // キャッチコピーのNGワードチェック
@@ -2729,13 +2901,13 @@ function displayResult(result) {
     // 商品名
     html += '<div class="result-item">';
     html += '<h4>商品名</h4>';
-    html += `<div class="result-text">${escapeHtml(result.productName || '未生成')}</div>`;
+    html += `<div class="result-text${isDisabled ? ' disabled' : ''}">${escapeHtml(result.productName || '未生成')}</div>`;
     html += '<div class="result-meta">';
 
     const productNameLength = result.characterCounts?.productName || 0;
     const productNameExceedsLimit = productNameLength > MAX_PRODUCT_NAME_LENGTH;
     html += `<span class="char-count ${productNameExceedsLimit ? 'char-count-warning' : ''}">${productNameExceedsLimit ? '⚠ ' : ''}文字数: ${productNameLength}文字${productNameExceedsLimit ? ` (推奨: ${MAX_PRODUCT_NAME_LENGTH}文字以内)` : ''}</span>`;
-    html += `<button id="copy-product-name-btn" class="btn secondary btn-sm copy-btn">コピー</button>`;
+    html += `<button id="copy-product-name-btn" class="btn secondary btn-sm copy-btn"${isDisabled ? ' disabled' : ''} ${isDisabled ? 'title="NGワード検出または必須項目が未入力です"' : ''}>コピー</button>`;
     html += '</div>';
 
     // 商品名のNGワードチェック
@@ -2760,11 +2932,15 @@ function displayResult(result) {
 
     // コピーボタンのイベントリスナー
     document.getElementById('copy-page-name-btn')?.addEventListener('click', () => {
-        copyToClipboard(result.productPageName || '');
+        if (!isDisabled) {
+            copyToClipboard(result.productPageName || '');
+        }
     });
 
     document.getElementById('copy-product-name-btn')?.addEventListener('click', () => {
-        copyToClipboard(result.productName || '');
+        if (!isDisabled) {
+            copyToClipboard(result.productName || '');
+        }
     });
 
     // リセットボタンのイベントリスナー

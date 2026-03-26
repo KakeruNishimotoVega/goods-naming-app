@@ -6,19 +6,35 @@
             <p class="helper-text">カテゴリを選択して、フォームに入力してください。リアルタイムで商品名が生成されます。</p>
         </div>
 
-        <!-- カテゴリ選択カード -->
-        <div class="form-card">
-            <h3>Step 1: 大カテゴリを選択</h3>
-            <div id="parent-category-list" class="category-grid">
-                <!-- 親カテゴリボタンが動的に追加される -->
+        <!-- カテゴリ選択パネル -->
+        <div id="category-selection-panel">
+            <!-- Step 1: 親カテゴリ -->
+            <div id="parent-category-card" class="form-card">
+                <h3>Step 1: 大カテゴリを選択</h3>
+                <div id="parent-category-list" class="category-grid">
+                    <!-- 親カテゴリボタンが動的に追加される -->
+                </div>
+            </div>
+
+            <!-- Step 2: 子カテゴリ（親選択後に表示） -->
+            <div id="child-category-card" class="form-card" style="display: none;">
+                <h3>Step 2: カテゴリを選択</h3>
+                <div id="child-category-list" class="category-grid">
+                    <!-- 子カテゴリボタンが動的に追加される -->
+                </div>
             </div>
         </div>
 
-        <!-- 子カテゴリ選択カード（親カテゴリ選択後に表示） -->
-        <div id="child-category-card" class="form-card" style="display: none;">
-            <h3>Step 2: カテゴリを選択</h3>
-            <div id="child-category-list" class="category-grid">
-                <!-- 子カテゴリボタンが動的に追加される -->
+        <!-- 「変更」ボタンセクション（カテゴリ選択完了後に表示） -->
+        <div id="category-toggle-section" style="display: none;">
+            <div class="form-card">
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <p style="margin: 0; font-weight: 500; font-size: 0.875rem; color: var(--text-muted);">選択済み</p>
+                        <p style="margin: 0.5rem 0 0 0; font-weight: 600;"><span id="selected-category-breadcrumb"></span></p>
+                    </div>
+                    <button id="change-category-btn" class="btn secondary">カテゴリを変更</button>
+                </div>
             </div>
         </div>
 
