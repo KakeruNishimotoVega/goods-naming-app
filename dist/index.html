@@ -2459,6 +2459,38 @@ function renderParentCategories() {
  * 親カテゴリクリック時の処理
  */
 function onParentCategoryClick(parentId) {
+    // 既に選択されている場合は解除
+    if (selectedParentId === parentId) {
+        selectedParentId = null;
+        selectedCategoryId = null;
+
+        // 親カテゴリリストを再描画（選択状態をクリア）
+        renderParentCategories();
+
+        // 子カテゴリリストを非表示
+        const childCard = document.getElementById('child-category-card');
+        if (childCard) {
+            hideElement(childCard);
+        }
+
+        // 動的フォームをクリア
+        document.getElementById('dynamic-form').innerHTML = '';
+
+        // 「変更」ボタンセクションを非表示
+        const categoryToggleSection = document.getElementById('category-toggle-section');
+        if (categoryToggleSection) {
+            hideElement(categoryToggleSection);
+        }
+
+        // 結果エリアを非表示
+        const resultContainer = document.getElementById('naming-result');
+        if (resultContainer) {
+            hideElement(resultContainer);
+        }
+        return;
+    }
+
+    // 新しい親カテゴリを選択
     selectedParentId = parentId;
     selectedCategoryId = null; // 子カテゴリ選択をリセット
 
@@ -2523,6 +2555,37 @@ function renderChildCategories(parentId) {
  * 子カテゴリクリック時の処理
  */
 async function onChildCategoryClick(categoryId) {
+    // 既に選択されている場合は解除
+    if (selectedCategoryId === categoryId) {
+        selectedCategoryId = null;
+
+        // 子カテゴリリストを再描画（選択状態をクリア）
+        renderChildCategories(selectedParentId);
+
+        // 動的フォームをクリア
+        document.getElementById('dynamic-form').innerHTML = '';
+
+        // 「変更」ボタンセクションを非表示
+        const categoryToggleSection = document.getElementById('category-toggle-section');
+        if (categoryToggleSection) {
+            hideElement(categoryToggleSection);
+        }
+
+        // カテゴリ選択パネルを表示
+        const categorySelectionPanel = document.getElementById('category-selection-panel');
+        if (categorySelectionPanel) {
+            showElement(categorySelectionPanel);
+        }
+
+        // 結果エリアを非表示
+        const resultContainer = document.getElementById('naming-result');
+        if (resultContainer) {
+            hideElement(resultContainer);
+        }
+        return;
+    }
+
+    // 新しい子カテゴリを選択
     selectedCategoryId = categoryId;
 
     // 子カテゴリリストを再描画（選択状態を反映）
@@ -2732,7 +2795,7 @@ function renderTypeField(type, keywords) {
             // チップUI（ラジオボタン）
             html += '<div class="chip-group">';
             keywords.forEach(keyword => {
-                html += `<label class="chip-label"><input type="radio" name="type-${type.id}" value="${escapeHtml(keyword.keyword)}" id="keyword-${keyword.id}" ${dataKeyName} ${type.is_required ? 'required' : ''} /><span class="chip-text">${escapeHtml(keyword.keyword)}</span><a href="https://www.google.com/search?q=${encodeURIComponent(keyword.keyword)}" target="_blank" class="google-search-link" data-keyword="${escapeHtml(keyword.keyword)}" title="Googleで検索" aria-label="Googleで検索"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="search-icon"><circle cx="10" cy="10" r="6" stroke="currentColor" stroke-width="2"/><path d="M14 14L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a></label>`;
+                html += `<label class="chip-label"><input type="radio" name="type-${type.id}" value="${escapeHtml(keyword.keyword)}" id="keyword-${keyword.id}" ${dataKeyName} data-is-required="${type.is_required}" ${type.is_required ? 'required' : ''} /><span class="chip-text">${escapeHtml(keyword.keyword)}</span><a href="https://www.google.com/search?q=${encodeURIComponent(keyword.keyword)}" target="_blank" class="google-search-link" data-keyword="${escapeHtml(keyword.keyword)}" title="Googleで検索" aria-label="Googleで検索"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="search-icon"><circle cx="10" cy="10" r="6" stroke="currentColor" stroke-width="2"/><path d="M14 14L20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></a></label>`;
             });
             html += '</div>';
         } else if (type.selection_type === 'MULTIPLE' || type.selection_type === 'MULTI') {
@@ -2753,9 +2816,50 @@ function renderTypeField(type, keywords) {
  * リアルタイム生成のセットアップ
  */
 let generateTimeout = null;
+// ラジオボタングループごとの前回選択値を記録
+const radioGroupStates = {};
+
 function setupRealtimeGeneration() {
     const formContainer = document.getElementById('dynamic-form');
     if (!formContainer) return;
+
+    // ラジオボタンのトグル機能を設定（必須でない項目のみ）
+    const radioButtons = formContainer.querySelectorAll('input[type="radio"]');
+    radioButtons.forEach(radio => {
+        const groupName = radio.name;
+        const isRequired = radio.getAttribute('data-is-required') === 'true';
+        
+        // グループごとに初期化
+        if (!radioGroupStates[groupName]) {
+            radioGroupStates[groupName] = null;
+        }
+
+        // 必須でない場合のみトグル機能を付与
+        if (!isRequired) {
+            radio.addEventListener('change', (event) => {
+                if (event.target.checked) {
+                    // 新しい選択値と前回の選択値が同じ場合は解除
+                    if (radioGroupStates[groupName] === event.target.value) {
+                        event.target.checked = false;
+                        radioGroupStates[groupName] = null;
+                    } else {
+                        // 新しい選択値を記録
+                        radioGroupStates[groupName] = event.target.value;
+                    }
+                    // 生成処理を実行
+                    onGenerateNames(true);
+                }
+            });
+        } else {
+            // 必須項目の場合は通常のchangeイベント
+            radio.addEventListener('change', (event) => {
+                if (event.target.checked) {
+                    radioGroupStates[groupName] = event.target.value;
+                    onGenerateNames(true);
+                }
+            });
+        }
+    });
 
     // すべての入力要素にイベントリスナーを追加
     formContainer.addEventListener('input', () => {
@@ -2764,11 +2868,6 @@ function setupRealtimeGeneration() {
         generateTimeout = setTimeout(() => {
             onGenerateNames(true); // 自動生成フラグを立てる
         }, 500);
-    });
-
-    formContainer.addEventListener('change', () => {
-        // ラジオボタン・チェックボックスは即座に反映
-        onGenerateNames(true);
     });
 }
 
