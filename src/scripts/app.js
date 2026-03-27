@@ -68,9 +68,10 @@ function applyRoleBasedTabRestrictions() {
             console.log('[applyRoleBasedTabRestrictions] ユーザーロール:', role);
             
             if (role === 'user') {
-                // 一般ユーザーの場合、設定とNGワードタブを無効化
+                // 一般ユーザーの場合、設定、NGワード、ユーザー管理タブを無効化
                 const settingsTab = document.querySelector('.nav-link[data-screen="settings-screen"]');
                 const ngwordsTab = document.querySelector('.nav-link[data-screen="ngwords-screen"]');
+                const managementTab = document.querySelector('.nav-link[data-screen="management-screen"]');
                 
                 if (settingsTab) {
                     settingsTab.classList.add('disabled');
@@ -80,6 +81,11 @@ function applyRoleBasedTabRestrictions() {
                 if (ngwordsTab) {
                     ngwordsTab.classList.add('disabled');
                     console.log('[applyRoleBasedTabRestrictions] NGワードタブを無効化しました');
+                }
+                
+                if (managementTab) {
+                    managementTab.classList.add('disabled');
+                    console.log('[applyRoleBasedTabRestrictions] ユーザー管理タブを無効化しました');
                 }
             }
         })
@@ -163,6 +169,8 @@ function showScreen(screenId) {
         initSettingsScreen();
     } else if (screenId === 'ngwords-screen' && typeof initNgWordsScreen === 'function') {
         initNgWordsScreen();
+    } else if (screenId === 'management-screen' && typeof initManagementScreen === 'function') {
+        initManagementScreen();
     }
 }
 
@@ -244,6 +252,18 @@ function resetAppState() {
         
         if (ngwordsList) ngwordsList.innerHTML = '';
         if (ngwordsTbody) ngwordsTbody.innerHTML = '';
+    }
+    
+    // ====== ユーザー管理画面のリセット ======
+    if (typeof isManagementScreenInitialized !== 'undefined') {
+        window.isManagementScreenInitialized = false;
+    }
+    
+    const managementScreen = document.getElementById('management-screen');
+    if (managementScreen) {
+        const usersTbody = document.getElementById('users-tbody');
+        
+        if (usersTbody) usersTbody.innerHTML = '';
     }
     
     // ====== フォーム入力値のクリア ======

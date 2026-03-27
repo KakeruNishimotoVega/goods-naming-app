@@ -1,0 +1,62 @@
+<!-- ユーザー管理画面のテンプレート -->
+<div id="management-screen" class="screen" style="display: none;">
+    <div class="page-container">
+        <div class="page-header">
+            <div>
+                <h1>ユーザー管理</h1>
+                <p class="helper-text">アプリケーションユーザーの一覧、権限管理、削除ができます。</p>
+            </div>
+        </div>
+
+        <!-- ユーザー一覧テーブル -->
+        <div id="users-list" class="form-card">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">ユーザー名</th>
+                        <th style="width: 35%;">メールアドレス</th>
+                        <th style="width: 15%;">権限</th>
+                        <th style="width: calc(25% - 100px);">アクション</th>
+                    </tr>
+                </thead>
+                <tbody id="users-tbody">
+                    <!-- 動的に生成 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 権限変更確認ダイアログ -->
+    <div id="change-role-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3>権限の変更</h3>
+            <p id="change-role-message"></p>
+            <form id="change-role-form">
+                <input type="hidden" id="change-role-user-id" />
+                <input type="hidden" id="change-role-new-role" />
+
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary" onclick="closeModal('change-role-modal')">キャンセル</button>
+                    <button type="submit" class="btn primary">変更確認</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ユーザー削除確認ダイアログ -->
+    <div id="delete-user-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h3 style="color: #dc3545;">ユーザーを削除</h3>
+            <p id="delete-user-message"></p>
+            <p style="color: #dc3545; font-weight: bold;">この操作は取り消せません。本当に削除してもよろしいですか？</p>
+            <form id="delete-user-form">
+                <input type="hidden" id="delete-user-id" />
+
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary" onclick="closeModal('delete-user-modal')">キャンセル</button>
+                    <button type="submit" class="btn danger">削除確認</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

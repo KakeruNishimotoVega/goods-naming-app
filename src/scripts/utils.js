@@ -233,6 +233,13 @@ function showToast(message, type = 'success') {
 }
 
 /**
+ * 成功メッセージをトーストで表示
+ */
+function showSuccessToast(message) {
+    showToast(message, 'success');
+}
+
+/**
  * エラーメッセージをトーストで表示
  */
 function showErrorToast(message) {

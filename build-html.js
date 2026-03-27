@@ -54,7 +54,8 @@ const templateFiles = [
     'src/views/signup.html',
     'src/views/naming.html',
     'src/views/settings.html',
-    'src/views/ngwords.html'
+    'src/views/ngwords.html',
+    'src/views/management.html'
 ];
 
 const templates = templateFiles
@@ -73,7 +74,8 @@ const scriptFiles = [
     'src/scripts/auth.js',
     'src/scripts/naming.js',
     'src/scripts/settings.js',
-    'src/scripts/ngwords.js'
+    'src/scripts/ngwords.js',
+    'src/scripts/management.js'
 ];
 
 const scripts = scriptFiles
