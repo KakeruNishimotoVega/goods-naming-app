@@ -1047,8 +1047,8 @@ var global = this;
     };
     Logger.log(`[createSession] \u30BB\u30C3\u30B7\u30E7\u30F3\u30C7\u30FC\u30BF: ${JSON.stringify(sessionData)}`);
     const cache = CacheService.getUserCache();
-    cache.put("user_session", JSON.stringify(sessionData), 21600);
-    Logger.log("[createSession] \u30BB\u30C3\u30B7\u30E7\u30F3\u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F");
+    cache.put("user_session", JSON.stringify(sessionData), 86400);
+    Logger.log("[createSession] \u30BB\u30C3\u30B7\u30E7\u30F3\u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F\uFF08\u6709\u52B9\u671F\u9650: 1\u65E5\uFF09");
   }
   function logout() {
     const cache = CacheService.getUserCache();

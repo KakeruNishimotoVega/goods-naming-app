@@ -8,13 +8,16 @@ let isNgWordsScreenInitialized = false;
  * NGワード管理画面の初期化
  */
 function initNgWordsScreen() {
+    console.log('[initNgWordsScreen] NGワード管理画面の初期化を開始...');
+    console.log('[initNgWordsScreen] isNgWordsScreenInitialized:', isNgWordsScreenInitialized);
+    
     // 二重初期化を防ぐ
     if (isNgWordsScreenInitialized) {
-        console.log('NG words screen already initialized, skipping...');
+        console.log('[initNgWordsScreen] 既に初期化済み - スキップ');
         return;
     }
     
-    console.log('Initializing NG words screen...');
+    console.log('[initNgWordsScreen] 初期化実行中...');
     isNgWordsScreenInitialized = true;
 
     // 管理者権限チェック（権限チェック中はローディング表示）
@@ -33,6 +36,8 @@ function initNgWordsScreen() {
             addBtn.addEventListener('click', onAddNgWord);
             addBtn.dataset.listenerAdded = 'true';
         }
+        
+        console.log('[initNgWordsScreen] 初期化完了');
     }, () => {
         // 権限なし：命名画面へリダイレクト
         showErrorToast('この画面にアクセスする権限がありません（管理者のみ）');

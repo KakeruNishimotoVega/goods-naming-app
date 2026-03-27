@@ -15,13 +15,16 @@ let isNamingScreenInitialized = false;
  * 命名画面の初期化
  */
 function initNamingScreen() {
+    console.log('[initNamingScreen] 命名画面の初期化を開始...');
+    console.log('[initNamingScreen] isNamingScreenInitialized:', isNamingScreenInitialized);
+    
     // 二重初期化を防ぐ
     if (isNamingScreenInitialized) {
-        console.log('Naming screen already initialized, skipping...');
+        console.log('[initNamingScreen] 既に初期化済み - スキップ');
         return;
     }
     
-    console.log('Initializing naming screen...');
+    console.log('[initNamingScreen] 初期化実行中...');
     isNamingScreenInitialized = true;
 
     // カテゴリの読み込み
@@ -61,6 +64,8 @@ function initNamingScreen() {
             renderParentCategories();
         });
     }
+    
+    console.log('[initNamingScreen] 初期化完了');
 }
 
 /**

@@ -7,12 +7,6 @@
 function initApp() {
     console.log('Initializing LOWYA Naming App...');
 
-    // ページを離れるときにセッションをクリア（前のログイン状態を保持しない）
-    window.addEventListener('beforeunload', () => {
-        console.log('[beforeunload] セッションをクリア中...');
-        google.script.run.logout();
-    });
-
     // 画面切り替えの設定
     setupScreenNavigation();
 
@@ -24,95 +18,115 @@ function initApp() {
 
 /**
  * ログイン状態を確認して初期画面を表示
+ * 命名画面は誰でもアクセス可能なので、常に命名画面を表示
  */
 function checkLoginAndShowInitialScreen() {
-    console.log('[checkLoginAndShowInitialScreen] ログイン状態を確認中...');
+    console.log('[checkLoginAndShowInitialScreen] アプリを初期化中...');
     
+    // サイドメニューを表示
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.style.display = 'flex';
+        console.log('[checkLoginAndShowInitialScreen] サイドメニューを表示しました');
+    }
+    
+    // まず命名画面を表示（ログイン不要）
+    showScreen('naming-screen');
+    
+    // ログイン状態を確認してタブの制御を行う（バックグラウンドで実行）
     google.script.run
         .withSuccessHandler((currentUser) => {
             console.log('[checkLoginAndShowInitialScreen] サーバーからの応答:', currentUser);
             
             if (currentUser) {
-                // ログイン済み：ユーザー情報を表示して命名画面へ
-                console.log('[checkLoginAndShowInitialScreen] ログイン済み - 命名画面へ');
-                
-                // 全ての画面初期化フラグをリセット（ユーザー切り替え時のキャッシュ防止）
-                resetScreenInitializationFlags();
-                
-                // DOM を完全リセット（前ユーザーのデータを削除）
-                resetDOMState();
-                
-                // 【重要】サイドメニューを先に表示
-                const sidebar = document.getElementById('sidebar');
-                if (sidebar) {
-                    sidebar.style.display = 'flex';
-                    console.log('[checkLoginAndShowInitialScreen] サイドメニューを表示しました');
-                }
+                // ログイン済み：ユーザー情報を表示
+                console.log('[checkLoginAndShowInitialScreen] ログイン済み - ユーザー情報を表示');
                 
                 updateUserDisplay();
                 
                 // 権限に基づいてタブを制御
                 applyRoleBasedTabRestrictions();
-                
-                // showScreen() は initNamingScreen() を自動的に呼ぶので、重複呼び出しを避ける
-                showScreen('naming-screen');
             } else {
-                // 未ログイン：ログイン画面へ
-                console.log('[checkLoginAndShowInitialScreen] 未ログイン - ログイン画面へ');
-                showScreen('login-screen');
-                // ログイン画面の初期化（イベントリスナー設定）
-                if (typeof initLoginScreen === 'function') {
-                    initLoginScreen();
-                }
+                // 未ログイン：ゲスト表示とタブに鍵アイコンを表示
+                console.log('[checkLoginAndShowInitialScreen] 未ログイン - ゲスト表示とタブに鍵アイコンを表示');
+                updateGuestDisplay();
+                applyGuestTabRestrictions();
             }
         })
         .withFailureHandler((error) => {
             console.error('[checkLoginAndShowInitialScreen] ログイン状態確認エラー:', error);
-            // エラー時はログイン画面へ
-            showScreen('login-screen');
-            if (typeof initLoginScreen === 'function') {
-                initLoginScreen();
-            }
+            // エラー時も未ログイン扱いでゲスト表示とタブを制御
+            updateGuestDisplay();
+            applyGuestTabRestrictions();
         })
         .getCurrentUser();
 }
 
 /**
  * ユーザーのロールに基づいてタブの表示制御を適用
+ * 未ログイン時も管理系タブに鍵アイコンを表示
  */
 function applyRoleBasedTabRestrictions() {
     console.log('[applyRoleBasedTabRestrictions] 権限チェック中...');
+    
+    const settingsTab = document.querySelector('.nav-link[data-screen="settings-screen"]');
+    const ngwordsTab = document.querySelector('.nav-link[data-screen="ngwords-screen"]');
+    const managementTab = document.querySelector('.nav-link[data-screen="management-screen"]');
     
     google.script.run
         .withSuccessHandler((role) => {
             console.log('[applyRoleBasedTabRestrictions] ユーザーロール:', role);
             
+            // まず全てのタブから locked と disabled クラスを削除
+            if (settingsTab) {
+                settingsTab.classList.remove('locked', 'disabled');
+            }
+            if (ngwordsTab) {
+                ngwordsTab.classList.remove('locked', 'disabled');
+            }
+            if (managementTab) {
+                managementTab.classList.remove('locked', 'disabled');
+            }
+            
             if (role === 'user') {
-                // 一般ユーザーの場合、設定、NGワード、ユーザー管理タブを無効化（グレーアウト）
-                const settingsTab = document.querySelector('.nav-link[data-screen="settings-screen"]');
-                const ngwordsTab = document.querySelector('.nav-link[data-screen="ngwords-screen"]');
-                const managementTab = document.querySelector('.nav-link[data-screen="management-screen"]');
-                
+                // 一般ユーザーの場合、設定、NGワード、ユーザー管理タブを無効化（鍵アイコン付き）
                 if (settingsTab) {
-                    settingsTab.classList.add('disabled');
-                    console.log('[applyRoleBasedTabRestrictions] ルール設定タブを無効化しました');
+                    settingsTab.classList.add('locked');
+                    console.log('[applyRoleBasedTabRestrictions] ルール設定タブを無効化しました（user権限）');
                 }
                 
                 if (ngwordsTab) {
-                    ngwordsTab.classList.add('disabled');
-                    console.log('[applyRoleBasedTabRestrictions] NGワードタブを無効化しました');
+                    ngwordsTab.classList.add('locked');
+                    console.log('[applyRoleBasedTabRestrictions] NGワードタブを無効化しました（user権限）');
                 }
                 
                 if (managementTab) {
-                    managementTab.classList.add('disabled');
-                    console.log('[applyRoleBasedTabRestrictions] ユーザー管理タブを無効化しました');
+                    managementTab.classList.add('locked');
+                    console.log('[applyRoleBasedTabRestrictions] ユーザー管理タブを無効化しました（user権限）');
                 }
+            } else if (role === 'admin') {
+                // 管理者の場合、すべてのタブを有効化
+                console.log('[applyRoleBasedTabRestrictions] すべてのタブを有効化しました（admin権限）');
             }
             
             console.log('[applyRoleBasedTabRestrictions] 権限制御が完了しました');
         })
         .withFailureHandler((error) => {
-            console.error('[applyRoleBasedTabRestrictions] 権限チェックエラー:', error);
+            console.error('[applyRoleBasedTabRestrictions] 権限チェックエラー（未ログイン扱い）:', error);
+            
+            // 未ログイン時は管理系タブに鍵アイコンを表示
+            if (settingsTab) {
+                settingsTab.classList.add('locked');
+                console.log('[applyRoleBasedTabRestrictions] ルール設定タブに鍵アイコンを追加（未ログイン）');
+            }
+            if (ngwordsTab) {
+                ngwordsTab.classList.add('locked');
+                console.log('[applyRoleBasedTabRestrictions] NGワードタブに鍵アイコンを追加（未ログイン）');
+            }
+            if (managementTab) {
+                managementTab.classList.add('locked');
+                console.log('[applyRoleBasedTabRestrictions] ユーザー管理タブに鍵アイコンを追加（未ログイン）');
+            }
         })
         .getUserRole();
 }
@@ -130,6 +144,60 @@ function showSidebarAfterAuthCheck() {
 }
 
 /**
+ * ゲスト表示を更新（未ログイン時）
+ */
+function updateGuestDisplay() {
+    console.log('[updateGuestDisplay] ゲスト表示を設定中...');
+    
+    const userDisplayArea = document.getElementById('user-display-area');
+    if (userDisplayArea) {
+        userDisplayArea.innerHTML = `
+            <span class="user-name">ゲスト</span>
+            <button id="guest-login-btn" class="btn primary btn-sm">ログイン</button>
+        `;
+        
+        // ログインボタンにイベントリスナーを設定
+        const loginBtn = document.getElementById('guest-login-btn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', () => {
+                showScreen('login-screen');
+                if (typeof initLoginScreen === 'function') {
+                    initLoginScreen();
+                }
+            });
+        }
+    }
+}
+
+/**
+ * ゲスト状態でのタブ制御（管理系タブに鍵アイコンを表示）
+ */
+function applyGuestTabRestrictions() {
+    console.log('[applyGuestTabRestrictions] ゲスト状態でのタブ制御中...');
+    
+    const settingsTab = document.querySelector('.nav-link[data-screen="settings-screen"]');
+    const ngwordsTab = document.querySelector('.nav-link[data-screen="ngwords-screen"]');
+    const managementTab = document.querySelector('.nav-link[data-screen="management-screen"]');
+    
+    // まず全てのタブから locked と disabled クラスを削除
+    if (settingsTab) {
+        settingsTab.classList.remove('locked', 'disabled');
+        settingsTab.classList.add('locked');
+        console.log('[applyGuestTabRestrictions] ルール設定タブに鍵アイコンを追加');
+    }
+    if (ngwordsTab) {
+        ngwordsTab.classList.remove('locked', 'disabled');
+        ngwordsTab.classList.add('locked');
+        console.log('[applyGuestTabRestrictions] NGワードタブに鍵アイコンを追加');
+    }
+    if (managementTab) {
+        managementTab.classList.remove('locked', 'disabled');
+        managementTab.classList.add('locked');
+        console.log('[applyGuestTabRestrictions] ユーザー管理タブに鍵アイコンを追加');
+    }
+}
+
+/**
  * 画面切り替えのセットアップ
  */
 function setupScreenNavigation() {
@@ -139,9 +207,15 @@ function setupScreenNavigation() {
         link.addEventListener('click', (e) => {
             e.preventDefault();
 
-            // 無効化されているタブはクリック不可
-            if (link.classList.contains('disabled')) {
-                console.log('[setupScreenNavigation] 無効化されたタブがクリックされました');
+            // 無効化されているタブ（locked または disabled）はクリック時に処理を実行
+            if (link.classList.contains('locked') || link.classList.contains('disabled')) {
+                const screenId = link.getAttribute('data-screen');
+                console.log('[setupScreenNavigation] 制限されたタブがクリックされました:', screenId);
+                
+                // 管理系画面へのアクセス試行
+                if (isAdminScreen(screenId)) {
+                    handleAdminScreenAccess(screenId);
+                }
                 return;
             }
 
@@ -164,6 +238,41 @@ function setupScreenNavigation() {
             }
         });
     });
+}
+
+/**
+ * 管理系画面かどうかを判定
+ */
+function isAdminScreen(screenId) {
+    const adminScreens = ['settings-screen', 'ngwords-screen', 'management-screen'];
+    return adminScreens.includes(screenId);
+}
+
+/**
+ * 管理系画面へのアクセス試行時の処理
+ */
+function handleAdminScreenAccess(screenId) {
+    console.log('[handleAdminScreenAccess] 管理系画面へのアクセスを試行:', screenId);
+    
+    // ログイン状態を確認
+    google.script.run
+        .withSuccessHandler((currentUser) => {
+            if (!currentUser) {
+                // 未ログイン（ゲスト） → 「ログインが必要です。」と表示するだけ
+                console.log('[handleAdminScreenAccess] ゲスト状態 - ログインが必要です');
+                alert('ログインが必要です。');
+            } else {
+                // ログイン済みだが権限不足 → エラーメッセージを表示
+                console.log('[handleAdminScreenAccess] 権限不足 - アクセス拒否');
+                alert('この機能を使用するには管理者権限が必要です。');
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('[handleAdminScreenAccess] ログイン状態確認エラー:', error);
+            // エラー時も未ログイン扱い
+            alert('ログインが必要です。');
+        })
+        .getCurrentUser();
 }
 
 /**
@@ -196,11 +305,15 @@ function showScreen(screenId) {
     }
 
     // 画面に応じた初期化処理を実行
+    console.log('[showScreen] screenId:', screenId);
+    console.log('[showScreen] typeof initNamingScreen:', typeof initNamingScreen);
+    
     if (screenId === 'login-screen' && typeof initLoginScreen === 'function') {
         initLoginScreen();
     } else if (screenId === 'signup-screen' && typeof initSignupScreen === 'function') {
         initSignupScreen();
     } else if (screenId === 'naming-screen' && typeof initNamingScreen === 'function') {
+        console.log('[showScreen] 命名画面の初期化を呼び出します');
         initNamingScreen();
     } else if (screenId === 'settings-screen' && typeof initSettingsScreen === 'function') {
         initSettingsScreen();
@@ -217,26 +330,28 @@ function showScreen(screenId) {
 function resetScreenInitializationFlags() {
     console.log('[resetScreenInitializationFlags] 全初期化フラグをリセット中...');
     
+    // グローバル変数を直接リセット
     if (typeof isLoginScreenInitialized !== 'undefined') {
-        window.isLoginScreenInitialized = false;
+        isLoginScreenInitialized = false;
     }
     if (typeof isSignupScreenInitialized !== 'undefined') {
-        window.isSignupScreenInitialized = false;
+        isSignupScreenInitialized = false;
     }
     if (typeof isNamingScreenInitialized !== 'undefined') {
-        window.isNamingScreenInitialized = false;
+        isNamingScreenInitialized = false;
     }
     if (typeof isSettingsScreenInitialized !== 'undefined') {
-        window.isSettingsScreenInitialized = false;
+        isSettingsScreenInitialized = false;
     }
     if (typeof isNgWordsScreenInitialized !== 'undefined') {
-        window.isNgWordsScreenInitialized = false;
+        isNgWordsScreenInitialized = false;
     }
     if (typeof isManagementScreenInitialized !== 'undefined') {
-        window.isManagementScreenInitialized = false;
+        isManagementScreenInitialized = false;
     }
     
     console.log('[resetScreenInitializationFlags] フラグのリセットが完了しました');
+    console.log('[resetScreenInitializationFlags] isNamingScreenInitialized:', typeof isNamingScreenInitialized !== 'undefined' ? isNamingScreenInitialized : 'undefined');
 }
 
 /**

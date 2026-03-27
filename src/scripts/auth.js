@@ -32,6 +32,22 @@ function initLoginScreen() {
             showScreen('signup-screen');
         });
     }
+    
+    // ホーム（命名画面）に戻るボタン
+    const backToHomeBtn = document.getElementById('back-to-home-btn');
+    if (backToHomeBtn) {
+        backToHomeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showScreen('naming-screen');
+            // ナビゲーションリンクのアクティブ状態を更新
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            const namingLink = document.querySelector('[data-screen="naming-screen"]');
+            if (namingLink) {
+                namingLink.classList.add('active');
+            }
+        });
+    }
 }
 
 /**
@@ -121,8 +137,24 @@ function handleLogin(e) {
             }
             
             // ログイン成功 → アプリ状態をリセットしてホーム画面へ
-            console.log('ログイン成功:', result);
-            resetAppState();
+            console.log('[handleLogin] ログイン成功:', result);
+            
+            // 全ての画面初期化フラグをリセット
+            if (typeof resetScreenInitializationFlags === 'function') {
+                resetScreenInitializationFlags();
+            }
+            
+            // DOM を完全リセット（前ユーザーのデータを削除）
+            if (typeof resetDOMState === 'function') {
+                resetDOMState();
+            }
+            
+            // アプリ状態をリセット
+            if (typeof resetAppState === 'function') {
+                resetAppState();
+            }
+            
+            console.log('[handleLogin] redirectToHome を呼び出します');
             redirectToHome();
         })
         .withFailureHandler((error) => {
@@ -214,22 +246,80 @@ function handleSignup(e) {
 
 /**
  * ホーム画面（命名画面）へリダイレクト
+ * セッションストレージに保存された遷移先があれば、権限を確認して遷移
  */
 function redirectToHome() {
-    // showScreen()を使って画面を切り替え（初期化も含む）
-    showScreen('naming-screen');
+    console.log('[redirectToHome] リダイレクト処理を開始');
     
-    // ナビゲーションリンクを更新
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => link.classList.remove('active'));
+    // セッションストレージから遷移先を取得
+    const pendingRedirect = sessionStorage.getItem('pendingRedirect');
     
-    const namingLink = document.querySelector('[data-screen="naming-screen"]');
-    if (namingLink) {
-        namingLink.classList.add('active');
+    if (pendingRedirect) {
+        console.log('[redirectToHome] 保存された遷移先:', pendingRedirect);
+        
+        // 管理系画面への遷移は権限チェックが必要
+        const adminScreens = ['settings-screen', 'ngwords-screen', 'management-screen'];
+        
+        if (adminScreens.includes(pendingRedirect)) {
+            // 権限を確認
+            google.script.run
+                .withSuccessHandler((role) => {
+                    sessionStorage.removeItem('pendingRedirect');
+                    
+                    if (role === 'admin') {
+                        // admin権限があれば目的の画面へ
+                        console.log('[redirectToHome] admin権限あり - 目的の画面へ遷移:', pendingRedirect);
+                        showScreen(pendingRedirect);
+                        updateActiveNavLink(pendingRedirect);
+                    } else {
+                        // 権限がなければ命名画面へ
+                        console.log('[redirectToHome] 権限不足 - 命名画面へ遷移');
+                        showScreen('naming-screen');
+                        updateActiveNavLink('naming-screen');
+                        alert('この機能を使用するには管理者権限が必要です。');
+                    }
+                })
+                .withFailureHandler((error) => {
+                    console.error('[redirectToHome] 権限チェックエラー:', error);
+                    sessionStorage.removeItem('pendingRedirect');
+                    showScreen('naming-screen');
+                    updateActiveNavLink('naming-screen');
+                })
+                .getUserRole();
+        } else {
+            // 命名画面などへは権限チェック不要で遷移
+            sessionStorage.removeItem('pendingRedirect');
+            showScreen(pendingRedirect);
+            updateActiveNavLink(pendingRedirect);
+        }
+    } else {
+        // 遷移先がない場合は命名画面へ
+        console.log('[redirectToHome] 遷移先なし - 命名画面へ');
+        console.log('[redirectToHome] showScreen を呼び出します');
+        showScreen('naming-screen');
+        updateActiveNavLink('naming-screen');
     }
     
     // ユーザー情報表示を更新
     updateUserDisplay();
+    
+    // タブの権限制御を更新
+    if (typeof applyRoleBasedTabRestrictions === 'function') {
+        applyRoleBasedTabRestrictions();
+    }
+}
+
+/**
+ * ナビゲーションリンクのアクティブ状態を更新
+ */
+function updateActiveNavLink(screenId) {
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => link.classList.remove('active'));
+    
+    const targetLink = document.querySelector(`[data-screen="${screenId}"]`);
+    if (targetLink) {
+        targetLink.classList.add('active');
+    }
 }
 
 /**
@@ -326,20 +416,29 @@ function handleLogout() {
         .withSuccessHandler(() => {
             console.log('ログアウト成功');
             
-            // サイドメニューを非表示に
-            const sidebar = document.getElementById('sidebar');
-            if (sidebar) {
-                sidebar.style.display = 'none';
-                console.log('[handleLogout] サイドメニュー非表示完了');
-            }
-            
             // アプリケーション全体の状態をリセット
             if (typeof resetAppState === 'function') {
                 resetAppState();
             }
             
-            // ログイン画面へ遷移
-            showScreen('login-screen');
+            // 命名画面へ遷移（ログイン不要なので）
+            showScreen('naming-screen');
+            
+            // ナビゲーションリンクのアクティブ状態を更新
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => link.classList.remove('active'));
+            const namingLink = document.querySelector('[data-screen="naming-screen"]');
+            if (namingLink) {
+                namingLink.classList.add('active');
+            }
+            
+            // ゲスト表示とタブに鍵アイコンを表示（未ログイン状態）
+            if (typeof updateGuestDisplay === 'function') {
+                updateGuestDisplay();
+            }
+            if (typeof applyGuestTabRestrictions === 'function') {
+                applyGuestTabRestrictions();
+            }
             
             // フォームをクリア
             const loginForm = document.getElementById('login-form');
@@ -366,7 +465,11 @@ function updateUserDisplay() {
             console.log('[updateUserDisplay] サーバーからの応答:', currentUser);
             
             if (!currentUser) {
-                console.log('[updateUserDisplay] ユーザー情報がありません');
+                console.log('[updateUserDisplay] ユーザー情報がありません - ゲスト表示を設定');
+                // 未ログイン時はゲスト表示
+                if (typeof updateGuestDisplay === 'function') {
+                    updateGuestDisplay();
+                }
                 return;
             }
             

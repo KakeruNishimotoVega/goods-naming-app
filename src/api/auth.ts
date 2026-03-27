@@ -130,10 +130,10 @@ export function createSession(user: AppUser): void {
   Logger.log(`[createSession] セッションデータ: ${JSON.stringify(sessionData)}`);
   
   const cache = CacheService.getUserCache();
-  // 6時間（21600秒）有効なセッション
-  cache.put('user_session', JSON.stringify(sessionData), 21600);
+  // 1日（86400秒）有効なセッション
+  cache.put('user_session', JSON.stringify(sessionData), 86400);
   
-  Logger.log('[createSession] セッションを保存しました');
+  Logger.log('[createSession] セッションを保存しました（有効期限: 1日）');
 }
 
 /**
