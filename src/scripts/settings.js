@@ -7,13 +7,28 @@ let settingsAllParentCategories = []; // 全親カテゴリのキャッシュ
 let settingsSelectedParentId = null; // 選択中の親カテゴリID
 let settingsSelectedCategoryId = null; // 選択中の子カテゴリID
 
+// 初期化フラグ（二重初期化を防ぐ）
+let isSettingsScreenInitialized = false;
+
 /**
  * 設定画面の初期化
  */
 function initSettingsScreen() {
+    // 二重初期化を防ぐ
+    if (isSettingsScreenInitialized) {
+        console.log('Settings screen already initialized, skipping...');
+        return;
+    }
+    
     console.log('Initializing settings screen...');
+    isSettingsScreenInitialized = true;
 
-    // 管理者権限チェック
+    // 管理者権限チェック（権限チェック中はローディング表示）
+    const parentList = document.getElementById('settings-parent-category-list');
+    if (parentList) {
+        showLoading('settings-parent-category-list');
+    }
+
     checkRole('admin', () => {
         // 権限あり：最新データを読み込む
         loadSettingsCategories();

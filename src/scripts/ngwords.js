@@ -1,13 +1,28 @@
 // src/scripts/ngwords.js
 // NGワード管理画面のロジック
 
+// 初期化フラグ（二重初期化を防ぐ）
+let isNgWordsScreenInitialized = false;
+
 /**
  * NGワード管理画面の初期化
  */
 function initNgWordsScreen() {
+    // 二重初期化を防ぐ
+    if (isNgWordsScreenInitialized) {
+        console.log('NG words screen already initialized, skipping...');
+        return;
+    }
+    
     console.log('Initializing NG words screen...');
+    isNgWordsScreenInitialized = true;
 
-    // 管理者権限チェック
+    // 管理者権限チェック（権限チェック中はローディング表示）
+    const tbody = document.getElementById('ngwords-tbody');
+    if (tbody) {
+        showLoading('ngwords-tbody');
+    }
+
     checkRole('admin', () => {
         // 権限あり：最新データを読み込む
         loadNgWords();
@@ -29,22 +44,39 @@ function initNgWordsScreen() {
  * NGワード一覧を読み込む
  */
 async function loadNgWords() {
+    console.log('[loadNgWords] 処理開始');
+    
     const tbody = document.getElementById('ngwords-tbody');
-    if (!tbody) return;
+    if (!tbody) {
+        console.error('[loadNgWords] ngwords-tbody要素が見つかりません');
+        return;
+    }
 
     try {
+        console.log('[loadNgWords] ローディング表示開始');
         showLoading('ngwords-tbody');
 
+        console.log('[loadNgWords] getNgWordsを呼び出し中...');
         const ngWords = await callGasApi('getNgWords');
+        console.log('[loadNgWords] データ取得成功:', ngWords);
+
+        if (!ngWords || !Array.isArray(ngWords)) {
+            console.error('[loadNgWords] 予期しないデータ形式:', typeof ngWords);
+            tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">データ形式エラー</td></tr>';
+            return;
+        }
 
         if (ngWords.length === 0) {
+            console.log('[loadNgWords] NGワードなし');
             tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted">NGワードが登録されていません</td></tr>';
             return;
         }
 
+        console.log('[loadNgWords] レンダリング開始');
         renderNgWordsList(ngWords);
+        console.log('[loadNgWords] 処理完了');
     } catch (error) {
-        console.error('Failed to load NG words:', error);
+        console.error('[loadNgWords] エラー:', error);
         tbody.innerHTML = '<tr><td colspan="3" class="text-center text-danger">NGワードの読み込みに失敗しました</td></tr>';
     }
 }

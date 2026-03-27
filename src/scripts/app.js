@@ -7,6 +7,12 @@
 function initApp() {
     console.log('Initializing LOWYA Naming App...');
 
+    // ページを離れるときにセッションをクリア（前のログイン状態を保持しない）
+    window.addEventListener('beforeunload', () => {
+        console.log('[beforeunload] セッションをクリア中...');
+        google.script.run.logout();
+    });
+
     // 画面切り替えの設定
     setupScreenNavigation();
 
@@ -29,13 +35,20 @@ function checkLoginAndShowInitialScreen() {
             if (currentUser) {
                 // ログイン済み：ユーザー情報を表示して命名画面へ
                 console.log('[checkLoginAndShowInitialScreen] ログイン済み - 命名画面へ');
+                
+                // 全ての画面初期化フラグをリセット（ユーザー切り替え時のキャッシュ防止）
+                resetScreenInitializationFlags();
+                
+                // DOM を完全リセット（前ユーザーのデータを削除）
+                resetDOMState();
+                
                 updateUserDisplay();
                 
                 // 権限に基づいてタブを制御
                 applyRoleBasedTabRestrictions();
                 
+                // showScreen() は initNamingScreen() を自動的に呼ぶので、重複呼び出しを避ける
                 showScreen('naming-screen');
-                initNamingScreen();
             } else {
                 // 未ログイン：ログイン画面へ
                 console.log('[checkLoginAndShowInitialScreen] 未ログイン - ログイン画面へ');
@@ -175,10 +188,95 @@ function showScreen(screenId) {
 }
 
 /**
+ * 全ての画面初期化フラグをリセット（ユーザー切り替え時に呼び出し）
+ */
+function resetScreenInitializationFlags() {
+    console.log('[resetScreenInitializationFlags] 全初期化フラグをリセット中...');
+    
+    if (typeof isLoginScreenInitialized !== 'undefined') {
+        window.isLoginScreenInitialized = false;
+    }
+    if (typeof isSignupScreenInitialized !== 'undefined') {
+        window.isSignupScreenInitialized = false;
+    }
+    if (typeof isNamingScreenInitialized !== 'undefined') {
+        window.isNamingScreenInitialized = false;
+    }
+    if (typeof isSettingsScreenInitialized !== 'undefined') {
+        window.isSettingsScreenInitialized = false;
+    }
+    if (typeof isNgWordsScreenInitialized !== 'undefined') {
+        window.isNgWordsScreenInitialized = false;
+    }
+    if (typeof isManagementScreenInitialized !== 'undefined') {
+        window.isManagementScreenInitialized = false;
+    }
+    
+    console.log('[resetScreenInitializationFlags] フラグのリセットが完了しました');
+}
+
+/**
+ * DOM状態を完全リセット（前ユーザーのデータを削除）
+ */
+function resetDOMState() {
+    console.log('[resetDOMState] DOM状態を完全リセット中...');
+    
+    // ====== 命名画面 ======
+    const namingScreen = document.getElementById('naming-screen');
+    if (namingScreen) {
+        const parentCategoryList = document.getElementById('parent-category-list');
+        const childCategoryCard = document.getElementById('child-category-card');
+        const categoryToggleSection = document.getElementById('category-toggle-section');
+        const categorySelectionPanel = document.getElementById('category-selection-panel');
+        const dynamicForm = document.getElementById('dynamic-form');
+        const resultContainer = document.getElementById('naming-result');
+        
+        if (parentCategoryList) parentCategoryList.innerHTML = '';
+        if (childCategoryCard) childCategoryCard.style.display = 'none';
+        if (categoryToggleSection) categoryToggleSection.style.display = 'none';
+        if (categorySelectionPanel) categorySelectionPanel.style.display = 'block';
+        if (dynamicForm) dynamicForm.innerHTML = '';
+        if (resultContainer) resultContainer.style.display = 'none';
+    }
+    
+    // ====== 設定画面 ======
+    const settingsScreen = document.getElementById('settings-screen');
+    if (settingsScreen) {
+        const containerList = document.querySelectorAll('#settings-screen [id$="-list"]');
+        containerList.forEach(container => container.innerHTML = '');
+    }
+    
+    // ====== NGワード画面 ======
+    const ngwordsScreen = document.getElementById('ngwords-screen');
+    if (ngwordsScreen) {
+        const ngwordsTbody = document.getElementById('ngwords-tbody');
+        if (ngwordsTbody) ngwordsTbody.innerHTML = '';
+    }
+    
+    // ====== ユーザー管理画面 ======
+    const managementScreen = document.getElementById('management-screen');
+    if (managementScreen) {
+        const usersTbody = document.getElementById('users-tbody');
+        if (usersTbody) usersTbody.innerHTML = '';
+    }
+    
+    // ====== フォーム入力値のクリア ======
+    const allForms = document.querySelectorAll('form');
+    allForms.forEach(form => {
+        form.reset();
+    });
+    
+    console.log('[resetDOMState] DOM状態のリセットが完了しました');
+}
+
+/**
  * アプリケーション全体の状態をリセット（ログアウト時に呼び出し）
  */
 function resetAppState() {
     console.log('[resetAppState] アプリケーション状態をリセット中...');
+    
+    // 全初期化フラグをリセット
+    resetScreenInitializationFlags();
     
     // ====== 命名画面のリセット ======
     // グローバル変数をリセット
@@ -196,9 +294,6 @@ function resetAppState() {
     }
     if (typeof currentSchema !== 'undefined') {
         window.currentSchema = null;
-    }
-    if (typeof isNamingScreenInitialized !== 'undefined') {
-        window.isNamingScreenInitialized = false;
     }
     
     // 命名画面のDOM状態をリセット
@@ -229,9 +324,6 @@ function resetAppState() {
     if (typeof settingsSelectedCategoryId !== 'undefined') {
         window.settingsSelectedCategoryId = null;
     }
-    if (typeof isSettingsScreenInitialized !== 'undefined') {
-        window.isSettingsScreenInitialized = false;
-    }
     
     // 設定画面のDOM状態をリセット
     const settingsScreen = document.getElementById('settings-screen');
@@ -241,10 +333,6 @@ function resetAppState() {
     }
     
     // ====== NGワード画面のリセット ======
-    if (typeof isNgWordsScreenInitialized !== 'undefined') {
-        window.isNgWordsScreenInitialized = false;
-    }
-    
     const ngwordsScreen = document.getElementById('ngwords-screen');
     if (ngwordsScreen) {
         const ngwordsList = document.getElementById('ngwords-list');
@@ -255,10 +343,6 @@ function resetAppState() {
     }
     
     // ====== ユーザー管理画面のリセット ======
-    if (typeof isManagementScreenInitialized !== 'undefined') {
-        window.isManagementScreenInitialized = false;
-    }
-    
     const managementScreen = document.getElementById('management-screen');
     if (managementScreen) {
         const usersTbody = document.getElementById('users-tbody');

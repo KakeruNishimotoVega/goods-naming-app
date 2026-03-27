@@ -8,18 +8,21 @@ let isManagementScreenInitialized = false;
  * ユーザー管理画面の初期化
  */
 function initManagementScreen() {
-    console.log('Initializing management screen...');
-
     // 二重初期化を防ぐ
     if (isManagementScreenInitialized) {
-        console.log('Management screen already initialized, reloading data...');
-        loadUsersList();
+        console.log('Management screen already initialized, skipping...');
         return;
     }
 
+    console.log('Initializing management screen...');
     isManagementScreenInitialized = true;
 
-    // 管理者権限チェック
+    // 管理者権限チェック（権限チェック中はローディング表示）
+    const tbody = document.getElementById('users-tbody');
+    if (tbody) {
+        showLoading('users-tbody');
+    }
+
     checkRole('admin', () => {
         // 権限あり：最新データを読み込む
         loadUsersList();

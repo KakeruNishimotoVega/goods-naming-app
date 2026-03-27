@@ -120,8 +120,9 @@ function handleLogin(e) {
                 return;
             }
             
-            // ログイン成功 → ホーム画面へ
+            // ログイン成功 → アプリ状態をリセットしてホーム画面へ
             console.log('ログイン成功:', result);
+            resetAppState();
             redirectToHome();
         })
         .withFailureHandler((error) => {
@@ -192,7 +193,8 @@ function handleSignup(e) {
                         showScreen('login-screen');
                         showLoginError('登録は完了しました。ログインしてください。');
                     } else {
-                        // 自動ログイン成功 → ホーム画面へ
+                        // 自動ログイン成功 → アプリ状態をリセットしてホーム画面へ
+                        resetAppState();
                         redirectToHome();
                     }
                 })

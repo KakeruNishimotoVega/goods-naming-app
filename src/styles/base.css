@@ -335,6 +335,7 @@ input:disabled {
 
 /* スクリーン遷移アニメーション */
 .screen {
+    display: none; /* デフォルトはすべて非表示。JavaScript で明示的に表示 */
     animation: fadeIn 0.3s ease-in-out;
 }
 
