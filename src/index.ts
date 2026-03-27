@@ -75,6 +75,32 @@ import { addKeyword, updateKeyword, deleteKeyword, updateKeywordsPriority } from
 import { updateRegulation } from './api/regulations';
 import { getNgWords, addNgWord, updateNgWord, deleteNgWord } from './api/ngwords';
 import { generateNames, generateNamesMinimal } from './api/naming';
+import { 
+  loginWithPassword,
+  getCurrentUser, 
+  createSession, 
+  logout, 
+  hasRole 
+} from './api/auth';
+import { 
+  registerUser, 
+  getUserByEmail, 
+  getUserById, 
+  updateUserRole, 
+  updateUserName, 
+  listUsers, 
+  deleteUser 
+} from './api/users';
+import {
+  generateSalt,
+  hashPassword,
+  verifyPassword,
+  validatePasswordStrength
+} from './lib/utils';
+import {
+  setAdminPassword,
+  setUserPassword
+} from './scripts/setAdminPassword';
 
 // カテゴリAPI関数をグローバルに公開
 (global as any).getCategories = getCategories;
@@ -105,3 +131,29 @@ import { generateNames, generateNamesMinimal } from './api/naming';
 // 命名生成API関数をグローバルに公開
 (global as any).generateNames = generateNames;
 (global as any).generateNamesMinimal = generateNamesMinimal;
+
+// 認証API関数をグローバルに公開
+(global as any).loginWithPassword = loginWithPassword;
+(global as any).getCurrentUser = getCurrentUser;
+(global as any).createSession = createSession;
+(global as any).logout = logout;
+(global as any).hasRole = hasRole;
+
+// ユーザー管理API関数をグローバルに公開
+(global as any).registerUser = registerUser;
+(global as any).getUserByEmail = getUserByEmail;
+(global as any).getUserById = getUserById;
+(global as any).updateUserRole = updateUserRole;
+(global as any).updateUserName = updateUserName;
+(global as any).listUsers = listUsers;
+(global as any).deleteUser = deleteUser;
+
+// 管理者パスワード設定スクリプトをグローバルに公開
+(global as any).setAdminPassword = setAdminPassword;
+(global as any).setUserPassword = setUserPassword;
+
+// パスワードユーティリティをグローバルに公開
+(global as any).generateSalt = generateSalt;
+(global as any).hashPassword = hashPassword;
+(global as any).verifyPassword = verifyPassword;
+(global as any).validatePasswordStrength = validatePasswordStrength;

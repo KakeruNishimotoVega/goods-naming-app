@@ -1542,6 +1542,178 @@ button[title="Google検索"]:hover:not(:disabled) {
     grid-column: 1 / -1;
 }
 
+/* ==================== ログイン画面 ==================== */
+
+/* ログインコンテナ */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+/* ログインヘッダー */
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h1 {
+    color: var(--primary-color);
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.login-header .helper-text {
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+/* ログインカード */
+.login-card {
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem;
+    background-color: white;
+    border-radius: var(--border-radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Googleログインボタン */
+.google-btn {
+    background-color: white;
+    color: #2d3748;
+    border: 2px solid #e2e8f0;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 1.5rem;
+    transition: all 0.2s ease;
+}
+
+.google-btn:hover:not(:disabled) {
+    background-color: #f8fafc;
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.google-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* ブロックボタン */
+.btn-block {
+    width: 100%;
+}
+
+/* フォームグループ */
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.form-control {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: var(--border-radius-md);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+    font-family: var(--font-family);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(43, 139, 132, 0.1);
+}
+
+/* エラーメッセージ */
+.error-message {
+    padding: 1rem;
+    background-color: #fee;
+    border: 1px solid #fcc;
+    border-radius: var(--border-radius-md);
+    color: #c33;
+    font-size: 0.9rem;
+}
+
+/* ローディングスピナー */
+.spinner {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto;
+    border: 4px solid #f3f4f6;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ログインフッター */
+.login-footer {
+    margin-top: 2rem;
+}
+
+/* ユーザー表示エリア（ナビゲーションバー内） */
+.user-display {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .login-container {
+        padding: 1rem;
+    }
+
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .login-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .navbar .container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .user-display {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
 
 
 
@@ -1675,16 +1847,206 @@ button[title="Google検索"]:hover:not(:disabled) {
     <nav class="navbar">
         <div class="container">
             <h1 class="navbar-brand">LOWYA商品命名アプリ</h1>
-            <ul class="navbar-menu">
-                <li><a href="#" data-screen="naming-screen" class="nav-link active">命名</a></li>
-                <li><a href="#" data-screen="settings-screen" class="nav-link">ルール設定</a></li>
-                <li><a href="#" data-screen="ngwords-screen" class="nav-link">NGワード</a></li>
-            </ul>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <ul class="navbar-menu">
+                    <li><a href="#" data-screen="naming-screen" class="nav-link active">命名</a></li>
+                    <li><a href="#" data-screen="settings-screen" class="nav-link">ルール設定</a></li>
+                    <li><a href="#" data-screen="ngwords-screen" class="nav-link">NGワード</a></li>
+                </ul>
+                <!-- ユーザー情報表示エリア -->
+                <div id="user-display-area" class="user-display">
+                    <!-- auth.jsのupdateUserDisplay()で動的に更新される -->
+                </div>
+            </div>
         </div>
     </nav>
 
     <div id="app" class="container mt-4">
-        <!-- src/views/naming.html -->
+        <!-- src/views/login.html -->
+<!-- ログイン画面のテンプレート -->
+<div id="login-screen" class="screen">
+    <div class="login-container">
+        <!-- ロゴ・タイトルエリア -->
+        <div class="login-header">
+            <h1>LOWYA商品命名アプリ</h1>
+            <p class="helper-text">メールアドレスとパスワードでログインしてください</p>
+        </div>
+
+        <!-- ログインカード -->
+        <div class="login-card form-card">
+            <!-- ログインフォーム -->
+            <form id="login-form" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="login-email">メールアドレス</label>
+                    <input 
+                        type="email" 
+                        id="login-email" 
+                        class="form-control" 
+                        placeholder="example@email.com"
+                        required
+                        autocomplete="email"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">パスワード</label>
+                    <input 
+                        type="password" 
+                        id="login-password" 
+                        class="form-control" 
+                        placeholder="8文字以上の英数字"
+                        required
+                        autocomplete="current-password"
+                        minlength="8"
+                    />
+                </div>
+
+                <button type="submit" id="login-btn" class="btn primary btn-block">
+                    ログイン
+                </button>
+            </form>
+
+            <!-- サインアップリンク -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p class="helper-text">
+                    アカウントをお持ちでない方は
+                    <a href="#" id="go-to-signup" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">
+                        新規登録
+                    </a>
+                </p>
+            </div>
+
+            <!-- エラーメッセージ表示エリア -->
+            <div id="login-error-message" class="error-message" style="display: none; margin-top: 1rem;">
+                <!-- エラーメッセージがここに表示される -->
+            </div>
+
+            <!-- ローディング表示 -->
+            <div id="login-loading" style="display: none; text-align: center; margin-top: 1rem;">
+                <div class="spinner"></div>
+                <p class="helper-text" style="margin-top: 0.5rem;">ログイン処理中...</p>
+            </div>
+        </div>
+
+        <!-- フッター -->
+        <div class="login-footer">
+            <p class="helper-text" style="text-align: center; font-size: 0.75rem; color: var(--text-muted);">
+                © 2026 LOWYA 商品命名アプリ
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<!-- src/views/signup.html -->
+<!-- サインアップ画面のテンプレート -->
+<div id="signup-screen" class="screen">
+    <div class="login-container">
+        <!-- ロゴ・タイトルエリア -->
+        <div class="login-header">
+            <h1>LOWYA商品命名アプリ</h1>
+            <p class="helper-text">新規アカウント登録</p>
+        </div>
+
+        <!-- サインアップカード -->
+        <div class="login-card form-card">
+            <!-- サインアップフォーム -->
+            <form id="signup-form" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="signup-email">メールアドレス</label>
+                    <input 
+                        type="email" 
+                        id="signup-email" 
+                        class="form-control" 
+                        placeholder="example@email.com"
+                        required
+                        autocomplete="email"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-username">ユーザー名（表示名）</label>
+                    <input 
+                        type="text" 
+                        id="signup-username" 
+                        class="form-control" 
+                        placeholder="例: 山田 太郎"
+                        required
+                        autocomplete="name"
+                        maxlength="50"
+                    />
+                    <p class="helper-text" style="margin-top: 0.5rem; font-size: 0.75rem;">
+                        この名前がアプリに表示されます
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">パスワード</label>
+                    <input 
+                        type="password" 
+                        id="signup-password" 
+                        class="form-control" 
+                        placeholder="8文字以上の英数字"
+                        required
+                        autocomplete="new-password"
+                        minlength="8"
+                    />
+                    <p class="helper-text" style="margin-top: 0.5rem; font-size: 0.75rem;">
+                        8文字以上、英字と数字を含める必要があります
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password-confirm">パスワード（確認）</label>
+                    <input 
+                        type="password" 
+                        id="signup-password-confirm" 
+                        class="form-control" 
+                        placeholder="パスワードを再入力"
+                        required
+                        autocomplete="new-password"
+                        minlength="8"
+                    />
+                </div>
+
+                <button type="submit" id="signup-btn" class="btn primary btn-block">
+                    アカウント登録
+                </button>
+            </form>
+
+            <!-- ログインリンク -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p class="helper-text">
+                    既にアカウントをお持ちの方は
+                    <a href="#" id="go-to-login" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">
+                        ログイン
+                    </a>
+                </p>
+            </div>
+
+            <!-- エラーメッセージ表示エリア -->
+            <div id="signup-error-message" class="error-message" style="display: none; margin-top: 1rem;">
+                <!-- エラーメッセージがここに表示される -->
+            </div>
+
+            <!-- ローディング表示 -->
+            <div id="signup-loading" style="display: none; text-align: center; margin-top: 1rem;">
+                <div class="spinner"></div>
+                <p class="helper-text" style="margin-top: 0.5rem;">登録処理中...</p>
+            </div>
+        </div>
+
+        <!-- フッター -->
+        <div class="login-footer">
+            <p class="helper-text" style="text-align: center; font-size: 0.75rem; color: var(--text-muted);">
+                © 2026 LOWYA 商品命名アプリ
+            </p>
+        </div>
+    </div>
+</div>
+
+
+<!-- src/views/naming.html -->
 <!-- 命名画面のテンプレート -->
 <div id="naming-screen" class="screen">
     <div class="page-container">
@@ -2276,6 +2638,112 @@ function handleApiError(error, context = '') {
     showErrorToast(message);
 }
 
+// ==================== 認証・権限管理関連 ====================
+
+/**
+ * 現在のユーザーが指定されたロールを持っているかチェック
+ * @param {string} requiredRole 必要なロール（'admin' または 'user'）
+ * @param {function} successCallback 権限がある場合のコールバック
+ * @param {function} failureCallback 権限がない場合のコールバック
+ */
+function checkRole(requiredRole, successCallback, failureCallback) {
+    console.log(`[checkRole] 権限チェック開始: requiredRole=${requiredRole}`);
+    
+    google.script.run
+        .withSuccessHandler((hasPermission) => {
+            console.log(`[checkRole] サーバーからの応答: hasPermission=${hasPermission}`);
+            
+            if (hasPermission) {
+                console.log('[checkRole] 権限あり: successCallbackを実行');
+                if (typeof successCallback === 'function') {
+                    successCallback();
+                }
+            } else {
+                console.log('[checkRole] 権限なし: failureCallbackを実行');
+                if (typeof failureCallback === 'function') {
+                    failureCallback();
+                } else {
+                    // デフォルト: アクセス拒否メッセージ
+                    showErrorToast('この機能にアクセスする権限がありません');
+                    redirectToNamingScreen();
+                }
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('[checkRole] 権限チェックエラー:', error);
+            if (typeof failureCallback === 'function') {
+                failureCallback();
+            } else {
+                showErrorToast('権限の確認に失敗しました');
+                redirectToLoginScreen();
+            }
+        })
+        .hasRole(requiredRole);
+}
+
+/**
+ * 権限チェック後にログイン画面へリダイレクト
+ */
+function redirectToLoginScreen() {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
+    
+    const loginScreen = document.getElementById('login-screen');
+    if (loginScreen) {
+        loginScreen.style.display = 'block';
+    }
+}
+
+/**
+ * 権限がない場合に命名画面へリダイレクト
+ */
+function redirectToNamingScreen() {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
+    
+    const namingScreen = document.getElementById('naming-screen');
+    if (namingScreen) {
+        namingScreen.style.display = 'block';
+    }
+    
+    // ナビゲーションリンクを更新
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => link.classList.remove('active'));
+    
+    const namingLink = document.querySelector('[data-screen="naming-screen"]');
+    if (namingLink) {
+        namingLink.classList.add('active');
+    }
+}
+
+/**
+ * ログイン済みかチェックして、未ログインの場合はログイン画面へリダイレクト
+ * @param {function} callback ログイン済みの場合のコールバック
+ */
+function requireLogin(callback) {
+    google.script.run
+        .withSuccessHandler((currentUser) => {
+            if (currentUser) {
+                // ログイン済み
+                if (typeof callback === 'function') {
+                    callback(currentUser);
+                }
+            } else {
+                // 未ログイン
+                redirectToLoginScreen();
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('ログイン状態確認エラー:', error);
+            redirectToLoginScreen();
+        })
+        .getCurrentUser();
+}
+
 
 // src/scripts/app.js
 // src/scripts/app.js
@@ -2290,10 +2758,47 @@ function initApp() {
     // 画面切り替えの設定
     setupScreenNavigation();
 
-    // 初期画面の表示
-    showScreen('naming-screen');
+    // ログイン状態を確認してから画面を表示
+    checkLoginAndShowInitialScreen();
 
     console.log('App initialized successfully');
+}
+
+/**
+ * ログイン状態を確認して初期画面を表示
+ */
+function checkLoginAndShowInitialScreen() {
+    console.log('[checkLoginAndShowInitialScreen] ログイン状態を確認中...');
+    
+    google.script.run
+        .withSuccessHandler((currentUser) => {
+            console.log('[checkLoginAndShowInitialScreen] サーバーからの応答:', currentUser);
+            
+            if (currentUser) {
+                // ログイン済み：ユーザー情報を表示して命名画面へ
+                console.log('[checkLoginAndShowInitialScreen] ログイン済み - 命名画面へ');
+                updateUserDisplay();
+                showScreen('naming-screen');
+                initNamingScreen();
+            } else {
+                // 未ログイン：ログイン画面へ
+                console.log('[checkLoginAndShowInitialScreen] 未ログイン - ログイン画面へ');
+                showScreen('login-screen');
+                // ログイン画面の初期化（イベントリスナー設定）
+                if (typeof initLoginScreen === 'function') {
+                    initLoginScreen();
+                }
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('[checkLoginAndShowInitialScreen] ログイン状態確認エラー:', error);
+            // エラー時はログイン画面へ
+            showScreen('login-screen');
+            if (typeof initLoginScreen === 'function') {
+                initLoginScreen();
+            }
+        })
+        .getCurrentUser();
 }
 
 /**
@@ -2342,6 +2847,19 @@ function showScreen(screenId) {
     if (targetScreen) {
         targetScreen.style.display = 'block';
     }
+
+    // 画面に応じた初期化処理を実行
+    if (screenId === 'login-screen' && typeof initLoginScreen === 'function') {
+        initLoginScreen();
+    } else if (screenId === 'signup-screen' && typeof initSignupScreen === 'function') {
+        initSignupScreen();
+    } else if (screenId === 'naming-screen' && typeof initNamingScreen === 'function') {
+        initNamingScreen();
+    } else if (screenId === 'settings-screen' && typeof initSettingsScreen === 'function') {
+        initSettingsScreen();
+    } else if (screenId === 'ngwords-screen' && typeof initNgWordsScreen === 'function') {
+        initNgWordsScreen();
+    }
 }
 
 /**
@@ -2367,10 +2885,482 @@ function callGasApi(functionName, ...args) {
     });
 }
 
+/**
+ * グローバルデバッグ関数: 現在のユーザー情報を確認
+ */
+window.debugGetCurrentUser = function() {
+    google.script.run
+        .withSuccessHandler((currentUser) => {
+            console.log('=== デバッグ: 現在のユーザー情報 ===');
+            console.log(currentUser);
+            if (currentUser) {
+                console.log('userId:', currentUser.userId);
+                console.log('email:', currentUser.email);
+                console.log('userName:', currentUser.userName);
+                console.log('role:', currentUser.role);
+                console.log('role type:', typeof currentUser.role);
+                console.log('role === "admin":', currentUser.role === 'admin');
+            } else {
+                console.log('未ログイン');
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('デバッグエラー:', error);
+        })
+        .getCurrentUser();
+};
+
+/**
+ * グローバルデバッグ関数: 権限チェック
+ */
+window.debugCheckRole = function(role) {
+    google.script.run
+        .withSuccessHandler((hasPermission) => {
+            console.log(`=== デバッグ: 権限チェック (role=${role}) ===`);
+            console.log('結果:', hasPermission);
+        })
+        .withFailureHandler((error) => {
+            console.error('デバッグエラー:', error);
+        })
+        .hasRole(role);
+};
+
+/**
+ * グローバルデバッグ関数: データベースからユーザー情報を取得
+ */
+window.debugGetUserByEmail = function(email) {
+    google.script.run
+        .withSuccessHandler((user) => {
+            console.log('=== デバッグ: データベースのユーザー情報 ===');
+            console.log(user);
+            if (user) {
+                console.log('id:', user.id);
+                console.log('email:', user.email);
+                console.log('user_name:', user.user_name);
+                console.log('role:', user.role);
+                console.log('role type:', typeof user.role);
+                console.log('created_at:', user.created_at);
+            } else {
+                console.log('ユーザーが見つかりません');
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('デバッグエラー:', error);
+        })
+        .getUserByEmail(email);
+};
+
 // ページ読み込み時に初期化
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', initApp);
 }
+
+
+// src/scripts/auth.js
+// src/scripts/auth.js
+// 認証関連の処理（メールアドレス+パスワード方式）
+
+// 初期化フラグ（二重初期化を防ぐ）
+let isLoginScreenInitialized = false;
+let isSignupScreenInitialized = false;
+
+/**
+ * ログイン画面の初期化
+ */
+function initLoginScreen() {
+    // 二重初期化を防ぐ
+    if (isLoginScreenInitialized) {
+        console.log('Login screen already initialized, skipping...');
+        return;
+    }
+    
+    console.log('Initializing login screen...');
+    isLoginScreenInitialized = true;
+
+    // ログインフォーム
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+
+    // サインアップへのリンク
+    const goToSignup = document.getElementById('go-to-signup');
+    if (goToSignup) {
+        goToSignup.addEventListener('click', (e) => {
+            e.preventDefault();
+            showScreen('signup-screen');
+        });
+    }
+}
+
+/**
+ * サインアップ画面の初期化
+ */
+function initSignupScreen() {
+    // 二重初期化を防ぐ
+    if (isSignupScreenInitialized) {
+        console.log('Signup screen already initialized, skipping...');
+        return;
+    }
+    
+    console.log('Initializing signup screen...');
+    isSignupScreenInitialized = true;
+
+    // サインアップフォーム
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', handleSignup);
+    }
+
+    // ログインへのリンク
+    const goToLogin = document.getElementById('go-to-login');
+    if (goToLogin) {
+        goToLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            showScreen('login-screen');
+        });
+    }
+}
+
+/**
+ * セッション確認と自動リダイレクト
+ */
+function checkSessionAndRedirect() {
+    showLoginLoading(true);
+    
+    google.script.run
+        .withSuccessHandler((currentUser) => {
+            showLoginLoading(false);
+            
+            if (currentUser) {
+                // 既にログイン済み → ホーム画面へ
+                console.log('既にログイン済み:', currentUser);
+                redirectToHome();
+            }
+        })
+        .withFailureHandler((error) => {
+            showLoginLoading(false);
+            console.log('セッション確認エラー（未ログイン）:', error);
+            // エラーは無視（未ログイン状態）
+        })
+        .getCurrentUser();
+}
+
+/**
+ * ログインフォームの送信ハンドラ
+ */
+function handleLogin(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    
+    // バリデーション
+    if (!email || !password) {
+        showLoginError('メールアドレスとパスワードを入力してください');
+        return;
+    }
+    
+    if (!validateEmail(email)) {
+        showLoginError('有効なメールアドレスを入力してください');
+        return;
+    }
+    
+    showLoginLoading(true);
+    hideLoginError();
+    
+    // バックエンドAPIを呼び出し
+    google.script.run
+        .withSuccessHandler((result) => {
+            showLoginLoading(false);
+            
+            if (result.error) {
+                showLoginError(result.error);
+                return;
+            }
+            
+            // ログイン成功 → ホーム画面へ
+            console.log('ログイン成功:', result);
+            redirectToHome();
+        })
+        .withFailureHandler((error) => {
+            showLoginLoading(false);
+            showLoginError('ログイン処理中にエラーが発生しました: ' + error.message);
+        })
+        .loginWithPassword(email, password);
+}
+
+/**
+ * サインアップフォームの送信ハンドラ
+ */
+function handleSignup(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('signup-email').value.trim();
+    const userName = document.getElementById('signup-username').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const passwordConfirm = document.getElementById('signup-password-confirm').value;
+    
+    // バリデーション
+    if (!email || !userName || !password || !passwordConfirm) {
+        showSignupError('すべての項目を入力してください');
+        return;
+    }
+    
+    if (!validateEmail(email)) {
+        showSignupError('有効なメールアドレスを入力してください');
+        return;
+    }
+    
+    if (password.length < 8) {
+        showSignupError('パスワードは8文字以上で入力してください');
+        return;
+    }
+    
+    if (!/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+        showSignupError('パスワードは英字と数字の両方を含む必要があります');
+        return;
+    }
+    
+    if (password !== passwordConfirm) {
+        showSignupError('パスワードが一致しません');
+        return;
+    }
+    
+    showSignupLoading(true);
+    hideSignupError();
+    
+    // バックエンドAPIを呼び出し
+    google.script.run
+        .withSuccessHandler((result) => {
+            showSignupLoading(false);
+            
+            if (result.error) {
+                showSignupError(result.error);
+                return;
+            }
+            
+            // サインアップ成功 → 自動ログイン
+            console.log('サインアップ成功:', result);
+            
+            // 自動ログイン
+            google.script.run
+                .withSuccessHandler((loginResult) => {
+                    if (loginResult.error) {
+                        // 自動ログイン失敗 → ログイン画面へ
+                        showScreen('login-screen');
+                        showLoginError('登録は完了しました。ログインしてください。');
+                    } else {
+                        // 自動ログイン成功 → ホーム画面へ
+                        redirectToHome();
+                    }
+                })
+                .withFailureHandler(() => {
+                    // 自動ログイン失敗 → ログイン画面へ
+                    showScreen('login-screen');
+                    showLoginError('登録は完了しました。ログインしてください。');
+                })
+                .loginWithPassword(email, password);
+        })
+        .withFailureHandler((error) => {
+            showSignupLoading(false);
+            showSignupError('登録処理中にエラーが発生しました: ' + error.message);
+        })
+        .registerUser(email, password, userName);
+}
+
+/**
+ * ホーム画面（命名画面）へリダイレクト
+ */
+function redirectToHome() {
+    // showScreen()を使って画面を切り替え（初期化も含む）
+    showScreen('naming-screen');
+    
+    // ナビゲーションリンクを更新
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => link.classList.remove('active'));
+    
+    const namingLink = document.querySelector('[data-screen="naming-screen"]');
+    if (namingLink) {
+        namingLink.classList.add('active');
+    }
+    
+    // ユーザー情報表示を更新
+    updateUserDisplay();
+}
+
+/**
+ * ログインローディング表示の切り替え
+ */
+function showLoginLoading(show) {
+    const loadingElement = document.getElementById('login-loading');
+    const loginBtn = document.getElementById('login-btn');
+    
+    if (show) {
+        showElement(loadingElement);
+        if (loginBtn) loginBtn.disabled = true;
+    } else {
+        hideElement(loadingElement);
+        if (loginBtn) loginBtn.disabled = false;
+    }
+}
+
+/**
+ * サインアップローディング表示の切り替え
+ */
+function showSignupLoading(show) {
+    const loadingElement = document.getElementById('signup-loading');
+    const signupBtn = document.getElementById('signup-btn');
+    
+    if (show) {
+        showElement(loadingElement);
+        if (signupBtn) signupBtn.disabled = true;
+    } else {
+        hideElement(loadingElement);
+        if (signupBtn) signupBtn.disabled = false;
+    }
+}
+
+/**
+ * ログインエラーメッセージを表示
+ */
+function showLoginError(message) {
+    const errorElement = document.getElementById('login-error-message');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+}
+
+/**
+ * ログインエラーメッセージを非表示
+ */
+function hideLoginError() {
+    const errorElement = document.getElementById('login-error-message');
+    if (errorElement) {
+        errorElement.style.display = 'none';
+    }
+}
+
+/**
+ * サインアップエラーメッセージを表示
+ */
+function showSignupError(message) {
+    const errorElement = document.getElementById('signup-error-message');
+    if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+}
+
+/**
+ * サインアップエラーメッセージを非表示
+ */
+function hideSignupError() {
+    const errorElement = document.getElementById('signup-error-message');
+    if (errorElement) {
+        errorElement.style.display = 'none';
+    }
+}
+
+/**
+ * メールアドレスのバリデーション
+ */
+function validateEmail(email) {
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return re.test(email);
+}
+
+/**
+ * ログアウト処理
+ */
+function handleLogout() {
+    if (!confirm('ログアウトしますか？')) {
+        return;
+    }
+    
+    google.script.run
+        .withSuccessHandler(() => {
+            console.log('ログアウト成功');
+            
+            // ログイン画面へ遷移
+            showScreen('login-screen');
+            
+            // フォームをクリア
+            const loginForm = document.getElementById('login-form');
+            if (loginForm) {
+                loginForm.reset();
+            }
+            
+            hideLoginError();
+        })
+        .withFailureHandler((error) => {
+            alert('ログアウトエラー: ' + error.message);
+        })
+        .logout();
+}
+
+/**
+ * ユーザー表示を更新（ヘッダーに名前とログアウトボタンを表示）
+ */
+function updateUserDisplay() {
+    console.log('[updateUserDisplay] ユーザー情報を取得中...');
+    
+    google.script.run
+        .withSuccessHandler((currentUser) => {
+            console.log('[updateUserDisplay] サーバーからの応答:', currentUser);
+            
+            if (!currentUser) {
+                console.log('[updateUserDisplay] ユーザー情報がありません');
+                return;
+            }
+            
+            // ヘッダーのユーザー情報エリアを更新
+            const userDisplayArea = document.getElementById('user-display-area');
+            if (userDisplayArea) {
+                userDisplayArea.innerHTML = `
+                    <span class="user-name">${currentUser.userName}</span>
+                    <button id="logout-btn" class="btn secondary btn-sm">ログアウト</button>
+                `;
+                
+                // ログアウトボタンにイベントリスナーを設定
+                const logoutBtn = document.getElementById('logout-btn');
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', handleLogout);
+                }
+            }
+            
+            // ナビゲーションメニューの権限制御
+            console.log(`[updateUserDisplay] ナビゲーション更新: role=${currentUser.role}`);
+            updateNavigationByRole(currentUser.role);
+        })
+        .withFailureHandler((error) => {
+            console.error('[updateUserDisplay] ユーザー情報取得エラー:', error);
+        })
+        .getCurrentUser();
+}
+
+/**
+ * ロールに基づいてナビゲーションメニューを制御
+ */
+function updateNavigationByRole(role) {
+    // settings と ngwords のリンクは admin のみ表示
+    const settingsLink = document.querySelector('[data-screen="settings-screen"]');
+    const ngwordsLink = document.querySelector('[data-screen="ngwords-screen"]');
+    
+    if (role === 'admin') {
+        // admin: すべて表示
+        if (settingsLink) settingsLink.style.display = 'inline-block';
+        if (ngwordsLink) ngwordsLink.style.display = 'inline-block';
+    } else {
+        // user: 設定系を非表示
+        if (settingsLink) settingsLink.style.display = 'none';
+        if (ngwordsLink) ngwordsLink.style.display = 'none';
+    }
+}
+
+// 注意: initLoginScreen()は自動的に呼ばれません
+// app.jsのcheckLoginAndShowInitialScreen()で必要に応じて画面が表示されます
 
 
 // src/scripts/naming.js
@@ -2384,11 +3374,21 @@ let selectedParentId = null; // 選択中の親カテゴリID
 let selectedCategoryId = null; // 選択中の子カテゴリID
 let currentSchema = null; // 現在のスキーマキャッシュ
 
+// 初期化フラグ（二重初期化を防ぐ）
+let isNamingScreenInitialized = false;
+
 /**
  * 命名画面の初期化
  */
 function initNamingScreen() {
+    // 二重初期化を防ぐ
+    if (isNamingScreenInitialized) {
+        console.log('Naming screen already initialized, skipping...');
+        return;
+    }
+    
     console.log('Initializing naming screen...');
+    isNamingScreenInitialized = true;
 
     // カテゴリの読み込み
     loadCategories();
@@ -3256,10 +4256,8 @@ function onResetForm() {
     showToast('フォームをリセットしました');
 }
 
-// 初期化
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', initNamingScreen);
-}
+// 注意: initNamingScreen()は自動的に呼ばれません
+// app.jsのcheckLoginAndShowInitialScreen()で初回表示されます
 
 
 // src/scripts/settings.js
@@ -3278,8 +4276,15 @@ let settingsSelectedCategoryId = null; // 選択中の子カテゴリID
 function initSettingsScreen() {
     console.log('Initializing settings screen...');
 
-    // カテゴリの読み込み
-    loadSettingsCategories();
+    // 管理者権限チェック
+    checkRole('admin', () => {
+        // 権限あり：最新データを読み込む
+        loadSettingsCategories();
+    }, () => {
+        // 権限なし：命名画面へリダイレクト
+        showErrorToast('この画面にアクセスする権限がありません（管理者のみ）');
+        redirectToNamingScreen();
+    });
 }
 
 /**
@@ -4380,10 +5385,8 @@ async function saveKeywordOrder(typeId, tbody) {
     }
 }
 
-// 初期化
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', initSettingsScreen);
-}
+// 注意: initSettingsScreen()は自動的に呼ばれません
+// app.jsのshowScreen()で画面表示時に呼ばれます
 
 
 // src/scripts/ngwords.js
@@ -4396,14 +5399,22 @@ if (typeof document !== 'undefined') {
 function initNgWordsScreen() {
     console.log('Initializing NG words screen...');
 
-    // NGワード一覧を読み込む
-    loadNgWords();
+    // 管理者権限チェック
+    checkRole('admin', () => {
+        // 権限あり：最新データを読み込む
+        loadNgWords();
 
-    // 追加ボタンのイベント
-    const addBtn = document.getElementById('add-ngword-btn');
-    if (addBtn) {
-        addBtn.addEventListener('click', onAddNgWord);
-    }
+        // 追加ボタンのイベント（初回のみ設定）
+        const addBtn = document.getElementById('add-ngword-btn');
+        if (addBtn && !addBtn.dataset.listenerAdded) {
+            addBtn.addEventListener('click', onAddNgWord);
+            addBtn.dataset.listenerAdded = 'true';
+        }
+    }, () => {
+        // 権限なし：命名画面へリダイレクト
+        showErrorToast('この画面にアクセスする権限がありません（管理者のみ）');
+        redirectToNamingScreen();
+    });
 }
 
 /**
@@ -4579,10 +5590,8 @@ async function deleteNgWordApi(id) {
     }
 }
 
-// 初期化
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', initNgWordsScreen);
-}
+// 注意: initNgWordsScreen()は自動的に呼ばれません
+// app.jsのshowScreen()で画面表示時に呼ばれます
 
 </script>
 </body>

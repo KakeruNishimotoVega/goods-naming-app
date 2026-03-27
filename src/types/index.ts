@@ -92,7 +92,10 @@ export interface ProhibitedWord {
 export interface AppUser {
   id: string; // uuid
   email: string;
-  role: string; // ユーザーの権限ロール
+  user_name: string; // 表示名
+  role: 'admin' | 'user'; // ユーザーの権限ロール（admin: 全権限, user: 一般ユーザー）
+  password_hash?: string; // パスワードハッシュ（オプショナル、フロント側では不要）
+  salt?: string; // ソルト（オプショナル、フロント側では不要）
   created_at: string; // timestamptz
 }
 
@@ -169,4 +172,33 @@ export interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
   error?: string;
+}
+
+// ==================== 認証関連の型定義 ====================
+
+/**
+ * ログインリクエストの型
+ */
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+/**
+ * サインアップリクエストの型
+ */
+export interface SignupRequest {
+  email: string;
+  password: string;
+  user_name: string;
+}
+
+/**
+ * 認証セッションの型
+ */
+export interface AuthSession {
+  userId: string;
+  email: string;
+  userName: string;
+  role: 'admin' | 'user';
 }

@@ -1,0 +1,105 @@
+<!-- サインアップ画面のテンプレート -->
+<div id="signup-screen" class="screen">
+    <div class="login-container">
+        <!-- ロゴ・タイトルエリア -->
+        <div class="login-header">
+            <h1>LOWYA商品命名アプリ</h1>
+            <p class="helper-text">新規アカウント登録</p>
+        </div>
+
+        <!-- サインアップカード -->
+        <div class="login-card form-card">
+            <!-- サインアップフォーム -->
+            <form id="signup-form" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="signup-email">メールアドレス</label>
+                    <input 
+                        type="email" 
+                        id="signup-email" 
+                        class="form-control" 
+                        placeholder="example@email.com"
+                        required
+                        autocomplete="email"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-username">ユーザー名（表示名）</label>
+                    <input 
+                        type="text" 
+                        id="signup-username" 
+                        class="form-control" 
+                        placeholder="例: 山田 太郎"
+                        required
+                        autocomplete="name"
+                        maxlength="50"
+                    />
+                    <p class="helper-text" style="margin-top: 0.5rem; font-size: 0.75rem;">
+                        この名前がアプリに表示されます
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password">パスワード</label>
+                    <input 
+                        type="password" 
+                        id="signup-password" 
+                        class="form-control" 
+                        placeholder="8文字以上の英数字"
+                        required
+                        autocomplete="new-password"
+                        minlength="8"
+                    />
+                    <p class="helper-text" style="margin-top: 0.5rem; font-size: 0.75rem;">
+                        8文字以上、英字と数字を含める必要があります
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="signup-password-confirm">パスワード（確認）</label>
+                    <input 
+                        type="password" 
+                        id="signup-password-confirm" 
+                        class="form-control" 
+                        placeholder="パスワードを再入力"
+                        required
+                        autocomplete="new-password"
+                        minlength="8"
+                    />
+                </div>
+
+                <button type="submit" id="signup-btn" class="btn primary btn-block">
+                    アカウント登録
+                </button>
+            </form>
+
+            <!-- ログインリンク -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p class="helper-text">
+                    既にアカウントをお持ちの方は
+                    <a href="#" id="go-to-login" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">
+                        ログイン
+                    </a>
+                </p>
+            </div>
+
+            <!-- エラーメッセージ表示エリア -->
+            <div id="signup-error-message" class="error-message" style="display: none; margin-top: 1rem;">
+                <!-- エラーメッセージがここに表示される -->
+            </div>
+
+            <!-- ローディング表示 -->
+            <div id="signup-loading" style="display: none; text-align: center; margin-top: 1rem;">
+                <div class="spinner"></div>
+                <p class="helper-text" style="margin-top: 0.5rem;">登録処理中...</p>
+            </div>
+        </div>
+
+        <!-- フッター -->
+        <div class="login-footer">
+            <p class="helper-text" style="text-align: center; font-size: 0.75rem; color: var(--text-muted);">
+                © 2026 LOWYA 商品命名アプリ
+            </p>
+        </div>
+    </div>
+</div>

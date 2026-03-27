@@ -249,3 +249,109 @@ function handleApiError(error, context = '') {
 
     showErrorToast(message);
 }
+
+// ==================== 認証・権限管理関連 ====================
+
+/**
+ * 現在のユーザーが指定されたロールを持っているかチェック
+ * @param {string} requiredRole 必要なロール（'admin' または 'user'）
+ * @param {function} successCallback 権限がある場合のコールバック
+ * @param {function} failureCallback 権限がない場合のコールバック
+ */
+function checkRole(requiredRole, successCallback, failureCallback) {
+    console.log(`[checkRole] 権限チェック開始: requiredRole=${requiredRole}`);
+    
+    google.script.run
+        .withSuccessHandler((hasPermission) => {
+            console.log(`[checkRole] サーバーからの応答: hasPermission=${hasPermission}`);
+            
+            if (hasPermission) {
+                console.log('[checkRole] 権限あり: successCallbackを実行');
+                if (typeof successCallback === 'function') {
+                    successCallback();
+                }
+            } else {
+                console.log('[checkRole] 権限なし: failureCallbackを実行');
+                if (typeof failureCallback === 'function') {
+                    failureCallback();
+                } else {
+                    // デフォルト: アクセス拒否メッセージ
+                    showErrorToast('この機能にアクセスする権限がありません');
+                    redirectToNamingScreen();
+                }
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('[checkRole] 権限チェックエラー:', error);
+            if (typeof failureCallback === 'function') {
+                failureCallback();
+            } else {
+                showErrorToast('権限の確認に失敗しました');
+                redirectToLoginScreen();
+            }
+        })
+        .hasRole(requiredRole);
+}
+
+/**
+ * 権限チェック後にログイン画面へリダイレクト
+ */
+function redirectToLoginScreen() {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
+    
+    const loginScreen = document.getElementById('login-screen');
+    if (loginScreen) {
+        loginScreen.style.display = 'block';
+    }
+}
+
+/**
+ * 権限がない場合に命名画面へリダイレクト
+ */
+function redirectToNamingScreen() {
+    const screens = document.querySelectorAll('.screen');
+    screens.forEach(screen => {
+        screen.style.display = 'none';
+    });
+    
+    const namingScreen = document.getElementById('naming-screen');
+    if (namingScreen) {
+        namingScreen.style.display = 'block';
+    }
+    
+    // ナビゲーションリンクを更新
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => link.classList.remove('active'));
+    
+    const namingLink = document.querySelector('[data-screen="naming-screen"]');
+    if (namingLink) {
+        namingLink.classList.add('active');
+    }
+}
+
+/**
+ * ログイン済みかチェックして、未ログインの場合はログイン画面へリダイレクト
+ * @param {function} callback ログイン済みの場合のコールバック
+ */
+function requireLogin(callback) {
+    google.script.run
+        .withSuccessHandler((currentUser) => {
+            if (currentUser) {
+                // ログイン済み
+                if (typeof callback === 'function') {
+                    callback(currentUser);
+                }
+            } else {
+                // 未ログイン
+                redirectToLoginScreen();
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('ログイン状態確認エラー:', error);
+            redirectToLoginScreen();
+        })
+        .getCurrentUser();
+}

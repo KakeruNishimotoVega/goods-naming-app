@@ -1,0 +1,73 @@
+<!-- ログイン画面のテンプレート -->
+<div id="login-screen" class="screen">
+    <div class="login-container">
+        <!-- ロゴ・タイトルエリア -->
+        <div class="login-header">
+            <h1>LOWYA商品命名アプリ</h1>
+            <p class="helper-text">メールアドレスとパスワードでログインしてください</p>
+        </div>
+
+        <!-- ログインカード -->
+        <div class="login-card form-card">
+            <!-- ログインフォーム -->
+            <form id="login-form" onsubmit="return false;">
+                <div class="form-group">
+                    <label for="login-email">メールアドレス</label>
+                    <input 
+                        type="email" 
+                        id="login-email" 
+                        class="form-control" 
+                        placeholder="example@email.com"
+                        required
+                        autocomplete="email"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="login-password">パスワード</label>
+                    <input 
+                        type="password" 
+                        id="login-password" 
+                        class="form-control" 
+                        placeholder="8文字以上の英数字"
+                        required
+                        autocomplete="current-password"
+                        minlength="8"
+                    />
+                </div>
+
+                <button type="submit" id="login-btn" class="btn primary btn-block">
+                    ログイン
+                </button>
+            </form>
+
+            <!-- サインアップリンク -->
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <p class="helper-text">
+                    アカウントをお持ちでない方は
+                    <a href="#" id="go-to-signup" style="color: var(--primary-color); text-decoration: underline; font-weight: 600;">
+                        新規登録
+                    </a>
+                </p>
+            </div>
+
+            <!-- エラーメッセージ表示エリア -->
+            <div id="login-error-message" class="error-message" style="display: none; margin-top: 1rem;">
+                <!-- エラーメッセージがここに表示される -->
+            </div>
+
+            <!-- ローディング表示 -->
+            <div id="login-loading" style="display: none; text-align: center; margin-top: 1rem;">
+                <div class="spinner"></div>
+                <p class="helper-text" style="margin-top: 0.5rem;">ログイン処理中...</p>
+            </div>
+        </div>
+
+        <!-- フッター -->
+        <div class="login-footer">
+            <p class="helper-text" style="text-align: center; font-size: 0.75rem; color: var(--text-muted);">
+                © 2026 LOWYA 商品命名アプリ
+            </p>
+        </div>
+    </div>
+</div>

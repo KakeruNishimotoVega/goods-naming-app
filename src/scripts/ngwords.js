@@ -7,14 +7,22 @@
 function initNgWordsScreen() {
     console.log('Initializing NG words screen...');
 
-    // NGワード一覧を読み込む
-    loadNgWords();
+    // 管理者権限チェック
+    checkRole('admin', () => {
+        // 権限あり：最新データを読み込む
+        loadNgWords();
 
-    // 追加ボタンのイベント
-    const addBtn = document.getElementById('add-ngword-btn');
-    if (addBtn) {
-        addBtn.addEventListener('click', onAddNgWord);
-    }
+        // 追加ボタンのイベント（初回のみ設定）
+        const addBtn = document.getElementById('add-ngword-btn');
+        if (addBtn && !addBtn.dataset.listenerAdded) {
+            addBtn.addEventListener('click', onAddNgWord);
+            addBtn.dataset.listenerAdded = 'true';
+        }
+    }, () => {
+        // 権限なし：命名画面へリダイレクト
+        showErrorToast('この画面にアクセスする権限がありません（管理者のみ）');
+        redirectToNamingScreen();
+    });
 }
 
 /**
@@ -190,7 +198,5 @@ async function deleteNgWordApi(id) {
     }
 }
 
-// 初期化
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', initNgWordsScreen);
-}
+// 注意: initNgWordsScreen()は自動的に呼ばれません
+// app.jsのshowScreen()で画面表示時に呼ばれます

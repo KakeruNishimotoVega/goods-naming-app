@@ -11,11 +11,17 @@
     <nav class="navbar">
         <div class="container">
             <h1 class="navbar-brand">LOWYA商品命名アプリ</h1>
-            <ul class="navbar-menu">
-                <li><a href="#" data-screen="naming-screen" class="nav-link active">命名</a></li>
-                <li><a href="#" data-screen="settings-screen" class="nav-link">ルール設定</a></li>
-                <li><a href="#" data-screen="ngwords-screen" class="nav-link">NGワード</a></li>
-            </ul>
+            <div style="display: flex; align-items: center; gap: 2rem;">
+                <ul class="navbar-menu">
+                    <li><a href="#" data-screen="naming-screen" class="nav-link active">命名</a></li>
+                    <li><a href="#" data-screen="settings-screen" class="nav-link">ルール設定</a></li>
+                    <li><a href="#" data-screen="ngwords-screen" class="nav-link">NGワード</a></li>
+                </ul>
+                <!-- ユーザー情報表示エリア -->
+                <div id="user-display-area" class="user-display">
+                    <!-- auth.jsのupdateUserDisplay()で動的に更新される -->
+                </div>
+            </div>
         </div>
     </nav>
 

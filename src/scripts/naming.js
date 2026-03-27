@@ -8,11 +8,21 @@ let selectedParentId = null; // 選択中の親カテゴリID
 let selectedCategoryId = null; // 選択中の子カテゴリID
 let currentSchema = null; // 現在のスキーマキャッシュ
 
+// 初期化フラグ（二重初期化を防ぐ）
+let isNamingScreenInitialized = false;
+
 /**
  * 命名画面の初期化
  */
 function initNamingScreen() {
+    // 二重初期化を防ぐ
+    if (isNamingScreenInitialized) {
+        console.log('Naming screen already initialized, skipping...');
+        return;
+    }
+    
     console.log('Initializing naming screen...');
+    isNamingScreenInitialized = true;
 
     // カテゴリの読み込み
     loadCategories();
@@ -880,7 +890,5 @@ function onResetForm() {
     showToast('フォームをリセットしました');
 }
 
-// 初期化
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', initNamingScreen);
-}
+// 注意: initNamingScreen()は自動的に呼ばれません
+// app.jsのcheckLoginAndShowInitialScreen()で初回表示されます

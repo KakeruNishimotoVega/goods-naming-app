@@ -197,3 +197,73 @@ function chunk<T>(array: T[], size: number): T[][] {
 function deepCopy<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
+
+// ==================== パスワードハッシュ化ユーティリティ ====================
+
+/**
+ * ランダムなsaltを生成
+ * @returns 16進数文字列のsalt（64文字）
+ */
+export function generateSalt(): string {
+  // 256ビット（32バイト）のランダムデータを生成
+  const randomBytes = Utilities.getUuid().replace(/-/g, '') + Utilities.getUuid().replace(/-/g, '');
+  return randomBytes.substring(0, 64);
+}
+
+/**
+ * パスワードをSHA-256でハッシュ化
+ * @param password 平文パスワード
+ * @param salt ソルト
+ * @returns ハッシュ化されたパスワード（16進数文字列）
+ */
+export function hashPassword(password: string, salt: string): string {
+  const combined = password + salt;
+  const digest = Utilities.computeDigest(
+    Utilities.DigestAlgorithm.SHA_256,
+    combined,
+    Utilities.Charset.UTF_8
+  );
+  
+  // Byte配列を16進数文字列に変換
+  return digest
+    .map(byte => {
+      // バイトを16進数に変換（負の値を正の値に変換）
+      const hex = (byte < 0 ? byte + 256 : byte).toString(16);
+      // 1桁の場合は先頭に0を追加
+      return hex.length === 1 ? '0' + hex : hex;
+    })
+    .join('');
+}
+
+/**
+ * パスワードを検証
+ * @param password 検証する平文パスワード
+ * @param salt 保存されたソルト
+ * @param storedHash 保存されたハッシュ
+ * @returns パスワードが一致する場合true
+ */
+export function verifyPassword(password: string, salt: string, storedHash: string): boolean {
+  const hash = hashPassword(password, salt);
+  return hash === storedHash;
+}
+
+/**
+ * パスワードの強度を検証
+ * @param password チェック対象のパスワード
+ * @returns バリデーションエラー（エラーがない場合はnull）
+ */
+export function validatePasswordStrength(password: string): string | null {
+  if (!password || password.length < 8) {
+    return 'パスワードは8文字以上で入力してください';
+  }
+  
+  // 英数字が含まれているかチェック
+  const hasLetter = /[a-zA-Z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  
+  if (!hasLetter || !hasNumber) {
+    return 'パスワードは英字と数字の両方を含む必要があります';
+  }
+  
+  return null;
+}

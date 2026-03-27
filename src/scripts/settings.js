@@ -13,8 +13,15 @@ let settingsSelectedCategoryId = null; // 選択中の子カテゴリID
 function initSettingsScreen() {
     console.log('Initializing settings screen...');
 
-    // カテゴリの読み込み
-    loadSettingsCategories();
+    // 管理者権限チェック
+    checkRole('admin', () => {
+        // 権限あり：最新データを読み込む
+        loadSettingsCategories();
+    }, () => {
+        // 権限なし：命名画面へリダイレクト
+        showErrorToast('この画面にアクセスする権限がありません（管理者のみ）');
+        redirectToNamingScreen();
+    });
 }
 
 /**
@@ -1115,7 +1122,5 @@ async function saveKeywordOrder(typeId, tbody) {
     }
 }
 
-// 初期化
-if (typeof document !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', initSettingsScreen);
-}
+// 注意: initSettingsScreen()は自動的に呼ばれません
+// app.jsのshowScreen()で画面表示時に呼ばれます

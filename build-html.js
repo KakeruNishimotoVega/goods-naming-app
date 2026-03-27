@@ -50,6 +50,8 @@ const css = cssFiles
 // 2. HTML テンプレートを結合
 console.log('Combining HTML templates...');
 const templateFiles = [
+    'src/views/login.html',
+    'src/views/signup.html',
     'src/views/naming.html',
     'src/views/settings.html',
     'src/views/ngwords.html'
@@ -68,6 +70,7 @@ console.log('Combining JavaScript files...');
 const scriptFiles = [
     'src/scripts/utils.js',
     'src/scripts/app.js',
+    'src/scripts/auth.js',
     'src/scripts/naming.js',
     'src/scripts/settings.js',
     'src/scripts/ngwords.js'

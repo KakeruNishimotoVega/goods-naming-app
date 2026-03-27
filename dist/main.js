@@ -967,6 +967,520 @@ var global = this;
     };
   }
 
+  // src/api/auth.ts
+  function loginWithPassword(email, password) {
+    Logger.log(`[loginWithPassword] email=${email}`);
+    if (!email || !password) {
+      return { error: "\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u3068\u30D1\u30B9\u30EF\u30FC\u30C9\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044" };
+    }
+    try {
+      const props = PropertiesService.getScriptProperties();
+      const supabaseUrl = props.getProperty("SUPABASE_URL");
+      const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+      if (!supabaseUrl || !supabaseKey) {
+        Logger.log("[loginWithPassword] \u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+        return { error: "\u30B7\u30B9\u30C6\u30E0\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F" };
+      }
+      const endpoint = `${supabaseUrl}/rest/v1/app_users?email=eq.${encodeURIComponent(email)}&limit=1`;
+      const options = {
+        method: "get",
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json"
+        },
+        muteHttpExceptions: true
+      };
+      const response = UrlFetchApp.fetch(endpoint, options);
+      if (response.getResponseCode() !== 200) {
+        Logger.log(`[loginWithPassword] DB\u691C\u7D22\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+        return { error: "\u30B7\u30B9\u30C6\u30E0\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F" };
+      }
+      const users = JSON.parse(response.getContentText());
+      if (users.length === 0) {
+        Logger.log("[loginWithPassword] \u30E6\u30FC\u30B6\u30FC\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093");
+        return { error: "\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u307E\u305F\u306F\u30D1\u30B9\u30EF\u30FC\u30C9\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093" };
+      }
+      const user = users[0];
+      if (!user.password_hash || !user.salt) {
+        Logger.log("[loginWithPassword] \u30D1\u30B9\u30EF\u30FC\u30C9\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+        return { error: "\u30D1\u30B9\u30EF\u30FC\u30C9\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093\u3002\u7BA1\u7406\u8005\u306B\u9023\u7D61\u3057\u3066\u304F\u3060\u3055\u3044\u3002" };
+      }
+      const isValid = verifyPassword(password, user.salt, user.password_hash);
+      if (!isValid) {
+        Logger.log("[loginWithPassword] \u30D1\u30B9\u30EF\u30FC\u30C9\u304C\u4E00\u81F4\u3057\u307E\u305B\u3093");
+        return { error: "\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u307E\u305F\u306F\u30D1\u30B9\u30EF\u30FC\u30C9\u304C\u6B63\u3057\u304F\u3042\u308A\u307E\u305B\u3093" };
+      }
+      createSession(user);
+      Logger.log("[loginWithPassword] \u30ED\u30B0\u30A4\u30F3\u6210\u529F");
+      const { password_hash, salt, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    } catch (error) {
+      Logger.log(`[loginWithPassword] \u30A8\u30E9\u30FC: ${error}`);
+      return { error: "\u30ED\u30B0\u30A4\u30F3\u51E6\u7406\u4E2D\u306B\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F" };
+    }
+  }
+  function getCurrentUser() {
+    const cache = CacheService.getUserCache();
+    const sessionData = cache.get("user_session");
+    Logger.log(`[getCurrentUser] \u30BB\u30C3\u30B7\u30E7\u30F3\u30C7\u30FC\u30BF: ${sessionData}`);
+    if (!sessionData) {
+      Logger.log("[getCurrentUser] \u30BB\u30C3\u30B7\u30E7\u30F3\u30C7\u30FC\u30BF\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093");
+      return null;
+    }
+    try {
+      const parsed = JSON.parse(sessionData);
+      Logger.log(`[getCurrentUser] \u30D1\u30FC\u30B9\u6E08\u307F\u30C7\u30FC\u30BF: ${JSON.stringify(parsed)}`);
+      return parsed;
+    } catch (error) {
+      Logger.log(`\u30BB\u30C3\u30B7\u30E7\u30F3\u30C7\u30FC\u30BF\u306E\u30D1\u30FC\u30B9\u30A8\u30E9\u30FC: ${error}`);
+      return null;
+    }
+  }
+  function createSession(user) {
+    Logger.log(`[createSession] \u30E6\u30FC\u30B6\u30FC: ${JSON.stringify(user)}`);
+    const sessionData = {
+      userId: user.id,
+      email: user.email,
+      userName: user.user_name,
+      role: user.role
+    };
+    Logger.log(`[createSession] \u30BB\u30C3\u30B7\u30E7\u30F3\u30C7\u30FC\u30BF: ${JSON.stringify(sessionData)}`);
+    const cache = CacheService.getUserCache();
+    cache.put("user_session", JSON.stringify(sessionData), 21600);
+    Logger.log("[createSession] \u30BB\u30C3\u30B7\u30E7\u30F3\u3092\u4FDD\u5B58\u3057\u307E\u3057\u305F");
+  }
+  function logout() {
+    const cache = CacheService.getUserCache();
+    cache.remove("user_session");
+    Logger.log("[logout] \u30BB\u30C3\u30B7\u30E7\u30F3\u3092\u524A\u9664\u3057\u307E\u3057\u305F");
+  }
+  function hasRole(requiredRole) {
+    Logger.log(`[hasRole] \u30C1\u30A7\u30C3\u30AF\u4E2D... requiredRole=${requiredRole}`);
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      Logger.log("[hasRole] \u672A\u30ED\u30B0\u30A4\u30F3\uFF1Afalse\u3092\u8FD4\u3057\u307E\u3059");
+      return false;
+    }
+    Logger.log(`[hasRole] \u73FE\u5728\u306E\u30E6\u30FC\u30B6\u30FC: role=${currentUser.role}, email=${currentUser.email}`);
+    if (currentUser.role === "admin") {
+      Logger.log(`[hasRole] admin\u30E6\u30FC\u30B6\u30FC\u306A\u306E\u3067true\u3092\u8FD4\u3057\u307E\u3059`);
+      return true;
+    }
+    const result = requiredRole === "user";
+    Logger.log(`[hasRole] user\u30ED\u30FC\u30EB: requiredRole=${requiredRole}, result=${result}`);
+    return result;
+  }
+
+  // src/api/users.ts
+  function registerUser(email, password, userName) {
+    if (!email || !password || !userName) {
+      return { error: "\u3059\u3079\u3066\u306E\u9805\u76EE\u3092\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044" };
+    }
+    const passwordError = validatePasswordStrength(password);
+    if (passwordError) {
+      return { error: passwordError };
+    }
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      return { error: "\u30B7\u30B9\u30C6\u30E0\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F" };
+    }
+    try {
+      const salt = generateSalt();
+      const passwordHash = hashPassword(password, salt);
+      const endpoint = `${supabaseUrl}/rest/v1/app_users`;
+      const payload = {
+        email,
+        user_name: userName,
+        role: "user",
+        // デフォルトはuserロール
+        password_hash: passwordHash,
+        salt
+      };
+      const options = {
+        method: "post",
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json",
+          "Prefer": "return=representation"
+          // 挿入したデータを返す
+        },
+        payload: JSON.stringify(payload),
+        muteHttpExceptions: true
+      };
+      const response = UrlFetchApp.fetch(endpoint, options);
+      if (response.getResponseCode() !== 201) {
+        const errorText = response.getContentText();
+        if (errorText.includes("duplicate key") || errorText.includes("unique constraint")) {
+          return { error: "\u3053\u306E\u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9\u306F\u65E2\u306B\u767B\u9332\u3055\u308C\u3066\u3044\u307E\u3059" };
+        }
+        Logger.log(`\u30E6\u30FC\u30B6\u30FC\u767B\u9332\u30A8\u30E9\u30FC: ${errorText}`);
+        return { error: "\u30E6\u30FC\u30B6\u30FC\u767B\u9332\u306B\u5931\u6557\u3057\u307E\u3057\u305F" };
+      }
+      const users = JSON.parse(response.getContentText());
+      const user = users[0];
+      const { password_hash, salt: userSalt, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    } catch (error) {
+      Logger.log(`\u30E6\u30FC\u30B6\u30FC\u767B\u9332\u30A8\u30E9\u30FC: ${error}`);
+      return { error: "\u30E6\u30FC\u30B6\u30FC\u767B\u9332\u4E2D\u306B\u30A8\u30E9\u30FC\u304C\u767A\u751F\u3057\u307E\u3057\u305F" };
+    }
+  }
+  function getUserByEmail(email) {
+    if (!email) {
+      throw new Error("email\u306F\u5FC5\u9808\u3067\u3059");
+    }
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+    }
+    const endpoint = `${supabaseUrl}/rest/v1/app_users?email=eq.${encodeURIComponent(email)}&limit=1`;
+    const options = {
+      method: "get",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json"
+      },
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() !== 200) {
+      throw new Error(`\u30E6\u30FC\u30B6\u30FC\u691C\u7D22\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+    }
+    const users = JSON.parse(response.getContentText());
+    return users.length > 0 ? users[0] : null;
+  }
+  function getUserById(userId) {
+    if (!userId) {
+      throw new Error("userId\u306F\u5FC5\u9808\u3067\u3059");
+    }
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+    }
+    const endpoint = `${supabaseUrl}/rest/v1/app_users?id=eq.${userId}&limit=1`;
+    const options = {
+      method: "get",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json"
+      },
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() !== 200) {
+      throw new Error(`\u30E6\u30FC\u30B6\u30FC\u691C\u7D22\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+    }
+    const users = JSON.parse(response.getContentText());
+    return users.length > 0 ? users[0] : null;
+  }
+  function updateUserRole(userId, newRole) {
+    if (!userId || !newRole) {
+      throw new Error("userId\u3068newRole\u306F\u5FC5\u9808\u3067\u3059");
+    }
+    if (newRole !== "admin" && newRole !== "user") {
+      throw new Error('role\u306F"admin"\u307E\u305F\u306F"user"\u3067\u3042\u308B\u5FC5\u8981\u304C\u3042\u308A\u307E\u3059');
+    }
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+    }
+    const endpoint = `${supabaseUrl}/rest/v1/app_users?id=eq.${userId}`;
+    const payload = {
+      role: newRole
+    };
+    const options = {
+      method: "patch",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() !== 200) {
+      throw new Error(`\u30ED\u30FC\u30EB\u66F4\u65B0\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+    }
+    const users = JSON.parse(response.getContentText());
+    if (users.length === 0) {
+      throw new Error("\u30E6\u30FC\u30B6\u30FC\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3067\u3057\u305F");
+    }
+    return users[0];
+  }
+  function updateUserName(userId, newUserName) {
+    if (!userId || !newUserName) {
+      throw new Error("userId\u3068newUserName\u306F\u5FC5\u9808\u3067\u3059");
+    }
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+    }
+    const endpoint = `${supabaseUrl}/rest/v1/app_users?id=eq.${userId}`;
+    const payload = {
+      user_name: newUserName
+    };
+    const options = {
+      method: "patch",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+      },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() !== 200) {
+      throw new Error(`\u30E6\u30FC\u30B6\u30FC\u540D\u66F4\u65B0\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+    }
+    const users = JSON.parse(response.getContentText());
+    if (users.length === 0) {
+      throw new Error("\u30E6\u30FC\u30B6\u30FC\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093\u3067\u3057\u305F");
+    }
+    return users[0];
+  }
+  function listUsers() {
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+    }
+    const endpoint = `${supabaseUrl}/rest/v1/app_users?select=*&order=created_at.desc`;
+    const options = {
+      method: "get",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json"
+      },
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() !== 200) {
+      throw new Error(`\u30E6\u30FC\u30B6\u30FC\u4E00\u89A7\u53D6\u5F97\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+    }
+    return JSON.parse(response.getContentText());
+  }
+  function deleteUser(userId) {
+    if (!userId) {
+      throw new Error("userId\u306F\u5FC5\u9808\u3067\u3059");
+    }
+    const props = PropertiesService.getScriptProperties();
+    const supabaseUrl = props.getProperty("SUPABASE_URL");
+    const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error("\u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+    }
+    const endpoint = `${supabaseUrl}/rest/v1/app_users?id=eq.${userId}`;
+    const options = {
+      method: "delete",
+      headers: {
+        "apikey": supabaseKey,
+        "Authorization": `Bearer ${supabaseKey}`,
+        "Content-Type": "application/json"
+      },
+      muteHttpExceptions: true
+    };
+    const response = UrlFetchApp.fetch(endpoint, options);
+    if (response.getResponseCode() !== 204 && response.getResponseCode() !== 200) {
+      throw new Error(`\u30E6\u30FC\u30B6\u30FC\u524A\u9664\u30A8\u30E9\u30FC: ${response.getContentText()}`);
+    }
+  }
+
+  // src/lib/utils.ts
+  function generateSalt2() {
+    const randomBytes = Utilities.getUuid().replace(/-/g, "") + Utilities.getUuid().replace(/-/g, "");
+    return randomBytes.substring(0, 64);
+  }
+  function hashPassword2(password, salt) {
+    const combined = password + salt;
+    const digest = Utilities.computeDigest(
+      Utilities.DigestAlgorithm.SHA_256,
+      combined,
+      Utilities.Charset.UTF_8
+    );
+    return digest.map((byte) => {
+      const hex = (byte < 0 ? byte + 256 : byte).toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    }).join("");
+  }
+  function verifyPassword2(password, salt, storedHash) {
+    const hash = hashPassword2(password, salt);
+    return hash === storedHash;
+  }
+  function validatePasswordStrength2(password) {
+    if (!password || password.length < 8) {
+      return "\u30D1\u30B9\u30EF\u30FC\u30C9\u306F8\u6587\u5B57\u4EE5\u4E0A\u3067\u5165\u529B\u3057\u3066\u304F\u3060\u3055\u3044";
+    }
+    const hasLetter = /[a-zA-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    if (!hasLetter || !hasNumber) {
+      return "\u30D1\u30B9\u30EF\u30FC\u30C9\u306F\u82F1\u5B57\u3068\u6570\u5B57\u306E\u4E21\u65B9\u3092\u542B\u3080\u5FC5\u8981\u304C\u3042\u308A\u307E\u3059";
+    }
+    return null;
+  }
+
+  // src/scripts/setAdminPassword.ts
+  function setAdminPassword() {
+    const email = "nishimoto.kakeru@vega-c.com";
+    const password = "YOUR_PASSWORD_HERE";
+    if (password === "YOUR_PASSWORD_HERE") {
+      Logger.log("\u30A8\u30E9\u30FC: \u30D1\u30B9\u30EF\u30FC\u30C9\u3092\u8A2D\u5B9A\u3057\u3066\u304F\u3060\u3055\u3044");
+      Logger.log("\u30B9\u30AF\u30EA\u30D7\u30C8\u3092\u7DE8\u96C6\u3057\u3066\u3001password\u3092\u5B9F\u969B\u306E\u5024\u306B\u5909\u66F4\u3057\u3066\u304F\u3060\u3055\u3044");
+      return;
+    }
+    Logger.log(`[setAdminPassword] \u30E1\u30FC\u30EB: ${email}`);
+    const passwordError = validatePasswordStrength(password);
+    if (passwordError) {
+      Logger.log(`\u30A8\u30E9\u30FC: ${passwordError}`);
+      return;
+    }
+    try {
+      const props = PropertiesService.getScriptProperties();
+      const supabaseUrl = props.getProperty("SUPABASE_URL");
+      const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+      if (!supabaseUrl || !supabaseKey) {
+        Logger.log("\u30A8\u30E9\u30FC: \u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+        return;
+      }
+      const getUserEndpoint = `${supabaseUrl}/rest/v1/app_users?email=eq.${encodeURIComponent(email)}&limit=1`;
+      const getUserOptions = {
+        method: "get",
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json"
+        },
+        muteHttpExceptions: true
+      };
+      const getUserResponse = UrlFetchApp.fetch(getUserEndpoint, getUserOptions);
+      if (getUserResponse.getResponseCode() !== 200) {
+        Logger.log(`\u30A8\u30E9\u30FC: \u30E6\u30FC\u30B6\u30FC\u691C\u7D22\u306B\u5931\u6557\u3057\u307E\u3057\u305F - ${getUserResponse.getContentText()}`);
+        return;
+      }
+      const users = JSON.parse(getUserResponse.getContentText());
+      if (users.length === 0) {
+        Logger.log(`\u30A8\u30E9\u30FC: \u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 ${email} \u306E\u30E6\u30FC\u30B6\u30FC\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093`);
+        return;
+      }
+      const user = users[0];
+      Logger.log(`\u30E6\u30FC\u30B6\u30FC\u304C\u898B\u3064\u304B\u308A\u307E\u3057\u305F: ${user.user_name} (${user.email}), role=${user.role}`);
+      const salt = generateSalt();
+      const passwordHash = hashPassword(password, salt);
+      const updateEndpoint = `${supabaseUrl}/rest/v1/app_users?id=eq.${user.id}`;
+      const updatePayload = {
+        password_hash: passwordHash,
+        salt
+      };
+      const updateOptions = {
+        method: "patch",
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json"
+        },
+        payload: JSON.stringify(updatePayload),
+        muteHttpExceptions: true
+      };
+      const updateResponse = UrlFetchApp.fetch(updateEndpoint, updateOptions);
+      if (updateResponse.getResponseCode() !== 204) {
+        Logger.log(`\u30A8\u30E9\u30FC: \u30D1\u30B9\u30EF\u30FC\u30C9\u66F4\u65B0\u306B\u5931\u6557\u3057\u307E\u3057\u305F - ${updateResponse.getContentText()}`);
+        return;
+      }
+      Logger.log("\u2705 \u30D1\u30B9\u30EF\u30FC\u30C9\u3092\u6B63\u5E38\u306B\u8A2D\u5B9A\u3057\u307E\u3057\u305F");
+      Logger.log("\u3053\u306E\u30D1\u30B9\u30EF\u30FC\u30C9\u3067\u30ED\u30B0\u30A4\u30F3\u3067\u304D\u307E\u3059");
+    } catch (error) {
+      Logger.log(`\u30A8\u30E9\u30FC: ${error}`);
+    }
+  }
+  function setUserPassword(email, newPassword) {
+    if (!email || !newPassword) {
+      Logger.log("\u30A8\u30E9\u30FC: email\u3068newPassword\u306F\u5FC5\u9808\u3067\u3059");
+      return;
+    }
+    Logger.log(`[setUserPassword] \u30E1\u30FC\u30EB: ${email}`);
+    const passwordError = validatePasswordStrength(newPassword);
+    if (passwordError) {
+      Logger.log(`\u30A8\u30E9\u30FC: ${passwordError}`);
+      return;
+    }
+    try {
+      const props = PropertiesService.getScriptProperties();
+      const supabaseUrl = props.getProperty("SUPABASE_URL");
+      const supabaseKey = props.getProperty("SUPABASE_SERVICE_ROLE_KEY");
+      if (!supabaseUrl || !supabaseKey) {
+        Logger.log("\u30A8\u30E9\u30FC: \u74B0\u5883\u5909\u6570\u304C\u8A2D\u5B9A\u3055\u308C\u3066\u3044\u307E\u305B\u3093");
+        return;
+      }
+      const getUserEndpoint = `${supabaseUrl}/rest/v1/app_users?email=eq.${encodeURIComponent(email)}&limit=1`;
+      const getUserOptions = {
+        method: "get",
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json"
+        },
+        muteHttpExceptions: true
+      };
+      const getUserResponse = UrlFetchApp.fetch(getUserEndpoint, getUserOptions);
+      if (getUserResponse.getResponseCode() !== 200) {
+        Logger.log(`\u30A8\u30E9\u30FC: \u30E6\u30FC\u30B6\u30FC\u691C\u7D22\u306B\u5931\u6557\u3057\u307E\u3057\u305F - ${getUserResponse.getContentText()}`);
+        return;
+      }
+      const users = JSON.parse(getUserResponse.getContentText());
+      if (users.length === 0) {
+        Logger.log(`\u30A8\u30E9\u30FC: \u30E1\u30FC\u30EB\u30A2\u30C9\u30EC\u30B9 ${email} \u306E\u30E6\u30FC\u30B6\u30FC\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093`);
+        return;
+      }
+      const user = users[0];
+      Logger.log(`\u30E6\u30FC\u30B6\u30FC\u304C\u898B\u3064\u304B\u308A\u307E\u3057\u305F: ${user.user_name} (${user.email}), role=${user.role}`);
+      const salt = generateSalt();
+      const passwordHash = hashPassword(newPassword, salt);
+      const updateEndpoint = `${supabaseUrl}/rest/v1/app_users?id=eq.${user.id}`;
+      const updatePayload = {
+        password_hash: passwordHash,
+        salt
+      };
+      const updateOptions = {
+        method: "patch",
+        headers: {
+          "apikey": supabaseKey,
+          "Authorization": `Bearer ${supabaseKey}`,
+          "Content-Type": "application/json"
+        },
+        payload: JSON.stringify(updatePayload),
+        muteHttpExceptions: true
+      };
+      const updateResponse = UrlFetchApp.fetch(updateEndpoint, updateOptions);
+      if (updateResponse.getResponseCode() !== 204) {
+        Logger.log(`\u30A8\u30E9\u30FC: \u30D1\u30B9\u30EF\u30FC\u30C9\u66F4\u65B0\u306B\u5931\u6557\u3057\u307E\u3057\u305F - ${updateResponse.getContentText()}`);
+        return;
+      }
+      Logger.log("\u2705 \u30D1\u30B9\u30EF\u30FC\u30C9\u3092\u6B63\u5E38\u306B\u8A2D\u5B9A\u3057\u307E\u3057\u305F");
+      Logger.log(`${user.user_name} (${user.email}) \u306E\u30D1\u30B9\u30EF\u30FC\u30C9\u3092\u66F4\u65B0\u3057\u307E\u3057\u305F`);
+    } catch (error) {
+      Logger.log(`\u30A8\u30E9\u30FC: ${error}`);
+    }
+  }
+
   // src/index.ts
   var doGet = (e) => {
     return HtmlService.createHtmlOutputFromFile("index").setTitle("LOWYA\u5546\u54C1\u547D\u540D\u30A2\u30D7\u30EA").addMetaTag("viewport", "width=device-width, initial-scale=1");
@@ -1022,6 +1536,24 @@ var global = this;
   global.deleteNgWord = deleteNgWord;
   global.generateNames = generateNames;
   global.generateNamesMinimal = generateNamesMinimal;
+  global.loginWithPassword = loginWithPassword;
+  global.getCurrentUser = getCurrentUser;
+  global.createSession = createSession;
+  global.logout = logout;
+  global.hasRole = hasRole;
+  global.registerUser = registerUser;
+  global.getUserByEmail = getUserByEmail;
+  global.getUserById = getUserById;
+  global.updateUserRole = updateUserRole;
+  global.updateUserName = updateUserName;
+  global.listUsers = listUsers;
+  global.deleteUser = deleteUser;
+  global.setAdminPassword = setAdminPassword;
+  global.setUserPassword = setUserPassword;
+  global.generateSalt = generateSalt2;
+  global.hashPassword = hashPassword2;
+  global.verifyPassword = verifyPassword2;
+  global.validatePasswordStrength = validatePasswordStrength2;
 })();
 
 function doGet() { return global.doGet.apply(this, arguments); }
@@ -1045,3 +1577,21 @@ function updateNgWord() { return global.updateNgWord.apply(this, arguments); }
 function deleteNgWord() { return global.deleteNgWord.apply(this, arguments); }
 function generateNames() { return global.generateNames.apply(this, arguments); }
 function generateNamesMinimal() { return global.generateNamesMinimal.apply(this, arguments); }
+function loginWithPassword() { return global.loginWithPassword.apply(this, arguments); }
+function getCurrentUser() { return global.getCurrentUser.apply(this, arguments); }
+function createSession() { return global.createSession.apply(this, arguments); }
+function logout() { return global.logout.apply(this, arguments); }
+function hasRole() { return global.hasRole.apply(this, arguments); }
+function registerUser() { return global.registerUser.apply(this, arguments); }
+function getUserByEmail() { return global.getUserByEmail.apply(this, arguments); }
+function getUserById() { return global.getUserById.apply(this, arguments); }
+function updateUserRole() { return global.updateUserRole.apply(this, arguments); }
+function updateUserName() { return global.updateUserName.apply(this, arguments); }
+function listUsers() { return global.listUsers.apply(this, arguments); }
+function deleteUser() { return global.deleteUser.apply(this, arguments); }
+function setAdminPassword() { return global.setAdminPassword.apply(this, arguments); }
+function setUserPassword() { return global.setUserPassword.apply(this, arguments); }
+function generateSalt() { return global.generateSalt.apply(this, arguments); }
+function hashPassword() { return global.hashPassword.apply(this, arguments); }
+function verifyPassword() { return global.verifyPassword.apply(this, arguments); }
+function validatePasswordStrength() { return global.validatePasswordStrength.apply(this, arguments); }
