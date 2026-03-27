@@ -7,26 +7,28 @@
     <!-- CSS_PLACEHOLDER -->
 </head>
 <body>
-    <!-- ナビゲーション -->
-    <nav class="navbar">
-        <div class="container">
-            <h1 class="navbar-brand">LOWYA商品命名アプリ</h1>
-            <div style="display: flex; align-items: center; gap: 2rem;">
-                <ul class="navbar-menu">
-                    <li><a href="#" data-screen="naming-screen" class="nav-link active">命名</a></li>
-                    <li><a href="#" data-screen="settings-screen" class="nav-link">ルール設定</a></li>
-                    <li><a href="#" data-screen="ngwords-screen" class="nav-link">NGワード</a></li>
-                    <li><a href="#" data-screen="management-screen" class="nav-link">ユーザー管理</a></li>
-                </ul>
-                <!-- ユーザー情報表示エリア -->
-                <div id="user-display-area" class="user-display">
-                    <!-- auth.jsのupdateUserDisplay()で動的に更新される -->
-                </div>
+    <!-- サイドメニュー（ナビゲーション）: デフォルト非表示 -->
+    <aside class="sidebar" id="sidebar" style="display: none;">
+        <div class="sidebar-header">
+            <h1 class="navbar-brand">LOWYA<br>商品名<br>命名アプリ</h1>
+        </div>
+        <nav class="sidebar-menu">
+            <ul>
+                <li><a href="#" data-screen="naming-screen" class="nav-link active">命名</a></li>
+                <li><a href="#" data-screen="settings-screen" class="nav-link">ルール設定</a></li>
+                <li><a href="#" data-screen="ngwords-screen" class="nav-link">NGワード</a></li>
+                <li><a href="#" data-screen="management-screen" class="nav-link">ユーザー管理</a></li>
+            </ul>
+        </nav>
+        <!-- ユーザー情報表示エリア（サイドメニュー下部） -->
+        <div class="sidebar-footer">
+            <div id="user-display-area" class="user-display">
+                <!-- auth.jsのupdateUserDisplay()で動的に更新される -->
             </div>
         </div>
-    </nav>
+    </aside>
 
-    <div id="app" class="container mt-4">
+    <div id="app" class="container mt-4 with-sidebar">
         <!-- TEMPLATES_PLACEHOLDER -->
     </div>
     <!-- SCRIPTS_PLACEHOLDER -->

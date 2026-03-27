@@ -42,6 +42,13 @@ function checkLoginAndShowInitialScreen() {
                 // DOM を完全リセット（前ユーザーのデータを削除）
                 resetDOMState();
                 
+                // 【重要】サイドメニューを先に表示
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.style.display = 'flex';
+                    console.log('[checkLoginAndShowInitialScreen] サイドメニューを表示しました');
+                }
+                
                 updateUserDisplay();
                 
                 // 権限に基づいてタブを制御
@@ -81,14 +88,14 @@ function applyRoleBasedTabRestrictions() {
             console.log('[applyRoleBasedTabRestrictions] ユーザーロール:', role);
             
             if (role === 'user') {
-                // 一般ユーザーの場合、設定、NGワード、ユーザー管理タブを無効化
+                // 一般ユーザーの場合、設定、NGワード、ユーザー管理タブを無効化（グレーアウト）
                 const settingsTab = document.querySelector('.nav-link[data-screen="settings-screen"]');
                 const ngwordsTab = document.querySelector('.nav-link[data-screen="ngwords-screen"]');
                 const managementTab = document.querySelector('.nav-link[data-screen="management-screen"]');
                 
                 if (settingsTab) {
                     settingsTab.classList.add('disabled');
-                    console.log('[applyRoleBasedTabRestrictions] 設定タブを無効化しました');
+                    console.log('[applyRoleBasedTabRestrictions] ルール設定タブを無効化しました');
                 }
                 
                 if (ngwordsTab) {
@@ -101,11 +108,25 @@ function applyRoleBasedTabRestrictions() {
                     console.log('[applyRoleBasedTabRestrictions] ユーザー管理タブを無効化しました');
                 }
             }
+            
+            console.log('[applyRoleBasedTabRestrictions] 権限制御が完了しました');
         })
         .withFailureHandler((error) => {
             console.error('[applyRoleBasedTabRestrictions] 権限チェックエラー:', error);
         })
         .getUserRole();
+}
+
+/**
+ * 権限確認完了後にサイドメニューを表示
+ */
+function showSidebarAfterAuthCheck() {
+    console.log('[showSidebarAfterAuthCheck] サイドメニューを表示中...');
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.style.display = 'flex';
+        console.log('[showSidebarAfterAuthCheck] サイドメニュー表示完了');
+    }
 }
 
 /**
@@ -161,13 +182,16 @@ function showScreen(screenId) {
         targetScreen.style.display = 'block';
     }
 
-    // ナビゲーションの表示制御（ログイン・サインアップ画面では非表示）
-    const navbar = document.querySelector('.navbar');
-    if (navbar) {
+    // サイドメニューの表示制御（ログイン・サインアップ画面では非表示）
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
         if (screenId === 'login-screen' || screenId === 'signup-screen') {
-            navbar.style.display = 'none';
+            sidebar.style.display = 'none';
+            console.log('[showScreen] ログイン画面のためサイドメニューを非表示にしました');
         } else {
-            navbar.style.display = 'flex';
+            // ログイン後の画面では常にサイドメニューを表示
+            sidebar.style.display = 'flex';
+            console.log('[showScreen] サイドメニューを表示しました');
         }
     }
 

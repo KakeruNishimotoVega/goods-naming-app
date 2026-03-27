@@ -1,78 +1,129 @@
 /* コンポーネントスタイル - LOWYA商品命名アプリ */
 
-/* ナビゲーションバー */
-.navbar {
-    background-color: white;
-    border-bottom: 1px solid var(--border-color);
-    padding: 1rem 0;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+/* サイドメニュー */
+.sidebar {
     position: fixed;
-    top: 0;
     left: 0;
-    right: 0;
-    width: 100%;
+    top: 0;
+    width: 220px;
+    height: 100vh;
+    background-color: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
     z-index: 1000;
-    display: none;
-}
-
-.navbar .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 4rem;
-}
-
-.navbar-brand {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--primary-color);
+    flex-direction: column;
+    padding: 0;
     margin: 0;
+    overflow-y: auto;
 }
 
-.navbar-menu {
+.sidebar-header {
+    padding: 2rem 1.5rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    background-color: #f9fafb;
+}
+
+.sidebar-header .navbar-brand {
+    font-size: 1.125rem;
+    margin: 0;
+    color: var(--primary-color);
+    text-align: center;
+    line-height: 1.4;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.sidebar-menu {
     list-style: none;
-    display: flex;
-    gap: 2rem;
+    padding: 1rem 0;
+    margin: 0;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.sidebar-menu li {
     margin: 0;
     padding: 0;
 }
 
-.nav-link {
+.sidebar-menu .nav-link {
+    display: block;
+    padding: 1rem 1.5rem;
     text-decoration: none;
-    color: var(--text-muted);
+    color: #475569;
     font-weight: 500;
-    transition: all 0.2s;
-    padding: 0.6rem 1.25rem;
-    border-radius: var(--border-radius-md);
-    border: 2px solid transparent;
-    display: flex;
-    align-items: center;
-    height: 40px;
-    line-height: 1.2;
-    white-space: nowrap;
+    font-size: 0.9375rem;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 4px solid transparent;
+    border-radius: 0 8px 8px 0;
+    margin: 0.25rem 0.5rem 0.25rem 0;
+    white-space: normal;
+    height: auto;
+    line-height: 1.5;
+    position: relative;
 }
 
-.nav-link:hover:not(.disabled) {
-    color: var(--text-main);
+.sidebar-menu .nav-link:hover:not(.disabled) {
+    color: #1e293b;
     background-color: #f1f5f9;
-    border-color: #e2e8f0;
+    border-left-color: #cbd5e1;
 }
 
-.nav-link.active {
+.sidebar-menu .nav-link.active {
     color: var(--primary-color);
-    background-color: rgba(43, 139, 132, 0.15);
-    border-color: var(--primary-color);
+    background-color: rgba(43, 139, 132, 0.1);
+    border-left-color: var(--primary-color);
     font-weight: 600;
 }
 
-.nav-link.disabled {
+.sidebar-menu .nav-link.disabled {
     color: #cbd5e1;
     cursor: not-allowed;
-    opacity: 0.6;
     pointer-events: none;
+    opacity: 0.6;
+}
+
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+    flex-shrink: 0;
+    background-color: #f9fafb;
+}
+
+.sidebar-footer .user-display {
+    font-size: 0.8125rem;
+    color: #64748b;
+    text-align: center;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.sidebar-footer .user-name {
+    font-weight: 600;
+    display: block;
+    word-break: break-word;
+    color: #1e293b;
+}
+
+.sidebar-footer .btn {
+    width: 100%;
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+}
+
+/* 古いナビゲーション
+
+
+/* コンテナ */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
 }
 
 /* コンテナ */
@@ -83,7 +134,6 @@
 }
 
 .page-container {
-    margin-top: 70px;
     width: 900px;
     max-width: calc(100% - 4rem);
     margin-left: auto;

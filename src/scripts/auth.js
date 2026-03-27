@@ -326,6 +326,13 @@ function handleLogout() {
         .withSuccessHandler(() => {
             console.log('ログアウト成功');
             
+            // サイドメニューを非表示に
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.style.display = 'none';
+                console.log('[handleLogout] サイドメニュー非表示完了');
+            }
+            
             // アプリケーション全体の状態をリセット
             if (typeof resetAppState === 'function') {
                 resetAppState();
@@ -363,11 +370,11 @@ function updateUserDisplay() {
                 return;
             }
             
-            // ヘッダーのユーザー情報エリアを更新
+            // ユーザー情報エリアを更新（サイドメニュー下部）
             const userDisplayArea = document.getElementById('user-display-area');
             if (userDisplayArea) {
                 userDisplayArea.innerHTML = `
-                    <span class="user-name">${currentUser.userName}</span>
+                    <span class="user-name">${escapeHtml(currentUser.userName)}</span>
                     <button id="logout-btn" class="btn secondary btn-sm">ログアウト</button>
                 `;
                 
@@ -392,18 +399,39 @@ function updateUserDisplay() {
  * ロールに基づいてナビゲーションメニューを制御
  */
 function updateNavigationByRole(role) {
-    // settings と ngwords のリンクは admin のみ表示
+    // admin機能タブの制御（ルール設定、NGワード、ユーザー管理）
     const settingsLink = document.querySelector('[data-screen="settings-screen"]');
     const ngwordsLink = document.querySelector('[data-screen="ngwords-screen"]');
+    const managementLink = document.querySelector('[data-screen="management-screen"]');
     
-    if (role === 'admin') {
-        // admin: すべて表示
-        if (settingsLink) settingsLink.style.display = 'inline-block';
-        if (ngwordsLink) ngwordsLink.style.display = 'inline-block';
+    if (role === 'user') {
+        // user権限: admin機能タブを無効化（disabled クラスを追加）
+        if (settingsLink) {
+            settingsLink.classList.add('disabled');
+            settingsLink.style.display = null; // インラインスタイルをクリア
+        }
+        if (ngwordsLink) {
+            ngwordsLink.classList.add('disabled');
+            ngwordsLink.style.display = null; // インラインスタイルをクリア
+        }
+        if (managementLink) {
+            managementLink.classList.add('disabled');
+            managementLink.style.display = null; // インラインスタイルをクリア
+        }
     } else {
-        // user: 設定系を非表示
-        if (settingsLink) settingsLink.style.display = 'none';
-        if (ngwordsLink) ngwordsLink.style.display = 'none';
+        // admin権限: すべてのリンクを有効化
+        if (settingsLink) {
+            settingsLink.classList.remove('disabled');
+            settingsLink.style.display = null; // インラインスタイルをクリア
+        }
+        if (ngwordsLink) {
+            ngwordsLink.classList.remove('disabled');
+            ngwordsLink.style.display = null; // インラインスタイルをクリア
+        }
+        if (managementLink) {
+            managementLink.classList.remove('disabled');
+            managementLink.style.display = null; // インラインスタイルをクリア
+        }
     }
 }
 

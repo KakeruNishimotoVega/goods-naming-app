@@ -23,6 +23,17 @@ body {
     overflow-x: hidden;
 }
 
+/* サイドバー表示時のメインコンテンツレイアウト */
+#app.with-sidebar {
+    margin-left: 220px;
+    margin-right: 0;
+    padding: 2rem;
+}
+
+#app.with-sidebar .page-container {
+    margin-top: 0;
+}
+
 /* スクロールバーのカスタマイズ */
 ::-webkit-scrollbar {
     width: 8px;
