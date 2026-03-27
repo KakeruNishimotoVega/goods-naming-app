@@ -324,6 +324,11 @@ function handleLogout() {
         .withSuccessHandler(() => {
             console.log('ログアウト成功');
             
+            // アプリケーション全体の状態をリセット
+            if (typeof resetAppState === 'function') {
+                resetAppState();
+            }
+            
             // ログイン画面へ遷移
             showScreen('login-screen');
             

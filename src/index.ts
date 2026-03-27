@@ -78,6 +78,7 @@ import { generateNames, generateNamesMinimal } from './api/naming';
 import { 
   loginWithPassword,
   getCurrentUser, 
+  getUserRole,
   createSession, 
   logout, 
   hasRole 
@@ -135,6 +136,7 @@ import {
 // 認証API関数をグローバルに公開
 (global as any).loginWithPassword = loginWithPassword;
 (global as any).getCurrentUser = getCurrentUser;
+(global as any).getUserRole = getUserRole;
 (global as any).createSession = createSession;
 (global as any).logout = logout;
 (global as any).hasRole = hasRole;

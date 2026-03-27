@@ -1055,6 +1055,15 @@ var global = this;
     cache.remove("user_session");
     Logger.log("[logout] \u30BB\u30C3\u30B7\u30E7\u30F3\u3092\u524A\u9664\u3057\u307E\u3057\u305F");
   }
+  function getUserRole() {
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      Logger.log("[getUserRole] \u672A\u30ED\u30B0\u30A4\u30F3\uFF1Anull\u3092\u8FD4\u3057\u307E\u3059");
+      return null;
+    }
+    Logger.log(`[getUserRole] \u73FE\u5728\u306E\u30E6\u30FC\u30B6\u30FC: role=${currentUser.role}, email=${currentUser.email}`);
+    return currentUser.role;
+  }
   function hasRole(requiredRole) {
     Logger.log(`[hasRole] \u30C1\u30A7\u30C3\u30AF\u4E2D... requiredRole=${requiredRole}`);
     const currentUser = getCurrentUser();
@@ -1538,6 +1547,7 @@ var global = this;
   global.generateNamesMinimal = generateNamesMinimal;
   global.loginWithPassword = loginWithPassword;
   global.getCurrentUser = getCurrentUser;
+  global.getUserRole = getUserRole;
   global.createSession = createSession;
   global.logout = logout;
   global.hasRole = hasRole;
@@ -1579,6 +1589,7 @@ function generateNames() { return global.generateNames.apply(this, arguments); }
 function generateNamesMinimal() { return global.generateNamesMinimal.apply(this, arguments); }
 function loginWithPassword() { return global.loginWithPassword.apply(this, arguments); }
 function getCurrentUser() { return global.getCurrentUser.apply(this, arguments); }
+function getUserRole() { return global.getUserRole.apply(this, arguments); }
 function createSession() { return global.createSession.apply(this, arguments); }
 function logout() { return global.logout.apply(this, arguments); }
 function hasRole() { return global.hasRole.apply(this, arguments); }

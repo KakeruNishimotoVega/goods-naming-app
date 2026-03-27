@@ -30,6 +30,10 @@ function checkLoginAndShowInitialScreen() {
                 // ログイン済み：ユーザー情報を表示して命名画面へ
                 console.log('[checkLoginAndShowInitialScreen] ログイン済み - 命名画面へ');
                 updateUserDisplay();
+                
+                // 権限に基づいてタブを制御
+                applyRoleBasedTabRestrictions();
+                
                 showScreen('naming-screen');
                 initNamingScreen();
             } else {
@@ -54,6 +58,38 @@ function checkLoginAndShowInitialScreen() {
 }
 
 /**
+ * ユーザーのロールに基づいてタブの表示制御を適用
+ */
+function applyRoleBasedTabRestrictions() {
+    console.log('[applyRoleBasedTabRestrictions] 権限チェック中...');
+    
+    google.script.run
+        .withSuccessHandler((role) => {
+            console.log('[applyRoleBasedTabRestrictions] ユーザーロール:', role);
+            
+            if (role === 'user') {
+                // 一般ユーザーの場合、設定とNGワードタブを無効化
+                const settingsTab = document.querySelector('.nav-link[data-screen="settings-screen"]');
+                const ngwordsTab = document.querySelector('.nav-link[data-screen="ngwords-screen"]');
+                
+                if (settingsTab) {
+                    settingsTab.classList.add('disabled');
+                    console.log('[applyRoleBasedTabRestrictions] 設定タブを無効化しました');
+                }
+                
+                if (ngwordsTab) {
+                    ngwordsTab.classList.add('disabled');
+                    console.log('[applyRoleBasedTabRestrictions] NGワードタブを無効化しました');
+                }
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('[applyRoleBasedTabRestrictions] 権限チェックエラー:', error);
+        })
+        .getUserRole();
+}
+
+/**
  * 画面切り替えのセットアップ
  */
 function setupScreenNavigation() {
@@ -62,6 +98,12 @@ function setupScreenNavigation() {
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
+
+            // 無効化されているタブはクリック不可
+            if (link.classList.contains('disabled')) {
+                console.log('[setupScreenNavigation] 無効化されたタブがクリックされました');
+                return;
+            }
 
             // アクティブ状態を更新
             navLinks.forEach(l => l.classList.remove('active'));
@@ -100,6 +142,16 @@ function showScreen(screenId) {
         targetScreen.style.display = 'block';
     }
 
+    // ナビゲーションの表示制御（ログイン・サインアップ画面では非表示）
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        if (screenId === 'login-screen' || screenId === 'signup-screen') {
+            navbar.style.display = 'none';
+        } else {
+            navbar.style.display = 'flex';
+        }
+    }
+
     // 画面に応じた初期化処理を実行
     if (screenId === 'login-screen' && typeof initLoginScreen === 'function') {
         initLoginScreen();
@@ -112,6 +164,109 @@ function showScreen(screenId) {
     } else if (screenId === 'ngwords-screen' && typeof initNgWordsScreen === 'function') {
         initNgWordsScreen();
     }
+}
+
+/**
+ * アプリケーション全体の状態をリセット（ログアウト時に呼び出し）
+ */
+function resetAppState() {
+    console.log('[resetAppState] アプリケーション状態をリセット中...');
+    
+    // ====== 命名画面のリセット ======
+    // グローバル変数をリセット
+    if (typeof allCategories !== 'undefined') {
+        window.allCategories = [];
+    }
+    if (typeof allParentCategories !== 'undefined') {
+        window.allParentCategories = [];
+    }
+    if (typeof selectedParentId !== 'undefined') {
+        window.selectedParentId = null;
+    }
+    if (typeof selectedCategoryId !== 'undefined') {
+        window.selectedCategoryId = null;
+    }
+    if (typeof currentSchema !== 'undefined') {
+        window.currentSchema = null;
+    }
+    if (typeof isNamingScreenInitialized !== 'undefined') {
+        window.isNamingScreenInitialized = false;
+    }
+    
+    // 命名画面のDOM状態をリセット
+    const namingScreen = document.getElementById('naming-screen');
+    if (namingScreen) {
+        const parentCategoryList = document.getElementById('parent-category-list');
+        const categoryToggleSection = document.getElementById('category-toggle-section');
+        const dynamicForm = document.getElementById('dynamic-form');
+        const resultContainer = document.getElementById('naming-result');
+        
+        if (parentCategoryList) parentCategoryList.innerHTML = '';
+        if (categoryToggleSection) categoryToggleSection.style.display = 'none';
+        if (dynamicForm) dynamicForm.innerHTML = '';
+        if (resultContainer) resultContainer.style.display = 'none';
+    }
+    
+    // ====== 設定画面のリセット ======
+    // グローバル変数をリセット
+    if (typeof settingsAllCategories !== 'undefined') {
+        window.settingsAllCategories = [];
+    }
+    if (typeof settingsAllParentCategories !== 'undefined') {
+        window.settingsAllParentCategories = [];
+    }
+    if (typeof settingsSelectedParentId !== 'undefined') {
+        window.settingsSelectedParentId = null;
+    }
+    if (typeof settingsSelectedCategoryId !== 'undefined') {
+        window.settingsSelectedCategoryId = null;
+    }
+    if (typeof isSettingsScreenInitialized !== 'undefined') {
+        window.isSettingsScreenInitialized = false;
+    }
+    
+    // 設定画面のDOM状態をリセット
+    const settingsScreen = document.getElementById('settings-screen');
+    if (settingsScreen) {
+        const containerList = document.querySelectorAll('#settings-screen [id$="-list"]');
+        containerList.forEach(container => container.innerHTML = '');
+    }
+    
+    // ====== NGワード画面のリセット ======
+    if (typeof isNgWordsScreenInitialized !== 'undefined') {
+        window.isNgWordsScreenInitialized = false;
+    }
+    
+    const ngwordsScreen = document.getElementById('ngwords-screen');
+    if (ngwordsScreen) {
+        const ngwordsList = document.getElementById('ngwords-list');
+        const ngwordsTbody = document.getElementById('ngwords-tbody');
+        
+        if (ngwordsList) ngwordsList.innerHTML = '';
+        if (ngwordsTbody) ngwordsTbody.innerHTML = '';
+    }
+    
+    // ====== フォーム入力値のクリア ======
+    // 全てのinput, textarea, selectをリセット
+    const allForms = document.querySelectorAll('form');
+    allForms.forEach(form => {
+        form.reset();
+    });
+    
+    // ====== ナビゲーション状態をリセット ======
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        link.classList.remove('disabled');
+    });
+    
+    // 命名タブをアクティブにする
+    const namingLink = document.querySelector('.nav-link[data-screen="naming-screen"]');
+    if (namingLink) {
+        namingLink.classList.add('active');
+    }
+    
+    console.log('[resetAppState] アプリケーション状態のリセットが完了しました');
 }
 
 /**

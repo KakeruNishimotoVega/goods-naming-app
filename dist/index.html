@@ -442,6 +442,7 @@ input:disabled {
     right: 0;
     width: 100%;
     z-index: 1000;
+    display: none;
 }
 
 .navbar .container {
@@ -451,6 +452,7 @@ input:disabled {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 4rem;
 }
 
 .navbar-brand {
@@ -472,19 +474,35 @@ input:disabled {
     text-decoration: none;
     color: var(--text-muted);
     font-weight: 500;
-    transition: color 0.2s;
-    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+    padding: 0.6rem 1.25rem;
     border-radius: var(--border-radius-md);
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
-.nav-link:hover {
+.nav-link:hover:not(.disabled) {
     color: var(--text-main);
     background-color: #f1f5f9;
+    border-color: #e2e8f0;
 }
 
 .nav-link.active {
     color: var(--primary-color);
-    background-color: rgba(43, 139, 132, 0.1);
+    background-color: rgba(43, 139, 132, 0.15);
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.nav-link.disabled {
+    color: #cbd5e1;
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
 }
 
 /* コンテナ */
@@ -496,6 +514,10 @@ input:disabled {
 
 .page-container {
     margin-top: 70px;
+    width: 900px;
+    max-width: calc(100% - 4rem);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .mt-4 {
@@ -612,13 +634,66 @@ button:disabled {
 }
 
 .local-loader {
-    min-height: 200px;
+    min-height: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: var(--text-muted);
     gap: 0.75rem;
+    width: 100%;
+    margin: 0;
+    padding: 1rem 0;
+    box-sizing: border-box;
+}
+
+.local-loader .spinner {
+    margin: 0;
+}
+
+/* ログイン画面のスタイル */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background-color: var(--background-color);
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: auto;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.login-footer {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    width: 100%;
 }
 
 .spinner {
@@ -1650,19 +1725,7 @@ button[title="Google検索"]:hover:not(:disabled) {
     font-size: 0.9rem;
 }
 
-/* ローディングスピナー */
-.spinner {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto;
-    border: 4px solid #f3f4f6;
-    border-top: 4px solid var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
+/* ローディングスピナー - 194-269行の詳細な定義を使用 */
     100% { transform: rotate(360deg); }
 }
 
@@ -1922,7 +1985,7 @@ button[title="Google検索"]:hover:not(:disabled) {
             </div>
 
             <!-- ローディング表示 -->
-            <div id="login-loading" style="display: none; text-align: center; margin-top: 1rem;">
+            <div id="login-loading" class="local-loader" style="display: none;">
                 <div class="spinner"></div>
                 <p class="helper-text" style="margin-top: 0.5rem;">ログイン処理中...</p>
             </div>
@@ -2051,7 +2114,7 @@ button[title="Google検索"]:hover:not(:disabled) {
 <div id="naming-screen" class="screen">
     <div class="page-container">
         <div class="page-header">
-            <h1>商品命名</h1>
+            <h1>商品のキャッチコピー・商品名を作成する</h1>
             <p class="helper-text">カテゴリを選択して、フォームに入力してください。リアルタイムで商品名が生成されます。</p>
         </div>
 
@@ -2308,13 +2371,13 @@ button[title="Google検索"]:hover:not(:disabled) {
 <div id="ngwords-screen" class="screen" style="display: none;">
     <div class="page-container">
         <div class="page-header">
-            <div class="d-flex justify-between align-center">
-                <div>
-                    <h1>NGワード管理</h1>
-                    <p class="helper-text">商品名に含めてはいけないワードを管理します。</p>
-                </div>
-                <button id="add-ngword-btn" class="btn primary">+ NGワード追加</button>
+            <div>
+                <h1>NGワード管理</h1>
+                <p class="helper-text">商品名に含めてはいけないワードを管理します。</p>
             </div>
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+            <button id="add-ngword-btn" class="btn primary">+ NGワード追加</button>
         </div>
 
         <!-- NGワード一覧 -->
@@ -2422,6 +2485,12 @@ function toggleElement(element) {
 function showLoading(containerId) {
     const container = document.getElementById(containerId);
     if (container) {
+        // 既存のスピナーを削除（重複表示を防止）
+        const existingLoader = container.querySelector('.local-loader');
+        if (existingLoader) {
+            existingLoader.remove();
+        }
+        
         container.innerHTML = `
             <div class="local-loader">
                 <div class="spinner"></div>
@@ -2778,6 +2847,10 @@ function checkLoginAndShowInitialScreen() {
                 // ログイン済み：ユーザー情報を表示して命名画面へ
                 console.log('[checkLoginAndShowInitialScreen] ログイン済み - 命名画面へ');
                 updateUserDisplay();
+                
+                // 権限に基づいてタブを制御
+                applyRoleBasedTabRestrictions();
+                
                 showScreen('naming-screen');
                 initNamingScreen();
             } else {
@@ -2802,6 +2875,38 @@ function checkLoginAndShowInitialScreen() {
 }
 
 /**
+ * ユーザーのロールに基づいてタブの表示制御を適用
+ */
+function applyRoleBasedTabRestrictions() {
+    console.log('[applyRoleBasedTabRestrictions] 権限チェック中...');
+    
+    google.script.run
+        .withSuccessHandler((role) => {
+            console.log('[applyRoleBasedTabRestrictions] ユーザーロール:', role);
+            
+            if (role === 'user') {
+                // 一般ユーザーの場合、設定とNGワードタブを無効化
+                const settingsTab = document.querySelector('.nav-link[data-screen="settings-screen"]');
+                const ngwordsTab = document.querySelector('.nav-link[data-screen="ngwords-screen"]');
+                
+                if (settingsTab) {
+                    settingsTab.classList.add('disabled');
+                    console.log('[applyRoleBasedTabRestrictions] 設定タブを無効化しました');
+                }
+                
+                if (ngwordsTab) {
+                    ngwordsTab.classList.add('disabled');
+                    console.log('[applyRoleBasedTabRestrictions] NGワードタブを無効化しました');
+                }
+            }
+        })
+        .withFailureHandler((error) => {
+            console.error('[applyRoleBasedTabRestrictions] 権限チェックエラー:', error);
+        })
+        .getUserRole();
+}
+
+/**
  * 画面切り替えのセットアップ
  */
 function setupScreenNavigation() {
@@ -2810,6 +2915,12 @@ function setupScreenNavigation() {
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
             e.preventDefault();
+
+            // 無効化されているタブはクリック不可
+            if (link.classList.contains('disabled')) {
+                console.log('[setupScreenNavigation] 無効化されたタブがクリックされました');
+                return;
+            }
 
             // アクティブ状態を更新
             navLinks.forEach(l => l.classList.remove('active'));
@@ -2848,6 +2959,16 @@ function showScreen(screenId) {
         targetScreen.style.display = 'block';
     }
 
+    // ナビゲーションの表示制御（ログイン・サインアップ画面では非表示）
+    const navbar = document.querySelector('.navbar');
+    if (navbar) {
+        if (screenId === 'login-screen' || screenId === 'signup-screen') {
+            navbar.style.display = 'none';
+        } else {
+            navbar.style.display = 'flex';
+        }
+    }
+
     // 画面に応じた初期化処理を実行
     if (screenId === 'login-screen' && typeof initLoginScreen === 'function') {
         initLoginScreen();
@@ -2860,6 +2981,109 @@ function showScreen(screenId) {
     } else if (screenId === 'ngwords-screen' && typeof initNgWordsScreen === 'function') {
         initNgWordsScreen();
     }
+}
+
+/**
+ * アプリケーション全体の状態をリセット（ログアウト時に呼び出し）
+ */
+function resetAppState() {
+    console.log('[resetAppState] アプリケーション状態をリセット中...');
+    
+    // ====== 命名画面のリセット ======
+    // グローバル変数をリセット
+    if (typeof allCategories !== 'undefined') {
+        window.allCategories = [];
+    }
+    if (typeof allParentCategories !== 'undefined') {
+        window.allParentCategories = [];
+    }
+    if (typeof selectedParentId !== 'undefined') {
+        window.selectedParentId = null;
+    }
+    if (typeof selectedCategoryId !== 'undefined') {
+        window.selectedCategoryId = null;
+    }
+    if (typeof currentSchema !== 'undefined') {
+        window.currentSchema = null;
+    }
+    if (typeof isNamingScreenInitialized !== 'undefined') {
+        window.isNamingScreenInitialized = false;
+    }
+    
+    // 命名画面のDOM状態をリセット
+    const namingScreen = document.getElementById('naming-screen');
+    if (namingScreen) {
+        const parentCategoryList = document.getElementById('parent-category-list');
+        const categoryToggleSection = document.getElementById('category-toggle-section');
+        const dynamicForm = document.getElementById('dynamic-form');
+        const resultContainer = document.getElementById('naming-result');
+        
+        if (parentCategoryList) parentCategoryList.innerHTML = '';
+        if (categoryToggleSection) categoryToggleSection.style.display = 'none';
+        if (dynamicForm) dynamicForm.innerHTML = '';
+        if (resultContainer) resultContainer.style.display = 'none';
+    }
+    
+    // ====== 設定画面のリセット ======
+    // グローバル変数をリセット
+    if (typeof settingsAllCategories !== 'undefined') {
+        window.settingsAllCategories = [];
+    }
+    if (typeof settingsAllParentCategories !== 'undefined') {
+        window.settingsAllParentCategories = [];
+    }
+    if (typeof settingsSelectedParentId !== 'undefined') {
+        window.settingsSelectedParentId = null;
+    }
+    if (typeof settingsSelectedCategoryId !== 'undefined') {
+        window.settingsSelectedCategoryId = null;
+    }
+    if (typeof isSettingsScreenInitialized !== 'undefined') {
+        window.isSettingsScreenInitialized = false;
+    }
+    
+    // 設定画面のDOM状態をリセット
+    const settingsScreen = document.getElementById('settings-screen');
+    if (settingsScreen) {
+        const containerList = document.querySelectorAll('#settings-screen [id$="-list"]');
+        containerList.forEach(container => container.innerHTML = '');
+    }
+    
+    // ====== NGワード画面のリセット ======
+    if (typeof isNgWordsScreenInitialized !== 'undefined') {
+        window.isNgWordsScreenInitialized = false;
+    }
+    
+    const ngwordsScreen = document.getElementById('ngwords-screen');
+    if (ngwordsScreen) {
+        const ngwordsList = document.getElementById('ngwords-list');
+        const ngwordsTbody = document.getElementById('ngwords-tbody');
+        
+        if (ngwordsList) ngwordsList.innerHTML = '';
+        if (ngwordsTbody) ngwordsTbody.innerHTML = '';
+    }
+    
+    // ====== フォーム入力値のクリア ======
+    // 全てのinput, textarea, selectをリセット
+    const allForms = document.querySelectorAll('form');
+    allForms.forEach(form => {
+        form.reset();
+    });
+    
+    // ====== ナビゲーション状態をリセット ======
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.classList.remove('active');
+        link.classList.remove('disabled');
+    });
+    
+    // 命名タブをアクティブにする
+    const namingLink = document.querySelector('.nav-link[data-screen="naming-screen"]');
+    if (namingLink) {
+        namingLink.classList.add('active');
+    }
+    
+    console.log('[resetAppState] アプリケーション状態のリセットが完了しました');
 }
 
 /**
@@ -3282,6 +3506,11 @@ function handleLogout() {
     google.script.run
         .withSuccessHandler(() => {
             console.log('ログアウト成功');
+            
+            // アプリケーション全体の状態をリセット
+            if (typeof resetAppState === 'function') {
+                resetAppState();
+            }
             
             // ログイン画面へ遷移
             showScreen('login-screen');

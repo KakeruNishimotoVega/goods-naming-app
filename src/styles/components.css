@@ -12,6 +12,7 @@
     right: 0;
     width: 100%;
     z-index: 1000;
+    display: none;
 }
 
 .navbar .container {
@@ -21,6 +22,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 4rem;
 }
 
 .navbar-brand {
@@ -42,19 +44,35 @@
     text-decoration: none;
     color: var(--text-muted);
     font-weight: 500;
-    transition: color 0.2s;
-    padding: 0.5rem 1rem;
+    transition: all 0.2s;
+    padding: 0.6rem 1.25rem;
     border-radius: var(--border-radius-md);
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    height: 40px;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
-.nav-link:hover {
+.nav-link:hover:not(.disabled) {
     color: var(--text-main);
     background-color: #f1f5f9;
+    border-color: #e2e8f0;
 }
 
 .nav-link.active {
     color: var(--primary-color);
-    background-color: rgba(43, 139, 132, 0.1);
+    background-color: rgba(43, 139, 132, 0.15);
+    border-color: var(--primary-color);
+    font-weight: 600;
+}
+
+.nav-link.disabled {
+    color: #cbd5e1;
+    cursor: not-allowed;
+    opacity: 0.6;
+    pointer-events: none;
 }
 
 /* コンテナ */
@@ -66,6 +84,10 @@
 
 .page-container {
     margin-top: 70px;
+    width: 900px;
+    max-width: calc(100% - 4rem);
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .mt-4 {
@@ -182,13 +204,66 @@ button:disabled {
 }
 
 .local-loader {
-    min-height: 200px;
+    min-height: 100px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: var(--text-muted);
     gap: 0.75rem;
+    width: 100%;
+    margin: 0;
+    padding: 1rem 0;
+    box-sizing: border-box;
+}
+
+.local-loader .spinner {
+    margin: 0;
+}
+
+/* ログイン画面のスタイル */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    background-color: var(--background-color);
+    width: 100vw;
+    height: 100vh;
+    max-width: 100%;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    left: 0;
+    overflow: auto;
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.login-header h1 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.75rem;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.login-footer {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    width: 100%;
 }
 
 .spinner {
@@ -1220,19 +1295,7 @@ button[title="Google検索"]:hover:not(:disabled) {
     font-size: 0.9rem;
 }
 
-/* ローディングスピナー */
-.spinner {
-    width: 40px;
-    height: 40px;
-    margin: 0 auto;
-    border: 4px solid #f3f4f6;
-    border-top: 4px solid var(--primary-color);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
+/* ローディングスピナー - 194-269行の詳細な定義を使用 */
     100% { transform: rotate(360deg); }
 }
 

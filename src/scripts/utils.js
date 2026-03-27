@@ -34,6 +34,12 @@ function toggleElement(element) {
 function showLoading(containerId) {
     const container = document.getElementById(containerId);
     if (container) {
+        // 既存のスピナーを削除（重複表示を防止）
+        const existingLoader = container.querySelector('.local-loader');
+        if (existingLoader) {
+            existingLoader.remove();
+        }
+        
         container.innerHTML = `
             <div class="local-loader">
                 <div class="spinner"></div>

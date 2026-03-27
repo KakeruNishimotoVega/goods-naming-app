@@ -146,6 +146,22 @@ export function logout(): void {
 }
 
 /**
+ * 【API】現在のユーザーのロールを取得
+ * @returns ロール（'admin' | 'user'）またはnull（未ログイン時）
+ */
+export function getUserRole(): 'admin' | 'user' | null {
+  const currentUser = getCurrentUser();
+  
+  if (!currentUser) {
+    Logger.log('[getUserRole] 未ログイン：nullを返します');
+    return null;
+  }
+  
+  Logger.log(`[getUserRole] 現在のユーザー: role=${currentUser.role}, email=${currentUser.email}`);
+  return currentUser.role;
+}
+
+/**
  * 【API】現在のユーザーが指定されたロールを持っているかチェック
  * @param requiredRole 必要なロール（'admin' または 'user'）
  * @returns true: 権限あり, false: 権限なし
