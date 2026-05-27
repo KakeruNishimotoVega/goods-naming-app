@@ -4979,6 +4979,18 @@ function displayResult(result) {
     }
     html += '</div>';
 
+    // TDKタイトル
+    html += '<div class="result-item">';
+    html += '<h4>TDKタイトル</h4>';
+    html += `<div class="result-text${isDisabled ? ' disabled' : ''}">${escapeHtml(result.tdkTitle || '未生成')}</div>`;
+    html += '<div class="result-meta">';
+
+    const tdkTitleLength = result.characterCounts?.tdkTitle || 0;
+    html += `<span class="char-count">文字数: ${tdkTitleLength}文字</span>`;
+    html += `<button id="copy-tdk-title-btn" class="btn secondary btn-sm copy-btn"${isDisabled ? ' disabled' : ''} ${isDisabled ? 'title="NGワード検出または必須項目が未入力です"' : ''}>コピー</button>`;
+    html += '</div>';
+    html += '</div>';
+
     // リセットボタン
     html += '<div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">';
     html += '<button id="reset-from-result-btn" class="btn secondary w-100">入力内容をリセット</button>';
@@ -4996,6 +5008,12 @@ function displayResult(result) {
     document.getElementById('copy-product-name-btn')?.addEventListener('click', () => {
         if (!isDisabled) {
             copyToClipboard(result.productName || '');
+        }
+    });
+
+    document.getElementById('copy-tdk-title-btn')?.addEventListener('click', () => {
+        if (!isDisabled) {
+            copyToClipboard(result.tdkTitle || '');
         }
     });
 

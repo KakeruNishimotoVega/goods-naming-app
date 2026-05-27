@@ -56,35 +56,79 @@ export function generateNames(formData: any) {
     });
   }
 
-  // 3. 各regulationのpattern_stringを置換
+  // 3. 各regulationのpattern_stringを置換（2段階生成）
   let productPageName = '';
   let productName = '';
+  let tdkTitle = '';
 
-  regulations.forEach((regulation: any) => {
-    let result = regulation.pattern_string;
+  // 第1段階：通常ターゲット（キャッチコピー、商品名）を生成
+  const normalTargets = ['キャッチコピー', '商品名'];
+  const specialTargets = ['TDKタイトル'];
 
-    // プレースホルダー {key_name} を実際の値に置換
-    Object.keys(replacementData).forEach(key => {
-      const placeholder = `{${key}}`;
-      const value = replacementData[key] || '';
-      // グローバル置換を実行
-      result = result.split(placeholder).join(value);
+  regulations
+    .filter((reg: any) => normalTargets.includes(reg.target))
+    .forEach((regulation: any) => {
+      let result = regulation.pattern_string;
+
+      // プレースホルダー {key_name} を実際の値に置換
+      Object.keys(replacementData).forEach(key => {
+        const placeholder = `{${key}}`;
+        const value = replacementData[key] || '';
+        // グローバル置換を実行
+        result = result.split(placeholder).join(value);
+      });
+
+      // 未置換のプレースホルダー（値が入力されていない項目）を削除
+      // パターン: {任意の文字列} を空文字列に置換
+      result = result.replace(/\{[^}]+\}/g, '');
+
+      // 連続するスペースを1つにまとめ、前後の空白を削除
+      result = result.replace(/\s+/g, ' ').trim();
+
+      // targetに応じて結果を振り分け
+      if (regulation.target === 'キャッチコピー') {
+        productPageName = result;
+      } else if (regulation.target === '商品名') {
+        productName = result;
+      }
     });
 
-    // 未置換のプレースホルダー（値が入力されていない項目）を削除
-    // パターン: {任意の文字列} を空文字列に置換
-    result = result.replace(/\{[^}]+\}/g, '');
+  // 第2段階：生成結果参照ターゲット（TDKタイトル）を生成
+  const generatedResults: Record<string, string> = {
+    '商品名': productName,
+    'キャッチコピー': productPageName
+  };
 
-    // 連続するスペースを1つにまとめ、前後の空白を削除
-    result = result.replace(/\s+/g, ' ').trim();
+  regulations
+    .filter((reg: any) => specialTargets.includes(reg.target))
+    .forEach((regulation: any) => {
+      let result = regulation.pattern_string;
 
-    // targetに応じて結果を振り分け
-    if (regulation.target === 'キャッチコピー') {
-      productPageName = result;
-    } else if (regulation.target === '商品名') {
-      productName = result;
-    }
-  });
+      // 生成結果のプレースホルダーを置換
+      Object.keys(generatedResults).forEach(key => {
+        const placeholder = `{${key}}`;
+        const value = generatedResults[key] || '';
+        result = result.split(placeholder).join(value);
+      });
+
+      // 元のreplacementDataも置換（nicknameなど）
+      Object.keys(replacementData).forEach(key => {
+        const placeholder = `{${key}}`;
+        const value = replacementData[key] || '';
+        result = result.split(placeholder).join(value);
+      });
+
+      // 未置換のプレースホルダーを削除
+      result = result.replace(/\{[^}]+\}/g, '');
+
+      // 連続するスペースを1つにまとめ、前後の空白を削除
+      result = result.replace(/\s+/g, ' ').trim();
+
+      // targetに応じて結果を振り分け
+      if (regulation.target === 'TDKタイトル') {
+        tdkTitle = result;
+      }
+    });
 
   // 4. NGワードをチェック
   const ngWordsEndpoint = `${supabaseUrl}/rest/v1/prohibited_words?select=*`;
@@ -132,10 +176,12 @@ export function generateNames(formData: any) {
   return {
     productPageName: productPageName,
     productName: productName,
+    tdkTitle: tdkTitle,
     prohibitedWordsFound: prohibitedWordsFound,
     characterCounts: {
       productPageName: productPageName.length,
-      productName: productName.length
+      productName: productName.length,
+      tdkTitle: tdkTitle.length
     }
   };
 }

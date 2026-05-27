@@ -859,7 +859,10 @@ var global = this;
     }
     let productPageName = "";
     let productName = "";
-    regulations.forEach((regulation) => {
+    let tdkTitle = "";
+    const normalTargets = ["\u30AD\u30E3\u30C3\u30C1\u30B3\u30D4\u30FC", "\u5546\u54C1\u540D"];
+    const specialTargets = ["TDK\u30BF\u30A4\u30C8\u30EB"];
+    regulations.filter((reg) => normalTargets.includes(reg.target)).forEach((regulation) => {
       let result = regulation.pattern_string;
       Object.keys(replacementData).forEach((key) => {
         const placeholder = `{${key}}`;
@@ -872,6 +875,28 @@ var global = this;
         productPageName = result;
       } else if (regulation.target === "\u5546\u54C1\u540D") {
         productName = result;
+      }
+    });
+    const generatedResults = {
+      "\u5546\u54C1\u540D": productName,
+      "\u30AD\u30E3\u30C3\u30C1\u30B3\u30D4\u30FC": productPageName
+    };
+    regulations.filter((reg) => specialTargets.includes(reg.target)).forEach((regulation) => {
+      let result = regulation.pattern_string;
+      Object.keys(generatedResults).forEach((key) => {
+        const placeholder = `{${key}}`;
+        const value = generatedResults[key] || "";
+        result = result.split(placeholder).join(value);
+      });
+      Object.keys(replacementData).forEach((key) => {
+        const placeholder = `{${key}}`;
+        const value = replacementData[key] || "";
+        result = result.split(placeholder).join(value);
+      });
+      result = result.replace(/\{[^}]+\}/g, "");
+      result = result.replace(/\s+/g, " ").trim();
+      if (regulation.target === "TDK\u30BF\u30A4\u30C8\u30EB") {
+        tdkTitle = result;
       }
     });
     const ngWordsEndpoint = `${supabaseUrl}/rest/v1/prohibited_words?select=*`;
@@ -907,10 +932,12 @@ var global = this;
     return {
       productPageName,
       productName,
+      tdkTitle,
       prohibitedWordsFound,
       characterCounts: {
         productPageName: productPageName.length,
-        productName: productName.length
+        productName: productName.length,
+        tdkTitle: tdkTitle.length
       }
     };
   }
